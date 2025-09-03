@@ -7,7 +7,7 @@ import plotly.express as px
 from numpy.typing import NDArray
 from sklearn.cluster import DBSCAN
 
-import wandb  # isort: skip
+import wandb
 
 
 def _plot_2d_scatter(

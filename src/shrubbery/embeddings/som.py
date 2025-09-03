@@ -10,10 +10,9 @@ from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
+import wandb
 from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.observability import logger
-
-import wandb  # isort: skip
 
 
 class SOM(BaseEstimator, TransformerMixin):
