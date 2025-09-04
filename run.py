@@ -29,13 +29,18 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         default=False,
     )
+    parser.add_argument(
+        '--headless',
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
     parser.add_argument('command', nargs=argparse.REMAINDER)
     arguments = parser.parse_args()
     command = [
         'docker',
         'run',
         '--rm',
-        '-it',
+        f'-i{"" if arguments.headless else "t"}',
         '-v',
         f'{os.getcwd()}:/w',
         '-w',
