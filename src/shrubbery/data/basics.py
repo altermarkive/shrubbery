@@ -4,10 +4,10 @@
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import wandb
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 
-import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_VALIDATION,
     COLUMN_INDEX_DATA_TYPE,

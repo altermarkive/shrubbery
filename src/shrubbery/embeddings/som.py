@@ -5,12 +5,12 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+import wandb
 from minisom import MiniSom
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
-import wandb
 from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.observability import logger
 

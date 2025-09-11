@@ -10,12 +10,12 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 import pandas as pd
 import requests
+import wandb
 from keras import Model
 from keras.saving import load_model as load_keras_model
 from keras.saving import save_model as save_keras_model
 from numpy.typing import NDArray
 
-import wandb
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.observability import logger
 from shrubbery.workspace import get_workspace_path

@@ -7,8 +7,8 @@ from typing import Optional
 
 import pandas as pd
 import requests
-
 import wandb
+
 from shrubbery.constants import (
     COLUMN_MMC,
     COLUMN_ROUND_NUMBER,
