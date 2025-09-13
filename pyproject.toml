@@ -17,7 +17,7 @@ dependencies = [
     "lightgbm>=4.6.0",
     "matplotlib>=3.10.5",
     "minisom>=2.3.5",
-    "myfm==0.3.2.0",
+    "myfm==0.4.0",
     "numerapi>=2.20.7",
     "opentsne>=1.0.2",
     "plotly>=6.2.0",
