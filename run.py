@@ -133,13 +133,13 @@ spec:
                     resources:
                         limits:
                             nvidia.com/gpu: 1
-                    command: {command}
+                    args: {arguments}
             restartPolicy: Never
             volumes:
                 -
                     name: shrubbery-configs
                     hostPath:
-                        path: {config_path}
+                        path: /shared/numerai
 """
 
 
@@ -174,17 +174,18 @@ def configure_secrets() -> None:
 
 
 def enqueue_workload(arguments: argparse.Namespace) -> None:
-    with Path('workload.yaml').open('w') as handle:
-        handle.write(
-            SPEC_WORKLOAD.format(
-                workload_id=int(time.time()),
-                queue_name=arguments.queue,
-                workload_priority=arguments.priority,
-                container_image='shrubbery' if arguments.local else 'ghcr.io/altermarkive/shrubbery:latest',
-                command=str(arguments.command[1:]),
-                config_path=os.getcwd(),
-            )
-        )
+    spec_workload = SPEC_WORKLOAD.format(
+        workload_id=int(time.time()),
+        queue_name=arguments.queue,
+        workload_priority=arguments.priority,
+        container_image='shrubbery' if arguments.local else 'ghcr.io/altermarkive/shrubbery:latest',
+        arguments=str(arguments.command[1:]),
+    )
+    with tempfile.NamedTemporaryFile(delete=False, mode='w') as spec_workload_handle:
+        spec_workload_handle.write(spec_workload)
+        spec_secrets_path = Path(spec_workload_handle.name)
+    os.system(f'kubectl create -f {spec_secrets_path}')
+    spec_secrets_path.unlink()
 
 
 def run_docker(arguments: argparse.Namespace) -> None:
