@@ -92,7 +92,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
     command = ' '.join(command)
     if arguments.priority is not None:
         priority = arguments.priority
-        command = f'sbatch --wrap="{command}" --priority={priority} --nodes=1 --output=/tmp/slurm-%j.out'
+        command = f'sbatch --wrap="{command}" --priority={priority} --nodes=1 --output=/tmp/slurm-%j.out --error=/tmp/slurm-%j.err'
     print(command)
     os.system(command)
 
