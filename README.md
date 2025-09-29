@@ -11,3 +11,5 @@ To run the code create `.env` script which sets the necessary environment variab
 - `WANDB_ENTITY` & `WANDB_PROJECT` - the identifiers of Weights & Biases entity & project to upload plots and tables to
 
 Once that is ready run the code by using the `run.sh` script.
+
+[![shrubbery](http://img.youtube.com/vi/93C9VbA6h1U/0.jpg)](http://www.youtube.com/watch?v=93C9VbA6h1U)
