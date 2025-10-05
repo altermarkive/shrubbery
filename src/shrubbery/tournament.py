@@ -112,9 +112,9 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
             try:
                 if any(math.isnan(value) for value in scores.values()):
                     continue
+                run.summary.update(scores)
             except TypeError:
                 # New model, ignore error
                 return
-            run.summary.update(scores)
             run.tags.append('scored')
             run.update()
