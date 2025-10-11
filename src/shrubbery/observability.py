@@ -11,6 +11,7 @@ def setup_logger() -> logging.Logger:
     logging.getLogger('distributed.scheduler').setLevel(logging.WARNING)
     logging.getLogger('distributed.nanny').setLevel(logging.WARNING)
     logging.getLogger('distributed.http.proxy').setLevel(logging.WARNING)
+    logging.getLogger('CUML').setLevel(logging.INFO)
     logger = logging.getLogger('shrubbery')
     return logger
 
