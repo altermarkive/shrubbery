@@ -47,15 +47,15 @@ index-strategy = "unsafe-best-match"
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cu129" },
+  { index = "pytorch-cu130" },
 ]
 
 [[tool.uv.index]]
 url = "https://pypi.nvidia.com/"
 
 [[tool.uv.index]]
-name = "pytorch-cu129"
-url = "https://download.pytorch.org/whl/cu129"
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.ruff]
