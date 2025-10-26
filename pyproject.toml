@@ -25,6 +25,9 @@ dependencies = [
     "lightgbm>=4.6.0",
     "matplotlib>=3.10.5",
     "minisom>=2.3.5",
+    # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
+    #     from ._myfm import RelationBlock
+    # ModuleNotFoundError: No module named 'myfm._myfm'
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
     "numerblox>=1.6.1",
