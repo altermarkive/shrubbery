@@ -12,6 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
+    "aisp>=0.4.1",
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
     "hydra-core>=1.3.2",
