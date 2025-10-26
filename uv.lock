@@ -2297,6 +2297,7 @@ dependencies = [
     { name = "pyarrow" },
     { name = "pykan" },
     { name = "scikit-network" },
+    { name = "skorch" },
     { name = "snntorch" },
     { name = "tabulate" },
     { name = "torch" },
@@ -2334,6 +2335,7 @@ requires-dist = [
     { name = "pykan", specifier = ">=0.2.8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
     { name = "scikit-network", specifier = ">=0.33.3" },
+    { name = "skorch", specifier = ">=1.2.0" },
     { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
@@ -2351,6 +2353,22 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "skorch"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "tabulate" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d2/fd/b0ed3e7de02af81e45518b0762f55e174489d8585cffe03169255ac305f7/skorch-1.2.0.tar.gz", hash = "sha256:2f4e688c00b94522557043a5d00fff2d0e82503d5dabea34fe959af520f5589d", size = 243795, upload-time = "2025-08-08T11:04:51.931Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/c2/af8c3b7ebe52ec577e08701b6782944bc963caa449ae71229c4e0d567ade/skorch-1.2.0-py3-none-any.whl", hash = "sha256:b1acbf97421ca9318cc449bf5b3df41561b1d1daf5f974fdd9f8a4be83d7baf9", size = 263103, upload-time = "2025-08-08T11:04:49.283Z" },
 ]
 
 [[package]]
