@@ -232,6 +232,22 @@ wheels = [
 ]
 
 [[package]]
+name = "black"
+version = "23.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "mypy-extensions" },
+    { name = "packaging" },
+    { name = "pathspec" },
+    { name = "platformdirs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d6/36/66370f5017b100225ec4950a60caeef60201a10080da57ddb24124453fba/black-23.3.0.tar.gz", hash = "sha256:1c7b8d606e728a41ea1ccbd7264677e494e87cf630e399262ced92d4a8dac940", size = 582156, upload-time = "2023-03-29T01:00:54.457Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/e7/4642b7f462381799393fbad894ba4b32db00870a797f0616c197b07129a9/black-23.3.0-py3-none-any.whl", hash = "sha256:ec751418022185b0c1bb7d7736e6933d40bbb14c14a0abcf9123d1b159f98dd4", size = 180965, upload-time = "2023-03-29T01:00:52.253Z" },
+]
+
+[[package]]
 name = "bleach"
 version = "6.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -276,6 +292,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/6f/73/06959c42d797c3e207c352f6050180b2217c6709d261e5f4a3d77dcdd067/catboost-1.2.8-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:a72681c50cbfe2fa4a6f85934bc707e0f7ff50a10a51801317418adf09d57cef", size = 98718946, upload-time = "2025-04-13T10:13:19.714Z" },
     { url = "https://files.pythonhosted.org/packages/0c/4b/d04e067df4401902cb2249df241bc1502bf90e990c6a3da5f82ba7de60fa/catboost-1.2.8-cp313-cp313-manylinux2014_x86_64.whl", hash = "sha256:8d2b58781c7ff2f974bde857da0d10d867366979193a4e7052746330a8b76b55", size = 99162049, upload-time = "2025-04-13T10:13:26.249Z" },
     { url = "https://files.pythonhosted.org/packages/0d/bc/35f50d1c6d898eb05d3ad3001b479cc6a837f6829a0ed68e6993e31da16e/catboost-1.2.8-cp313-cp313-win_amd64.whl", hash = "sha256:9c04ab1df71501d75cad80757f33d60bab2704b2450401d2c8cf3f3bcb6bd9f8", size = 102416981, upload-time = "2025-04-13T10:13:31.721Z" },
+]
+
+[[package]]
+name = "category-encoders"
+version = "2.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "patsy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "statsmodels" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/89/32/f5dff088ebae54d5464124298a9262bdd07c55558ba7e9b961be7ecdb0e6/category_encoders-2.8.1.tar.gz", hash = "sha256:57af8a23bde3cf622ee7e17c11547011795e4d337839d40cbd16c36b67291b33", size = 57856, upload-time = "2025-03-15T16:17:23.176Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/fb/908cb215a30b117bb079a767176038599a5447f2506e21aa2e90d0aabfff/category_encoders-2.8.1-py3-none-any.whl", hash = "sha256:ba77bde0a0afe13732b04997635b1ae82569e42c9696bc361c68674197988303", size = 85710, upload-time = "2025-03-15T16:17:21.839Z" },
 ]
 
 [[package]]
@@ -954,6 +987,26 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b3/0d/bf0567477f7281d9a3926c582bfef21bff7498fc0ffd3e9de21811896a0b/func_timeout-4.3.5.tar.gz", hash = "sha256:74cd3c428ec94f4edfba81f9b2f14904846d5ffccc27c92433b8b5939b5575dd", size = 44264, upload-time = "2019-08-19T21:32:07.43Z" }
 
 [[package]]
+name = "gama"
+version = "23.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "black" },
+    { name = "category-encoders" },
+    { name = "liac-arff" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "psutil" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "stopit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d8/72/37529d8b5c3e3c6cb2a5196722ff75c48a8d4c465177a9b02200a40e1f86/gama-23.0.0.tar.gz", hash = "sha256:334ad633930d2d85f6106e620f0b94e8969e849c2001a8c84a9466b48f9de612", size = 67755, upload-time = "2023-06-22T20:26:56.079Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/a4/52ab255af62f00556ffa13256811ed5bc07d73a4e3b49f3696119e1bfa91/gama-23.0.0-py3-none-any.whl", hash = "sha256:4659bc143c13967846a5706256b038360f099b56765ffe0d397d1f8e971274b6", size = 85819, upload-time = "2023-06-22T20:26:54.894Z" },
+]
+
+[[package]]
 name = "gitdb"
 version = "4.0.12"
 source = { registry = "https://pypi.org/simple" }
@@ -1592,6 +1645,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/1d/37/a13baf0135f348af6
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a8/3e/1c6b43277de64fc3c0333b0e72ab7b52ddaaea205210d60d9b9f83c3d0c7/lark-1.3.0-py3-none-any.whl", hash = "sha256:80661f261fb2584a9828a097a2432efd575af27d20be0fd35d17f0fe37253831", size = 113002, upload-time = "2025-09-22T13:45:03.747Z" },
 ]
+
+[[package]]
+name = "liac-arff"
+version = "2.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6e/43/73944aa5ad2b3185c0f0ba0ee6f73277f2eb51782ca6ccf3e6793caf209a/liac-arff-2.5.0.tar.gz", hash = "sha256:3220d0af6487c5aa71b47579be7ad1d94f3849ff1e224af3bf05ad49a0b5c4da", size = 13358, upload-time = "2020-08-31T18:59:16.878Z" }
 
 [[package]]
 name = "libcudf-cu13"
@@ -2658,6 +2717,18 @@ wheels = [
 ]
 
 [[package]]
+name = "patsy"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/be/44/ed13eccdd0519eff265f44b670d46fbb0ec813e2274932dc1c0e48520f7d/patsy-1.0.2.tar.gz", hash = "sha256:cdc995455f6233e90e22de72c37fcadb344e7586fb83f06696f54d92f8ce74c0", size = 399942, upload-time = "2025-10-20T16:17:37.535Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f1/70/ba4b949bdc0490ab78d545459acd7702b211dfccf7eb89bbc1060f52818d/patsy-1.0.2-py2.py3-none-any.whl", hash = "sha256:37bfddbc58fcf0362febb5f54f10743f8b21dd2aa73dec7e7ef59d1b02ae668a", size = 233301, upload-time = "2025-10-20T16:17:36.563Z" },
+]
+
+[[package]]
 name = "pdbpp"
 version = "0.11.7"
 source = { registry = "https://pypi.org/simple" }
@@ -3580,6 +3651,7 @@ dependencies = [
     { name = "autoviml" },
     { name = "cudf-cu13" },
     { name = "cuml-cu13" },
+    { name = "gama" },
     { name = "hydra-core" },
     { name = "keras" },
     { name = "lightgbm" },
@@ -3619,6 +3691,7 @@ requires-dist = [
     { name = "autoviml", specifier = ">=0.1.710" },
     { name = "cudf-cu13", specifier = ">=25.10.0" },
     { name = "cuml-cu13", specifier = ">=25.10.0" },
+    { name = "gama", specifier = ">=23.0.0" },
     { name = "hydra-core", specifier = ">=1.3.2" },
     { name = "keras", specifier = ">=3.11.1" },
     { name = "lightgbm", specifier = ">=4.6.0" },
@@ -3791,6 +3864,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/e3/55dcc2cfbc3ca9c29519eb6884dd1415ecb53b0e934862d3559ddcb7e20b/stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9", size = 44707, upload-time = "2023-09-30T13:58:05.479Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695", size = 24521, upload-time = "2023-09-30T13:58:03.53Z" },
+]
+
+[[package]]
+name = "statsmodels"
+version = "0.14.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pandas" },
+    { name = "patsy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/64/cc/8c1bf59bf8203dea1bf2ea811cfe667d7bcc6909c83d8afb02b08e30f50b/statsmodels-0.14.5.tar.gz", hash = "sha256:de260e58cccfd2ceddf835b55a357233d6ca853a1aa4f90f7553a52cc71c6ddf", size = 20525016, upload-time = "2025-07-07T12:14:23.195Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/fd/4c374108cf108b3130240a5b45847a61f70ddf973429044a81a05189b046/statsmodels-0.14.5-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:906263134dd1a640e55ecb01fda4a9be7b9e08558dba9e4c4943a486fdb0c9c8", size = 10013958, upload-time = "2025-07-07T14:35:01.04Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/36/bf3d7f0e36acd3ba9ec0babd79ace25506b6872780cbd710fb7cd31f0fa2/statsmodels-0.14.5-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:9118f76344f77cffbb3a9cbcff8682b325be5eed54a4b3253e09da77a74263d3", size = 9674243, upload-time = "2025-07-07T12:08:22.571Z" },
+    { url = "https://files.pythonhosted.org/packages/90/ce/a55a6f37b5277683ceccd965a5828b24672bbc427db6b3969ae0b0fc29fb/statsmodels-0.14.5-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9dc4ee159070557c9a6c000625d85f653de437772fe7086857cff68f501afe45", size = 10219521, upload-time = "2025-07-07T14:23:52.646Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/48/973da1ee8bc0743519759e74c3615b39acdc3faf00e0a0710f8c856d8c9d/statsmodels-0.14.5-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5a085d47c8ef5387279a991633883d0e700de2b0acc812d7032d165888627bef", size = 10453538, upload-time = "2025-07-07T14:24:06.959Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/d6/18903fb707afd31cf1edaec5201964dbdacb2bfae9a22558274647a7c88f/statsmodels-0.14.5-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:9f866b2ebb2904b47c342d00def83c526ef2eb1df6a9a3c94ba5fe63d0005aec", size = 10681584, upload-time = "2025-07-07T14:24:21.038Z" },
+    { url = "https://files.pythonhosted.org/packages/44/d6/80df1bbbfcdc50bff4152f43274420fa9856d56e234d160d6206eb1f5827/statsmodels-0.14.5-cp313-cp313-win_amd64.whl", hash = "sha256:2a06bca03b7a492f88c8106103ab75f1a5ced25de90103a89f3a287518017939", size = 9604641, upload-time = "2025-07-07T12:08:36.23Z" },
 ]
 
 [[package]]
