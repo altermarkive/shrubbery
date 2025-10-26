@@ -2173,6 +2173,23 @@ wheels = [
 ]
 
 [[package]]
+name = "scikit-network"
+version = "0.33.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/53/c0/2b38030821f4a31c1b0d70fe3c00bdbd9ea4113286695647484a8c47aca0/scikit_network-0.33.3.tar.gz", hash = "sha256:c5add343f3691dcf6dd35884ec7d92202923897c0458ce79aa2f1540a7a14f06", size = 1784696, upload-time = "2025-05-12T16:20:39.876Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/41/43d1547762f24451275d3e85922e6d6fb59372f575e8b92640c9244d4fbe/scikit_network-0.33.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:2a90ff18fefb16b4b6e8b53f747a932367fa19210ce7d4ed47bdfe71d553134d", size = 2825116, upload-time = "2025-05-12T16:20:20.964Z" },
+    { url = "https://files.pythonhosted.org/packages/85/0d/fceae262d795871770110f109d8993868a7fb7f32a3b15656d525dea4345/scikit_network-0.33.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:e47e22b90455696826c3aaf56db31cb454ccd6796c82895e1a61392e422a23d7", size = 2770988, upload-time = "2025-05-12T16:20:22.621Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/e9/4405f041473d9ed872553d6fc425c8f2ceca1a02064b5ebaffd106788d38/scikit_network-0.33.3-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a861cca79b867cb0c24215ca962f3b0e793487347b9d081c3225bed2fd426202", size = 7870258, upload-time = "2025-05-12T16:20:25.011Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/09/532a72caf058aa1507726ef209933eee143e251ec6fddf3ad44fb17af43b/scikit_network-0.33.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:25eb1e697de691e1b823718627c7c43d261594c5eeacb452edee820223382a2e", size = 7967364, upload-time = "2025-05-12T16:20:27.314Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/76/491240d51be636e10b2d3f4d8b24467b6493c09d8334c41d608ebfc7b440/scikit_network-0.33.3-cp313-cp313-win_amd64.whl", hash = "sha256:e1bbe329b642116d64b8660e75d796340a712f17dbff42564e8c69caf7d26ef2", size = 2730977, upload-time = "2025-05-12T16:20:29.037Z" },
+]
+
+[[package]]
 name = "scipy"
 version = "1.16.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2279,6 +2296,7 @@ dependencies = [
     { name = "plotly" },
     { name = "pyarrow" },
     { name = "pykan" },
+    { name = "scikit-network" },
     { name = "snntorch" },
     { name = "tabulate" },
     { name = "torch" },
@@ -2315,6 +2333,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=19.0.1" },
     { name = "pykan", specifier = ">=0.2.8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
+    { name = "scikit-network", specifier = ">=0.33.3" },
     { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
