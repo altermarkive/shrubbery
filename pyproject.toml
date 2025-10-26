@@ -13,6 +13,7 @@ classifiers = [
 ]
 dependencies = [
     "aisp>=0.4.1",
+    "autoviml>=0.1.710",
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
     "hydra-core>=1.3.2",
