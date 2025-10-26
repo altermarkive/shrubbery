@@ -2241,6 +2241,7 @@ dependencies = [
     { name = "plotly" },
     { name = "pyarrow" },
     { name = "pykan" },
+    { name = "snntorch" },
     { name = "tabulate" },
     { name = "torch" },
     { name = "tpot" },
@@ -2274,6 +2275,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=19.0.1" },
     { name = "pykan", specifier = ">=0.2.8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
+    { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "tpot", specifier = ">=1.1.0" },
@@ -2299,6 +2301,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/44/cd/a040c4b3119bbe532e5b0732286f805445375489fceaec1f48306068ee3b/smmap-5.0.2.tar.gz", hash = "sha256:26ea65a03958fa0c8a1c7e8c7a58fdc77221b8910f6be2131affade476898ad5", size = 22329, upload-time = "2025-01-02T07:14:40.909Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/be/d09147ad1ec7934636ad912901c5fd7667e1c858e19d355237db0d0cd5e4/smmap-5.0.2-py3-none-any.whl", hash = "sha256:b30115f0def7d7531d22a0fb6502488d879e75b260a9db4d0819cfb25403af5e", size = 24303, upload-time = "2025-01-02T07:14:38.724Z" },
+]
+
+[[package]]
+name = "snntorch"
+version = "0.9.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/a7/ce6eec2007d505612bc2bfc297d05daf9e507748d7d4a2406cae0d2a5e32/snntorch-0.9.4.tar.gz", hash = "sha256:eaa0dd46675c471bf0b616068ee777564377bcb46b2104840a4ff4332de01909", size = 95103, upload-time = "2025-02-16T21:26:01.332Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/a6/c9ca7a9a335a302694f0a86d5235fcba797283f94d5cd835e1dc8efdc905/snntorch-0.9.4-py2.py3-none-any.whl", hash = "sha256:34805e8d9d3d50fa8d28eb8ee715d9196a4db115cefe497e026b3ce1b7884388", size = 125619, upload-time = "2025-02-16T21:25:59.057Z" },
 ]
 
 [[package]]
