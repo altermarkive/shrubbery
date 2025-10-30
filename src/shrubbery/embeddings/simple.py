@@ -5,7 +5,7 @@ import math
 import random
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, List
 
 import numpy as np
 from numpy.typing import NDArray
@@ -109,7 +109,9 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                     estimator.estimator, features, estimator.chunk_size
                 )
             )
-        return np.concatenate([eras] + [features] + embeddings + [types], axis=1)
+        return np.concatenate(
+            [eras] + [features] + embeddings + [types], axis=1
+        )
 
 
 class PersistableEmbedder(BaseEstimator, TransformerMixin):
