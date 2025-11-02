@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Sequence
+from typing import Any, Dict, Sequence
 
 import numpy as np
 import pandas as pd
 import scipy
 from numpy.typing import NDArray
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
-from shrubbery.constants import COLUMN_INDEX_ERA
+from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
+from shrubbery.data.augmentation import get_biggest_change_features
+from shrubbery.observability import logger
+from shrubbery.utilities import PrintableModelMixin
 
 
 def neutralize(
@@ -64,3 +68,68 @@ def neutralize_series(
     corrected_scores = scores - correction
     neutralized = pd.Series(corrected_scores.ravel(), index=series.index)
     return neutralized
+
+
+class NumeraiNeutralization(
+    BaseEstimator, MetaEstimatorMixin, RegressorMixin, PrintableModelMixin
+):
+    def __init__(
+        self,
+        estimator: Any,
+        neutralization_cap: int,
+        neutralization_proportion: float,
+        neutralization_normalize: bool,
+    ) -> None:
+        self.estimator = estimator
+        self.neutralization_cap = neutralization_cap
+        self.neutralization_proportion = neutralization_proportion
+        self.neutralization_normalize = neutralization_normalize
+
+    def fit(
+        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+    ) -> 'NumeraiNeutralization':
+        riskiest_features = get_biggest_change_features(
+            x,
+            y[:, [COLUMN_INDEX_TARGET]],
+            list(range(COLUMN_INDEX_ERA + 1, x.shape[1])),
+            self.neutralization_cap,
+        )
+        self.neutralization_feature_indices_ = riskiest_features
+        logger.info(f'Riskiest features (indices): {riskiest_features}')
+        self.estimator = self.estimator.fit(x, y)
+        return self
+
+    def predict(self, x: NDArray) -> NDArray:
+        feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
+        predictions = self.estimator.predict(
+            x[:, feature_indices] if self.drop_era_column else x
+        )
+        neutralized = neutralize(
+            x,
+            predictions,
+            self.neutralization_feature_indices_,
+            self.neutralization_proportion,
+            self.neutralization_normalize,
+        )
+        neutralized = np.concatenate(
+            [
+                x[:, COLUMN_INDEX_ERA].reshape(-1, 1),
+                neutralized.reshape(-1, 1),
+            ],
+            axis=1,
+        )
+        # Ranking per era for all of our columns so we can combine safely
+        # on the same scales.
+        # See also:
+        # https://forum.numer.ai/t/neutralization-output-in-5-5-range/6324
+        predictions_columns = [1]
+        predictions = (
+            pd.DataFrame(neutralized)
+            .groupby(COLUMN_INDEX_ERA, group_keys=False)
+            .apply(
+                lambda group: group[predictions_columns].rank(pct=True),
+                include_groups=False,
+            )
+            .to_numpy()
+        )
+        return predictions
