@@ -2818,17 +2818,6 @@ wheels = [
 ]
 
 [[package]]
-name = "opentsne"
-version = "1.0.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/71/09/357810160298701c979a75c9d4db27e6e8996add0d7879d60cc648341171/opentsne-1.0.2.tar.gz", hash = "sha256:e2aecaa7a487100246f2d3fef9855d1bd6cc02a1c6da8fb2a54583f307aa4229", size = 251206, upload-time = "2024-08-13T11:02:26.161Z" }
-
-[[package]]
 name = "optree"
 version = "0.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -4041,7 +4030,6 @@ dependencies = [
     { name = "myfm" },
     { name = "numerapi" },
     { name = "numerblox" },
-    { name = "opentsne" },
     { name = "plotly" },
     { name = "pyarrow" },
     { name = "reservoirpy" },
@@ -4082,7 +4070,6 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.17.1" },
     { name = "numerapi", specifier = ">=2.20.7" },
     { name = "numerblox", specifier = ">=1.6.1" },
-    { name = "opentsne", specifier = ">=1.0.2" },
     { name = "pdbpp", marker = "extra == 'dev'", specifier = ">=0.11.7" },
     { name = "plotly", specifier = ">=6.2.0" },
     { name = "pyarrow", specifier = ">=19.0.1" },
