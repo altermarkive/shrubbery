@@ -9,7 +9,6 @@ import pandas as pd
 import requests
 from numpy.typing import NDArray
 
-from shrubbery.caching import linear_cache_non_hashable
 from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_EXAMPLE_PREDICTIONS,
@@ -37,7 +36,6 @@ def _unif(df: pd.DataFrame) -> pd.Series:
     return pd.Series(x, index=df.index)
 
 
-@linear_cache_non_hashable(max_size=2)
 def _combine_and_neutralize(
     x: NDArray,
     y_true: NDArray,
@@ -68,7 +66,6 @@ def _combine_and_neutralize(
     return df
 
 
-@linear_cache_non_hashable(max_size=2)
 def _calculate_validation_correlations(
     x: NDArray, y_true: NDArray, y_pred: NDArray
 ) -> pd.DataFrame:
@@ -91,7 +88,6 @@ def _calculate_validation_correlations(
     return validation_correlations
 
 
-@linear_cache_non_hashable(max_size=2)
 def _get_validation_data_grouped(
     x: NDArray, y_true: NDArray, y_pred: NDArray
 ) -> Tuple[pd.DataFrame, Sequence[int]]:
@@ -117,7 +113,6 @@ def _get_validation_data_grouped(
     )
 
 
-@linear_cache_non_hashable(max_size=2)
 def _get_validation_and_example_data_grouped(
     x: NDArray,
     y_true: NDArray,
