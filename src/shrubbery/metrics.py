@@ -89,20 +89,14 @@ METRIC_SHARPE_VALUE = _compose_metric_name(ABSTRACT_METRIC_SHARPE, '')
 
 
 # Numerai-specific sharpe ratio scorer
-def per_era_sharpe(
-    x: NDArray, y_true: NDArray, y_pred: NDArray
-) -> Dict[str, float]:
+def per_era_sharpe(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
     validation_correlations = _calculate_validation_correlations(
         x, y_true, y_pred
     )
     mean = validation_correlations.mean()
     std = validation_correlations.std(ddof=0)
     sharpe = mean / std
-    return {
-        METRIC_SHARPE_MEAN: mean,
-        METRIC_SHARPE_SD: std,
-        METRIC_SHARPE_VALUE: sharpe,
-    }
+    return sharpe
 
 
 METRIC_MAX_DRAWDOWN = 'Max Drawdown'
