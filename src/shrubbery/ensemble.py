@@ -122,23 +122,11 @@ class Ensembler(
                 y_predictions,
                 validation_stats,
                 config.name,
-                neutralization_feature_indices=(
-                    self.neutralization_feature_indices
-                ),
-                neutralization_proportion=self.neutralization_proportion,
-                neutralization_normalize=self.neutralization_normalize,
-                tb=self.tb,
             )
             gc.collect()
         logger.info('Creating ensemble for validation')
         ensemble_metric = self.ensemble_metric
-        ensemble_metric_ascending = metric_to_ascending(
-            ensemble_metric,
-            self.neutralization_feature_indices,
-            self.neutralization_proportion,
-            self.neutralization_normalize,
-            self.tb,
-        )
+        ensemble_metric_ascending = metric_to_ascending(ensemble_metric)
         best = mix_combinatorial(
             x_validation,
             y_true,

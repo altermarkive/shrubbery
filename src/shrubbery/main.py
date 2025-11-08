@@ -109,17 +109,7 @@ class NumeraiBestGridSearchEstimator(
                 embargo=self.embargo,
             ),
             # In case multiple scores are of interest, see: https://stackoverflow.com/questions/35876508/evaluate-multiple-scores-on-sklearn-cross-val-score & https://scikit-learn.org/stable/modules/grid_search.html#composite-grid-search  # noqa: E501
-            scoring=metric_to_simple_scorer(
-                self.cv_metric,
-                (
-                    self.neutralization_feature_indices
-                    if self.neutralization_feature_indices is not None
-                    else []
-                ),
-                self.neutralization_proportion,
-                self.neutralization_normalize,
-                self.tb,
-            ),
+            scoring=metric_to_simple_scorer(self.cv_metric),
             refit=False,
         )
         FitDownsamplerBySample(

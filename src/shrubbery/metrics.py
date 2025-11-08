@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -33,36 +33,6 @@ def _compose_metric_name(
 def _unif(df: pd.DataFrame) -> pd.Series:
     x = (df.rank(method='first') - 0.5) / len(df)
     return pd.Series(x, index=df.index)
-
-
-def _combine_and_neutralize(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    neutralization_feature_indices: Sequence[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-) -> pd.DataFrame:
-    df = pd.DataFrame(
-        np.concatenate(
-            [x, y_true.reshape(-1, 1), y_pred.reshape(-1, 1)],
-            axis=1,
-        )
-    )
-    columns = df.columns.to_list()
-    columns[COLUMN_INDEX_ERA] = COLUMN_ERA
-    columns[-2] = COLUMN_Y_TRUE
-    columns[-1] = COLUMN_Y_PRED
-    df = df.set_axis(columns, axis=1)
-    neutralized = neutralize(
-        x,
-        y_pred,
-        neutralization_feature_indices,
-        neutralization_proportion,
-        neutralization_normalize,
-    )
-    df.loc[:, 'neutral_sub'] = neutralized
-    return df
 
 
 def _calculate_validation_correlations(
@@ -110,154 +80,6 @@ def _get_validation_data_grouped(
         validation_data.groupby(COLUMN_ERA, group_keys=False),
         feature_indices,
     )
-
-
-METRIC_FEATURE_NEUTRAL_MEAN = 'Feature-neutral Mean'
-
-
-def feature_neutral_mean(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    neutralization_feature_indices: Sequence[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-) -> float:
-    # Check feature neutral mean
-    df = _combine_and_neutralize(
-        x,
-        y_true,
-        y_pred,
-        neutralization_feature_indices,
-        neutralization_proportion,
-        neutralization_normalize,
-    )
-    scores = (
-        df.groupby(COLUMN_ERA, group_keys=False)
-        .apply(
-            lambda group: (
-                _unif(group['neutral_sub']).corr(group[COLUMN_Y_TRUE])
-            ),
-            include_groups=False,
-        )
-        .mean()
-    )
-    return np.mean(scores)
-
-
-def _get_feature_neutral_mean_tb_era(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    neutralization_feature_indices: Sequence[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
-):
-    df = _combine_and_neutralize(
-        x,
-        y_true,
-        y_pred,
-        neutralization_feature_indices,
-        neutralization_proportion,
-        neutralization_normalize,
-    )
-    # Reset index due to use of argsort later
-    temp_df = df.reset_index(drop=True).copy()
-    temp_df_argsort = temp_df.loc[:, 'neutral_sub'].argsort()
-    temp_df_tb_idx = pd.concat(
-        [temp_df_argsort.iloc[:tb], temp_df_argsort.iloc[-tb:]]
-    )
-    temp_df_tb = temp_df.loc[temp_df_tb_idx]
-    tb_fnc = _unif(temp_df_tb['neutral_sub']).corr(temp_df_tb[COLUMN_Y_TRUE])
-    return tb_fnc
-
-
-METRIC_TB_FEATURE_NEUTRAL_MEAN = 'TB Feature-neutral Mean'
-
-
-def tb_feature_neutral_mean(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    neutralization_feature_indices: Sequence[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
-) -> float:
-    # Check TB feature neutral mean
-    validation_data_grouped, feature_indices = _get_validation_data_grouped(
-        x, y_true, y_pred
-    )
-
-    def apply_feature_neutral_mean_tb_era(df: pd.DataFrame) -> float:
-        return _get_feature_neutral_mean_tb_era(
-            df[[COLUMN_ERA] + feature_indices].to_numpy(),
-            df[COLUMN_Y_TRUE].to_numpy(),
-            df[COLUMN_Y_PRED].to_numpy(),
-            neutralization_feature_indices,
-            neutralization_proportion,
-            neutralization_normalize,
-            tb,
-        )
-
-    tb_feature_neutral_mean_era = validation_data_grouped[
-        [COLUMN_ERA] + feature_indices + [COLUMN_Y_TRUE, COLUMN_Y_PRED]
-    ].apply(
-        apply_feature_neutral_mean_tb_era,
-        include_groups=False,
-    )
-    return tb_feature_neutral_mean_era.mean()
-
-
-ABSTRACT_METRIC_TB = 'TB'
-METRIC_TB_MEAN = _compose_metric_name(ABSTRACT_METRIC_TB, 'Mean')
-METRIC_TB_SD = _compose_metric_name(ABSTRACT_METRIC_TB, 'SD')
-METRIC_TB_SHARPE = _compose_metric_name(ABSTRACT_METRIC_TB, 'Sharpe')
-
-
-def tb_fast_score_by_date(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    tb: Optional[int],
-) -> Dict[str, float]:
-    # Check top and bottom TB metrics
-    eras = x[:, COLUMN_INDEX_ERA]
-    unique_eras = np.unique(eras)
-    computed = []
-    for era in unique_eras:
-        era_pred = (
-            y_pred[x[:, COLUMN_INDEX_ERA] == era]
-            .reshape(-1, 1)
-            .T.astype(np.float64)
-        )
-        era_target = (
-            y_true[x[:, COLUMN_INDEX_ERA] == era].flatten().astype(np.float64)
-        )
-
-        if tb is None:
-            ccs = np.corrcoef(era_target, era_pred)[0, 1:]
-        else:
-            tbidx = np.argsort(era_pred, axis=1)
-            tbidx = np.concatenate([tbidx[:, :tb], tbidx[:, -tb:]], axis=1)
-            ccs_list = [
-                np.corrcoef(era_target[tmpidx], tmppred[tmpidx])[0, 1]
-                for tmpidx, tmppred in zip(tbidx, era_pred)
-            ]
-            ccs = np.array(ccs_list)
-
-        computed.append(ccs)
-
-    df = pd.DataFrame(np.array(computed), index=unique_eras)
-    tb_mean = df.mean().item()
-    tb_std = df.std(ddof=0).item()
-    result = {
-        METRIC_TB_MEAN: tb_mean,
-        METRIC_TB_SD: tb_std,
-        METRIC_TB_SHARPE: tb_mean / tb_std,
-    }
-    return result
 
 
 ABSTRACT_METRIC_SHARPE = 'Sharpe'
