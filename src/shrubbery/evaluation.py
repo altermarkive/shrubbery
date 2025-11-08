@@ -14,10 +14,6 @@ from numpy.typing import NDArray
 from shrubbery.constants import COLUMN_INDEX_TARGET
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import (
-    METRIC_APY,
-    METRIC_MAX_DRAWDOWN,
-    METRIC_MAX_FEATURE_EXPOSURE,
-    METRIC_SHARPE_VALUE,
     max_feature_exposure,
     per_era_max_apy,
     per_era_max_drawdown,
@@ -37,27 +33,27 @@ METRIC_PREDICTION_ID = 'Prediction ID'
 
 METRICS: List[MetricConfig] = [
     MetricConfig(
-        METRIC_SHARPE_VALUE,
+        'Sharpe',
         True,
         per_era_sharpe,
     ),
     MetricConfig(
-        METRIC_MAX_DRAWDOWN,
+        'Max Drawdown',
         True,
         per_era_max_drawdown,
     ),
     MetricConfig(
-        METRIC_APY,
+        'APY',
         True,
         per_era_max_apy,
     ),
     # MetricConfig(  # TODO: Commented out due to OOM - check if it happens after reboot  # noqa: E501
-    #     METRIC_MSE,
+    #     'MSE',
     #     False,
     #     lambda _, y_true, y_pred: mean_squared_error(y_true, y_pred)
     # ),
     MetricConfig(
-        METRIC_MAX_FEATURE_EXPOSURE,
+        'Max Feature Exposure',
         False,
         max_feature_exposure,
     ),
