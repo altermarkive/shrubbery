@@ -2,21 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import warnings
-from typing import List, Sequence, Tuple
+from typing import Sequence
 
 import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
 from shrubbery.constants import (
-    COLUMN_DATA_TYPE,
-    COLUMN_DATA_TYPE_TOURNAMENT,
-    COLUMN_DATA_TYPE_TRAINING,
-    COLUMN_DATA_TYPE_VALIDATION,
     COLUMN_ERA,
     COLUMN_INDEX_ERA,
 )
-from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.observability import logger
 
 
@@ -83,62 +78,12 @@ def get_biggest_change_features(
     return sorted(worst_n)
 
 
-def numeric_eras(
-    feature_cols: List[str],
-    data: pd.DataFrame,
-) -> Tuple[List[str], pd.DataFrame]:
-    training_eras = sorted(
-        list(
-            set(
-                data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_TRAINING][
-                    COLUMN_ERA
-                ]
-            )
-        )
-    )
-    logger.info(f'Eras (training): {training_eras[:2]} - {training_eras[-2:]}')
-    validation_eras = sorted(
-        list(
-            set(
-                data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_VALIDATION][
-                    COLUMN_ERA
-                ]
-            )
-        )
-    )
-    logger.info(
-        f'Eras (validation): {validation_eras[:2]} - {validation_eras[-2:]}'
-    )
-    live_eras = sorted(
-        list(
-            set(
-                data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_TOURNAMENT][
-                    COLUMN_ERA
-                ]
-            )
-        )
-    )
-    logger.info(f'Eras (live): {live_eras[:2]} - {live_eras[-2:]}')
-    next_era = str(max([int(era) for era in validation_eras]) + 1)
-    data.loc[
-        data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_TOURNAMENT, COLUMN_ERA
-    ] = next_era
-    data[COLUMN_ERA] = data[COLUMN_ERA].astype(np.float32)
-    return feature_cols, data
+def numeric_eras(name: str, data: pd.DataFrame) -> list:
+    eras = sorted(list(set(data[COLUMN_ERA])))
+    logger.info(f'Eras ({name}): {eras[:2]} - {eras[-2:]}')
+    return eras
 
 
-FILE_LIVE_IDS = 'live_ids.csv'
-FILE_VALIDATION_IDS = 'validation_ids.csv'
-
-
-def numerai_keep_ids(
-    feature_cols: List[str],
-    data: pd.DataFrame,
-) -> Tuple[List[str], pd.DataFrame]:
-    pd.DataFrame(
-        data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_VALIDATION].index
-    ).to_csv(locate_numerai_file(FILE_VALIDATION_IDS), index=False)
-    pd.DataFrame(
-        data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_TOURNAMENT].index
-    ).to_csv(locate_numerai_file(FILE_LIVE_IDS), index=False)
-    return feature_cols, data
+def override_numerai_era(eras: list, data: pd.DataFrame) -> None:
+    next_era = str(max([int(era) for era in eras]) + 1)
+    data[COLUMN_ERA] = next_era

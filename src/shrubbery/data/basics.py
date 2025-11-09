@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from shrubbery.constants import (
-    COLUMN_DATA_TYPE_VALIDATION,
+    COLUMN_DATA_TYPE_TRAINING,
     COLUMN_INDEX_DATA_TYPE,
     COLUMN_INDEX_ERA,
     COLUMN_INDEX_TARGET,
@@ -21,18 +21,16 @@ class PlotBasicDataInformation(BaseEstimator, TransformerMixin):
         return
 
     def fit(self, x: NDArray, y: NDArray) -> 'PlotBasicDataInformation':
-        validation_data_selection = (
-            x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_VALIDATION
+        training_data_selection = (
+            x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_TRAINING
         )
         not_nan_target_data_selection = ~np.isnan(y[:, COLUMN_INDEX_TARGET])
-        selection = validation_data_selection & not_nan_target_data_selection
+        selection = training_data_selection & not_nan_target_data_selection
         x = x[selection, (COLUMN_INDEX_ERA + 1) : COLUMN_INDEX_DATA_TYPE]
         y = y[selection, COLUMN_INDEX_TARGET].reshape(-1, 1)
-        _plot_correlation_heatmap('Validation Data Feature Correlation', x)
-        _plot_distribution_violins('Validation Data Feature Distributions', x)
-        _plot_distribution_scatter_matrix(
-            'Validation Data Feature Scatter Matrix', x, y
-        )
+        _plot_correlation_heatmap('Feature Correlation', x)
+        _plot_distribution_violins('Feature Distributions', x)
+        _plot_distribution_scatter_matrix('Feature Scatter Matrix', x, y)
         return self
 
     def transform(self, x: NDArray) -> NDArray:
