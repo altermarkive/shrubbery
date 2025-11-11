@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Code inspired by inspired by: https://github.com/Jeremy123W/Numerai
 # Improved with help of: https://keras.io/examples/structured_data/wide_deep_cross_networks/  # noqa: E501
