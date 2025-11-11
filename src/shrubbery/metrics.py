@@ -3,6 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 import requests
+from sklearn.metrics import mean_squared_error
 
 from shrubbery.constants import (
     COLUMN_ERA,
@@ -69,7 +70,8 @@ def _get_validation_data_grouped(
     )
 
 
-# Numerai-specific sharpe ratio scorer
+# name: Sharpe (Numerai-specific sharpe ratio scorer)
+# greater_is_better: True
 def per_era_sharpe(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
@@ -82,6 +84,8 @@ def per_era_sharpe(
     return sharpe
 
 
+# name: Max Drawdown
+# greater_is_better: True
 def per_era_max_drawdown(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
@@ -99,6 +103,8 @@ def per_era_max_drawdown(
     return max_drawdown
 
 
+# name: APY
+# greater_is_better: True
 def per_era_max_apy(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
@@ -115,6 +121,9 @@ def per_era_max_apy(
     return apy
 
 
+# TODO: Max Feature Exposure causes: RuntimeWarning: invalid value encountered in divide
+# name: Max Feature Exposure
+# greater_is_better: False
 def max_feature_exposure(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
@@ -132,6 +141,21 @@ def max_feature_exposure(
     return max_per_era.mean()
 
 
+# TODO: Unused due to OOM - check if it happens after reboot
+# name: MSE
+# greater_is_better: False
+def mse(x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    return mean_squared_error(y_true, y_pred)
+
+
+# TODO: Diagnostics
+# MetricConfig(
+#     ???,  # TODO: Create a function/constant for this
+#     ???,  # TODO: Create a function/constant for this
+#     lambda y_true, y_pred: partial(
+#         numerai_metrics, numerai_model_id=numerai_model_id
+#     ),
+# ),
 def numerai_metrics(
     y_true: np.ndarray, y_pred: np.ndarray, numerai_model_id: str
 ) -> dict[str, float]:

@@ -1,5 +1,5 @@
 import gc
-from typing import Any
+from typing import Any, Callable
 
 import hydra
 import hydra.utils
@@ -30,7 +30,6 @@ from shrubbery.data.ingest import (
     lookup_target_index,
     read_parquet_and_unpack,
 )
-from shrubbery.evaluation import metric_to_simple_scorer
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.napi import napi
 from shrubbery.observability import logger
@@ -56,7 +55,7 @@ class NumeraiBestGridSearchEstimator(
         targets: list[int | str],
         cv: int,
         cv_param_grid: dict,
-        cv_metric: str,
+        cv_scoring: Callable,
         embargo: int,
         neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
@@ -78,7 +77,7 @@ class NumeraiBestGridSearchEstimator(
         self.targets = targets
         self.cv = cv
         self.cv_param_grid = cv_param_grid
-        self.cv_metric = cv_metric
+        self.cv_scoring = cv_scoring
         self.embargo = embargo
         self.neutralization_feature_indices = neutralization_feature_indices
         self.neutralization_proportion = neutralization_proportion
@@ -106,7 +105,7 @@ class NumeraiBestGridSearchEstimator(
                 embargo=self.embargo,
             ),
             # In case multiple scores are of interest, see: https://stackoverflow.com/questions/35876508/evaluate-multiple-scores-on-sklearn-cross-val-score & https://scikit-learn.org/stable/modules/grid_search.html#composite-grid-search  # noqa: E501
-            scoring=metric_to_simple_scorer(self.cv_metric),
+            scoring=self.cv_scoring,
             refit=False,
         )
         FitDownsamplerBySample(
