@@ -54,7 +54,6 @@ class NumeraiBestGridSearchEstimator(
         downsample_cross_validation: int,
         downsample_full_train: int,
         targets: list[int | str],
-        adversarial_downsampling_ratio: float | None,
         cv: int,
         cv_param_grid: dict,
         cv_metric: str,
@@ -77,7 +76,6 @@ class NumeraiBestGridSearchEstimator(
         self.downsample_cross_validation = downsample_cross_validation
         self.downsample_full_train = downsample_full_train
         self.targets = targets
-        self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
         self.cv = cv
         self.cv_param_grid = cv_param_grid
         self.cv_metric = cv_metric
@@ -154,16 +152,16 @@ class NumeraiRunner:
         estimator: Any,
         numerai_model_id: str,
         version: str,
-        extra_training_targets: int,
         notes: str,
+        adversarial_downsampling_ratio: float | None,
     ) -> None:
         self.feature_set_name = feature_set_name
         self.retrain = retrain
         self.estimator = estimator
         self.numerai_model_id = numerai_model_id
         self.version = version
-        self.extra_training_targets = extra_training_targets
         self.notes = notes
+        self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
 
     def run(self) -> None:
         if wandb.run is not None:
