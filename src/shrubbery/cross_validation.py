@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import operator
 from typing import Any, Dict, Generator, List, Tuple
 
