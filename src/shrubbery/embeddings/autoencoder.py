@@ -1,6 +1,5 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
 import os
-from typing import List
 
 os.environ['KERAS_BACKEND'] = 'torch'
 
@@ -31,7 +30,7 @@ class Autoencoder(BaseEstimator, TransformerMixin):
         self,
         batch_size: int,
         epochs: int,
-        layer_units: List[int],
+        layer_units: list[int],
         denoise: bool,
         learning_rate: float,
     ) -> None:

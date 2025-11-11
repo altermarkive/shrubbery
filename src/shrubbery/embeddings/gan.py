@@ -4,7 +4,6 @@
 # * https://medium.com/@mattiaspinelli/simple-generative-adversarial-network-gans-with-keras-1fe578e44a87  # noqa: E501
 # * https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py  # noqa: E501
 import os
-from typing import List
 
 os.environ['KERAS_BACKEND'] = 'torch'
 
@@ -22,7 +21,6 @@ from keras.layers import (  # noqa: E402
 from keras.models import Model, Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adam  # noqa: E402
-from numpy.typing import np.ndarray  # noqa: E402
 from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 from sklearn.utils import shuffle  # noqa: E402
 from tqdm import tqdm  # noqa: E402
@@ -33,7 +31,7 @@ from shrubbery.utilities import (  # noqa: E402
 )
 
 
-def create_discriminator(feature_count: int, layer_units: List[int]) -> Model:
+def create_discriminator(feature_count: int, layer_units: list[int]) -> Model:
     softmax_init = VarianceScaling(
         scale=1.0, mode='fan_in', distribution='truncated_normal'
     )
@@ -65,7 +63,7 @@ def create_discriminator(feature_count: int, layer_units: List[int]) -> Model:
 
 
 def create_generator(
-    latent_dim: int, layer_units: List[int], feature_count: int
+    latent_dim: int, layer_units: list[int], feature_count: int
 ) -> Model:
     sigmoid_init = VarianceScaling(
         scale=1.0, mode='fan_in', distribution='truncated_normal'
@@ -106,8 +104,8 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         batch_size: int,
         epochs: int,
         latent_dim: int,
-        generator_layer_units: List[int],
-        discriminator_layer_units: List[int],
+        generator_layer_units: list[int],
+        discriminator_layer_units: list[int],
     ):
         self.batch_size = batch_size
         self.epochs = epochs

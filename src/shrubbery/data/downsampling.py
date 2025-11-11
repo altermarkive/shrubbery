@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin
@@ -18,7 +18,7 @@ class FitDownsamplerBySample(
         self,
         x: np.ndarray,
         y: np.ndarray,
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> 'FitDownsamplerBySample':
         x = x[:: self.sample_stride]
         y = y[:: self.sample_stride]
@@ -44,7 +44,7 @@ class FitDownsamplerByEra(
         self,
         x: np.ndarray,
         y: np.ndarray,
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> 'FitDownsamplerByEra':
         eras = sorted(np.unique(x[:, COLUMN_INDEX_ERA]).tolist())
         eras_downsampled = eras[self.era_offset :: self.era_stride]
@@ -67,7 +67,7 @@ class FitOnFeaturesOnly(
         self,
         x: np.ndarray,
         y: np.ndarray,
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> 'FitOnFeaturesOnly':
         result = self.estimator.fit(x[:, COLUMN_INDEX_ERA:], y, **kwargs)
         self.fitted_ = True

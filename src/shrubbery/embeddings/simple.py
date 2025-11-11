@@ -2,7 +2,7 @@ import math
 import random
 import time
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -42,7 +42,7 @@ class EmbedderConfig:
 class GenericEmbedder(BaseEstimator, TransformerMixin):
     def __init__(
         self,
-        estimators: List[EmbedderConfig],
+        estimators: list[EmbedderConfig],
         target_column_index: int,
     ) -> None:
         self.estimators = estimators

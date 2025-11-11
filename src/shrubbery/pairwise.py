@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
@@ -23,7 +23,7 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
         self.batched_fit = batched_fit
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'Pairwise':
         y = y.reshape(-1, 1)
         if self.batched_fit:

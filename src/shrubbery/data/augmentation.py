@@ -1,5 +1,4 @@
 import warnings
-from typing import Sequence
 
 import numpy as np
 import pandas as pd

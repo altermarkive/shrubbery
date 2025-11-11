@@ -1,5 +1,4 @@
 import time
-from typing import Dict, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -131,7 +130,7 @@ def max_feature_exposure(
 
 def numerai_metrics(
     y_true: np.ndarray, y_pred: np.ndarray, numerai_model_id: str
-) -> Dict[str, float]:
+) -> dict[str, float]:
     prediction_data = pd.read_csv(
         locate_numerai_file('DEPRECATED'), index_col=COLUMN_ID
     )

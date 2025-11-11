@@ -6,7 +6,6 @@
 # Wide & Deep Learning for RecSys with Pytorch: https://www.kaggle.com/code/matanivanov/wide-deep-learning-for-recsys-with-pytorch  # noqa: E501
 import os
 from enum import Enum
-from typing import List, Optional
 
 os.environ['KERAS_BACKEND'] = 'torch'
 
@@ -51,7 +50,7 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
         batch_size: int,
         epochs: int,
         dropout_rate: float,
-        units: List[int],
+        units: list[int],
         optimizer_type: OptimizerType,
         optimizer_learning_rate: float,
         optimizer_l1_regularization_strength: float,
@@ -61,7 +60,7 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
         self.batch_size = batch_size
         self.epochs = epochs
         self.dropout_rate = dropout_rate
-        self.serialized_model: Optional[bytes] = None
+        self.serialized_model: bytes | None = None
         self.units = units
         self.optimizer_type = optimizer_type
         self.optimizer_learning_rate = optimizer_learning_rate

@@ -1,6 +1,5 @@
 import math
 import time
-from typing import Optional
 
 import pandas as pd
 import requests
@@ -91,7 +90,7 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
                 continue
             if 'scored' in run.tags:
                 continue
-            round_number: Optional[int] = None
+            round_number: int | None = None
             for tag in run.tags:
                 try:
                     round_number = int(tag)
