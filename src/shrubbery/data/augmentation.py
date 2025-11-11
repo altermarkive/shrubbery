@@ -3,7 +3,6 @@ from typing import Sequence
 
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
 
 from shrubbery.constants import (
     COLUMN_ERA,
@@ -13,7 +12,7 @@ from shrubbery.observability import logger
 
 
 def get_biggest_change_features(
-    x: NDArray, y: NDArray, feature_indices: Sequence[int], n: int
+    x: np.ndarray, y: np.ndarray, feature_indices: Sequence[int], n: int
 ) -> Sequence[int]:
     """
     Find the riskiest features by comparing their correlation vs
@@ -21,8 +20,8 @@ def get_biggest_change_features(
     (there are probably more clever ways to do this).
 
     Args:
-        x (ndarray): Data to extract the riskiest features from
-        y (ndarray): Primary target to correlate features with
+        x (np.ndarray): Data to extract the riskiest features from
+        y (np.ndarray): Primary target to correlate features with
         feature_indices (Sequence[int]): List of feature indices
         n (int): Specifies how many top riskiest features to return
 

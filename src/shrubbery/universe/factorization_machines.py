@@ -1,6 +1,5 @@
 import numpy as np
 from myfm import MyFMRegressor
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 
 
@@ -29,13 +28,13 @@ class FMRegressor(BaseEstimator, RegressorMixin):
         self.fit_w0 = fit_w0
         self.fit_linear = fit_linear
 
-    def fit(self, x: NDArray, y: NDArray) -> 'FMRegressor':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'FMRegressor':
         self.model_ = MyFMRegressor(**self.get_params())
         self.model_ = self.model_.fit(
             x.astype(np.float32), y.astype(np.float32)
         )
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         assert self.model_ is not None
         return self.model_.predict(x.astype(np.float32))

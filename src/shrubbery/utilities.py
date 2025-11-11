@@ -11,7 +11,6 @@ import wandb
 from keras import Model
 from keras.saving import load_model as load_keras_model
 from keras.saving import save_model as save_keras_model
-from numpy.typing import NDArray
 
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.observability import logger
@@ -124,7 +123,7 @@ EPSILON = sys.float_info.epsilon
 
 
 # Using rank takes care of the need to use this function
-def trim_probability_array(array: NDArray) -> NDArray:
+def trim_probability_array(array: np.ndarray) -> np.ndarray:
     return np.clip(array, 0.0 + EPSILON, 1.0 - EPSILON)
 
 

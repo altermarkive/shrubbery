@@ -2,12 +2,11 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import wandb
-from numpy.typing import NDArray
 from sklearn.cluster import DBSCAN
 
 
 def _plot_2d_scatter(
-    content: str, name: str, coordinates: NDArray, colors: NDArray
+    content: str, name: str, coordinates: np.ndarray, colors: np.ndarray
 ) -> None:
     title = f't-SNE ({content}): {name}'
     df = pd.DataFrame(
@@ -21,7 +20,7 @@ def _plot_2d_scatter(
 
 
 def _plot_3d_scatter(
-    content: str, name: str, coordinates: NDArray, colors: NDArray
+    content: str, name: str, coordinates: np.ndarray, colors: np.ndarray
 ) -> None:
     title = f't-SNE ({content}): {name}'
     df = pd.DataFrame(
@@ -35,7 +34,7 @@ def _plot_3d_scatter(
 
 
 def _plot_data(
-    content: str, name: str, coordinates: NDArray, colors: NDArray
+    content: str, name: str, coordinates: np.ndarray, colors: np.ndarray
 ) -> None:
     if coordinates.shape[1] == 2:
         _plot_2d_scatter(
@@ -54,7 +53,7 @@ def _plot_data(
 
 
 def _plot_reference(
-    name: str, embeddings: NDArray, targets: pd.DataFrame, training_count: int
+    name: str, embeddings: np.ndarray, targets: pd.DataFrame, training_count: int
 ) -> None:
     _plot_data(
         'reference',
@@ -66,7 +65,7 @@ def _plot_reference(
 
 def _plot_output(
     name: str,
-    embeddings: NDArray,
+    embeddings: np.ndarray,
     dbscan_count: int,
     dbscan_eps: float,
     dbscan_min_samples: int,
@@ -87,8 +86,8 @@ def _plot_output(
 
 def plot_diagnostics(
     name: str,
-    embeddings: NDArray,
-    targets: NDArray,
+    embeddings: np.ndarray,
+    targets: np.ndarray,
     training_count: int,
     dbscan_count: int,
     dbscan_eps: float,

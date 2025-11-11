@@ -16,7 +16,6 @@ from keras.layers import (  # noqa: E402
 from keras.models import Model, Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adam  # noqa: E402
-from numpy.typing import NDArray  # noqa: E402
 from sklearn.base import BaseEstimator, RegressorMixin  # noqa: E402
 
 from shrubbery.utilities import (  # noqa: E402
@@ -37,7 +36,7 @@ class NeuralNetwork(BaseEstimator, RegressorMixin):
         self.layer_units = layer_units
         self.learning_rate = 1e-4
 
-    def fit(self, x: NDArray, y: NDArray) -> 'NeuralNetwork':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'NeuralNetwork':
         model_columns = list(range(x.shape[1]))
 
         optimizer = Adam(learning_rate=self.learning_rate)
@@ -80,7 +79,7 @@ class NeuralNetwork(BaseEstimator, RegressorMixin):
         self.serialized_model_ = serialize_keras_model(model)
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_model_ is not None
         model = deserialize_keras_model(self.serialized_model_)
         result = model.predict(convert_to_tensor(x))

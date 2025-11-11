@@ -2,7 +2,6 @@ import time
 from typing import Any, Dict
 
 import numpy as np
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
@@ -24,7 +23,7 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
         self.batched_fit = batched_fit
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> 'Pairwise':
         y = y.reshape(-1, 1)
         if self.batched_fit:
@@ -66,7 +65,7 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
         self.fitted_ = True
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         predictions = []
         for _ in range(self.n_shuffles_fit):
             shuffled_x = shuffle(x)

@@ -1,7 +1,6 @@
 from typing import Any, Dict
 
 import numpy as np
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin
 
 from shrubbery.constants import COLUMN_INDEX_ERA
@@ -17,8 +16,8 @@ class FitDownsamplerBySample(
 
     def fit(
         self,
-        x: NDArray,
-        y: NDArray,
+        x: np.ndarray,
+        y: np.ndarray,
         **kwargs: Dict[str, Any],
     ) -> 'FitDownsamplerBySample':
         x = x[:: self.sample_stride]
@@ -27,7 +26,7 @@ class FitDownsamplerBySample(
         self.fitted_ = True
         return result
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x)
 
 
@@ -43,8 +42,8 @@ class FitDownsamplerByEra(
 
     def fit(
         self,
-        x: NDArray,
-        y: NDArray,
+        x: np.ndarray,
+        y: np.ndarray,
         **kwargs: Dict[str, Any],
     ) -> 'FitDownsamplerByEra':
         eras = sorted(np.unique(x[:, COLUMN_INDEX_ERA]).tolist())
@@ -54,7 +53,7 @@ class FitDownsamplerByEra(
         self.fitted_ = True
         return result
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x)
 
 
@@ -66,13 +65,13 @@ class FitOnFeaturesOnly(
 
     def fit(
         self,
-        x: NDArray,
-        y: NDArray,
+        x: np.ndarray,
+        y: np.ndarray,
         **kwargs: Dict[str, Any],
     ) -> 'FitOnFeaturesOnly':
         result = self.estimator.fit(x[:, COLUMN_INDEX_ERA:], y, **kwargs)
         self.fitted_ = True
         return result
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x[:, COLUMN_INDEX_ERA:])
