@@ -9,7 +9,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
 from shrubbery.constants import COLUMN_INDEX_ERA
-from shrubbery.embeddings.diagnostics import plot_diagnostics
 from shrubbery.observability import logger
 
 
@@ -33,10 +32,6 @@ class EmbedderConfig:
     estimator: Any
     portion: float
     chunk_size: int
-    verbosity: int
-    dbscan_count: int
-    dbscan_eps: float
-    dbscan_min_samples: int
 
 
 class GenericEmbedder(BaseEstimator, TransformerMixin):
@@ -51,7 +46,6 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'GenericEmbedder':
         x_training = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
         y_training = y[:, self.target_column_index].astype(np.float32)
-        training_count = x_training.shape[0]
         for estimator in self.estimators:
             all_indices = list(range(x_training.shape[0]))
             if 0 < estimator.portion < 1:
@@ -61,23 +55,12 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                 indices = np.array(all_indices)
             logger.info(f'Running embedder {estimator.name}')
             before = time.time()
-            embeddings = estimator.estimator.fit_transform(
+            estimator.estimator.fit_transform(
                 x_training[indices], y_training[indices]
             )
             after = time.time()
             delta = int(after - before)
             logger.info(f'Completed embedder {estimator.name} in {delta}s')
-            if estimator.verbosity > 0:
-                plot_diagnostics(
-                    estimator.name,
-                    embeddings,
-                    y_training,
-                    training_count,
-                    estimator.dbscan_count,
-                    estimator.dbscan_eps,
-                    estimator.dbscan_min_samples,
-                    estimator.verbosity,
-                )
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
