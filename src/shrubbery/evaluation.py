@@ -17,7 +17,6 @@ METRIC_PREDICTION_VALUE = 'Metric'
 def numerai_scorer(
     metric: Callable,
     greater_is_better: bool,
-    name: str | None,
 ) -> Callable:
     ascending = 1.0 if greater_is_better else -1.0
 
@@ -29,8 +28,6 @@ def numerai_scorer(
         y_pred = estimator.predict(x)
         return ascending * metric(x, y_true, y_pred)
 
-    if name is not None:
-        scorer.__name__ = name  # type: ignore[attr-defined]
     return scorer
 
 

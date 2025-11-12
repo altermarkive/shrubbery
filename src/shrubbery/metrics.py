@@ -71,82 +71,102 @@ def _get_validation_data_grouped(
     )
 
 
-# name: Sharpe (Numerai-specific sharpe ratio scorer)
+# Numerai-specific sharpe ratio scorer
 # greater_is_better: True
-def per_era_sharpe(
-    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> float:
-    validation_correlations = _calculate_validation_correlations(
-        x, y_true, y_pred
-    )
-    mean = validation_correlations.mean()
-    std = validation_correlations.std(ddof=0)
-    sharpe = mean / std
-    return sharpe
+class PerEraSharpe:
+    __name__ = 'Sharpe'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        validation_correlations = _calculate_validation_correlations(
+            x, y_true, y_pred
+        )
+        mean = validation_correlations.mean()
+        std = validation_correlations.std(ddof=0)
+        sharpe = mean / std
+        return sharpe
 
 
-# name: Max Drawdown
+# Max Drawdown
 # greater_is_better: True
-def per_era_max_drawdown(
-    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> float:
-    validation_correlations = _calculate_validation_correlations(
-        x, y_true, y_pred
-    )
-    rolling_max = (
-        (validation_correlations + 1)
-        .cumprod()
-        .rolling(window=9000, min_periods=1)  # arbitrarily large
-        .max()
-    )
-    daily_value = (validation_correlations + 1).cumprod()
-    max_drawdown = -((rolling_max - daily_value) / rolling_max).max()
-    return max_drawdown
+class PerEraMaxDrawdown:
+    __name__ = 'Max Drawdown'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        validation_correlations = _calculate_validation_correlations(
+            x, y_true, y_pred
+        )
+        rolling_max = (
+            (validation_correlations + 1)
+            .cumprod()
+            .rolling(window=9000, min_periods=1)  # arbitrarily large
+            .max()
+        )
+        daily_value = (validation_correlations + 1).cumprod()
+        max_drawdown = -((rolling_max - daily_value) / rolling_max).max()
+        return max_drawdown
 
 
-# name: APY
+# APY
 # greater_is_better: True
-def per_era_max_apy(
-    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> float:
-    validation_correlations = _calculate_validation_correlations(
-        x, y_true, y_pred
-    )
-    payout_scores = validation_correlations.clip(-0.25, 0.25)
-    payout_daily_value = (payout_scores + 1).cumprod()
-    apy = (
-        ((payout_daily_value.dropna().iloc[-1]) ** (1 / len(payout_scores)))
-        ** 49  # 52 weeks of compounding minus 3 for stake compounding lag
-        - 1
-    ) * 100
-    return apy
+class PerEraMaxAPY:
+    __name__ = 'APY'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        validation_correlations = _calculate_validation_correlations(
+            x, y_true, y_pred
+        )
+        payout_scores = validation_correlations.clip(-0.25, 0.25)
+        payout_daily_value = (payout_scores + 1).cumprod()
+        apy = (
+            (
+                (payout_daily_value.dropna().iloc[-1])
+                ** (1 / len(payout_scores))
+            )
+            ** 49  # 52 weeks of compounding minus 3 for stake compounding lag
+            - 1
+        ) * 100
+        return apy
 
 
 # TODO: Max Feature Exposure causes: RuntimeWarning: invalid value encountered in divide
-# name: Max Feature Exposure
+# Max Feature Exposure
 # greater_is_better: False
-def max_feature_exposure(
-    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> float:
-    # Check the feature exposure of your validation predictions
-    validation_data_grouped, feature_indices = _get_validation_data_grouped(
-        x, y_true, y_pred
-    )
-    max_per_era = validation_data_grouped.apply(
-        lambda group: group[feature_indices]
-        .corrwith(group[COLUMN_Y_PRED])
-        .abs()
-        .max(),
-        include_groups=False,
-    )
-    return max_per_era.mean()
+class MaxFeatureExposure:
+    __name__ = 'Max Feature Exposure'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        # Check the feature exposure of your validation predictions
+        validation_data_grouped, feature_indices = (
+            _get_validation_data_grouped(x, y_true, y_pred)
+        )
+        max_per_era = validation_data_grouped.apply(
+            lambda group: group[feature_indices]
+            .corrwith(group[COLUMN_Y_PRED])
+            .abs()
+            .max(),
+            include_groups=False,
+        )
+        return max_per_era.mean()
 
 
 # TODO: Unused due to OOM - check if it happens after reboot
-# name: MSE
+# MSE
 # greater_is_better: False
-def mse(x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    return mean_squared_error(y_true, y_pred)
+class MSE:
+    __name__ = 'MSE'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        return mean_squared_error(y_true, y_pred)
 
 
 def submit_diagnostic_predictions(
