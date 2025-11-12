@@ -187,7 +187,7 @@ def submit_diagnostic_predictions(
     metrics = {}
     for key, value in diagnostics.items():
         if isinstance(value, float) or isinstance(value, int):
-            metrics[f'{key}_diagnostic'] = float(value)
+            metrics[key] = float(value)
     if wandb.run is not None:
         wandb.run.summary.update(metrics)
     return metrics
