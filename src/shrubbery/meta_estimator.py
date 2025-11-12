@@ -63,11 +63,11 @@ class NumeraiMetaEstimator(
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         logger.info(f'Predicting {self}')
+        logger.info(f'Shape of the data to predict on: {x.shape}')
         feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
         predictions = self.estimator.predict(
             x[:, feature_indices] if self.drop_era_column else x
         )
-        logger.info(f'Shape of the data to predict on: {x.shape}')
         if self.neutralization_feature_indices is not None:
             neutralized = neutralize(
                 x,

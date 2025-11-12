@@ -32,6 +32,7 @@ from shrubbery.data.ingest import (
     read_parquet_and_unpack,
 )
 from shrubbery.meta_estimator import NumeraiMetaEstimator
+from shrubbery.metrics import submit_diagnostic_predictions
 from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.tournament import (
@@ -196,7 +197,7 @@ class NumeraiRunner:
                 feature_cols,
                 training_data,
                 validation_data,
-                self.adversarial_downsampling_ratio
+                self.adversarial_downsampling_ratio,
             )
 
         # Check for nans and fill nans
@@ -223,7 +224,6 @@ class NumeraiRunner:
             else load_model(model_name, self.version)
         )
         if model is None:
-            # Now do a full train
             logger.info(f'Training model: {model_name}')
             self.estimator = self.estimator.fit(
                 training_data[[COLUMN_ERA] + feature_cols].to_numpy(),
@@ -234,17 +234,23 @@ class NumeraiRunner:
             self.estimator = model
         version = '' if version == 'latest' else version.replace('v', '')
         model_name = f'{model_name}{version}'
-
-        # Garbage collection gets rid of unused data and frees up memory
         gc.collect()
 
-        prediction_data = pd.DataFrame(live_data.index).set_index(COLUMN_ID)
-        prediction_data['predictions'] = self.estimator.predict(
+        tournament_data = pd.DataFrame(live_data.index).set_index(COLUMN_ID)
+        tournament_data['predictions'] = self.estimator.predict(
             live_data[[COLUMN_ERA] + feature_cols].to_numpy()
         )
         gc.collect()
+        submit_tournament_predictions(tournament_data, self.numerai_model_id)
 
-        submit_tournament_predictions(prediction_data, self.numerai_model_id)
+        diagnostic_data = pd.DataFrame(validation_data.index).set_index(
+            COLUMN_ID
+        )
+        diagnostic_data['predictions'] = self.estimator.predict(
+            validation_data[[COLUMN_ERA] + feature_cols].to_numpy()
+        )
+        gc.collect()
+        submit_diagnostic_predictions(diagnostic_data, self.numerai_model_id)
 
 
 def _save_config_file_to_wandb(config: DictConfig) -> None:
