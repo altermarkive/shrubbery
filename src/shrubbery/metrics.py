@@ -199,7 +199,7 @@ def submit_diagnostic_predictions(
             logger.exception('Upload failure for diagnostic predictions')
             time.sleep(10)
     # Fetch diagnostics
-    while True:
+    for _ in range(60):
         diagnostics = napi.diagnostics(
             model_id=model_id, diagnostics_id=diagnostics_id
         )[0]
@@ -207,9 +207,10 @@ def submit_diagnostic_predictions(
             break
         time.sleep(10)
     metrics = {}
-    for key, value in diagnostics.items():
-        if isinstance(value, float) or isinstance(value, int):
-            metrics[key] = float(value)
-    if wandb.run is not None:
-        wandb.run.summary.update(metrics)
+    if diagnostics['status'] == 'done':
+        for key, value in diagnostics.items():
+            if isinstance(value, float) or isinstance(value, int):
+                metrics[key] = float(value)
+        if wandb.run is not None:
+            wandb.run.summary.update(metrics)
     return metrics
