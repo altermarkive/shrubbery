@@ -16,6 +16,8 @@ from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
 
+# Note: In case multiple scores are of interest, see: https://stackoverflow.com/questions/35876508/evaluate-multiple-scores-on-sklearn-cross-val-score & https://scikit-learn.org/stable/modules/grid_search.html#composite-grid-search  # noqa: E501
+
 
 def _unif(df: pd.DataFrame) -> pd.Series:
     x = (df.rank(method='first') - 0.5) / len(df)
