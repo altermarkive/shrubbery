@@ -10,6 +10,7 @@ from omegaconf import DictConfig, OmegaConf
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
+from shrubbery.adversarial_validation import adversarial_downsampling
 from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_ID,
@@ -190,6 +191,13 @@ class NumeraiRunner:
             'live.parquet', read_columns, feature_cols
         )
         override_numerai_era(training_eras + validation_eras, live_data)
+        if self.adversarial_downsampling_ratio is not None:
+            _, training_data, _ = adversarial_downsampling(
+                feature_cols,
+                training_data,
+                validation_data,
+                self.adversarial_downsampling_ratio
+            )
 
         # Check for nans and fill nans
         nans_per_col = live_data[feature_cols].isna().sum()
