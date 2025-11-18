@@ -80,5 +80,5 @@ def numeric_eras(name: str, data: pd.DataFrame) -> list:
 
 
 def override_numerai_era(eras: list, data: pd.DataFrame) -> None:
-    next_era = str(max([int(era) for era in eras]) + 1)
+    next_era = np.float32(max([int(era) for era in eras]) + 1)
     data[COLUMN_ERA] = next_era
