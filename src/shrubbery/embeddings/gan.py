@@ -57,7 +57,7 @@ def create_discriminator(feature_count: int, layer_units: list[int]) -> Model:
             # with faster and more efficient training. LeakyReLU addresses
             # the issue of "dying ReLUs" and may help maintaining non-zero
             # gradients and improve learning dynamics.
-            discriminator.add(LeakyReLU(alpha=0.2))
+            discriminator.add(LeakyReLU(negative_slope=0.2))
     discriminator.summary()
     return discriminator
 
@@ -90,7 +90,7 @@ def create_generator(
         # the issue of "dying ReLUs" and may help maintaining non-zero
         # gradients and improve learning dynamics.
         generator.add(
-            LeakyReLU(alpha=0.2)
+            LeakyReLU(negative_slope=0.2)
             if i < len(all_layer_units) - 1
             else Activation('sigmoid')
         )
