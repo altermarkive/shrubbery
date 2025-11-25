@@ -55,14 +55,13 @@ class Ensembler(
     def __init__(
         self,
         estimators: list[EstimatorConfig],
-        numerai_model_id: str,
         ensemble_metric_function: Callable,
         ensemble_metric_greater_is_better: bool,
         ensemble_type: EnsembleType,
         mix_combinatorial_cap: int | None,
+        numerai_model_id: str = 'DEPRECATED',
     ) -> None:
         self.estimators = estimators
-        self.numerai_model_id = numerai_model_id
         self.ensemble_metric_function = ensemble_metric_function
         self.ensemble_metric_greater_is_better = (
             ensemble_metric_greater_is_better
