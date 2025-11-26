@@ -2259,7 +2259,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/17/0d/74f0293dfd7dcc383
 
 [[package]]
 name = "myfm"
-version = "0.3.2.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
@@ -2268,7 +2268,15 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/b5/e374da6d84480bbbfc38736d19ad53fc6d7e040d1b13fa59788de1004eba/myfm-0.3.2.0.tar.gz", hash = "sha256:0dd63e006eca453320c11cb44ef8d228b69dd3ff2e62f5df5a97d8b3d097c528", size = 401600, upload-time = "2022-05-03T00:32:18.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/3f/68050f0c1534cad9374a5026d7894cea3f718a590da2db404e56a9da7aaa/myfm-0.4.0-cp312-abi3-macosx_10_14_x86_64.whl", hash = "sha256:cdf48cae036a1c22b8964d5d3cf1619b89afc059bd6b5ea46ed79f5292b03307", size = 215836, upload-time = "2025-07-11T14:05:34.832Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/74/292dbbc7e7e99c71828d24f20fee31b2f4afbce33b1c83ced1748894b1b1/myfm-0.4.0-cp312-abi3-macosx_11_0_arm64.whl", hash = "sha256:5f2ae4488dfd0c3c6bb97fbd32ff33404d6ebf876942c5c6c124307f0837b2df", size = 203991, upload-time = "2025-07-11T14:05:36.064Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/9c/3f3e28617474fbdcf7b5c7738335f0fbea5c08b7a472b017b8b7d9b8e3f6/myfm-0.4.0-cp312-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:f18cb0914d5f61e170c0776b9b871b76eb7af37ae3f4b2fd53b4d4f605b3e5cd", size = 217267, upload-time = "2025-07-11T14:05:37.286Z" },
+    { url = "https://files.pythonhosted.org/packages/22/cc/c07ecae3e725ea82b1c3898802e667143d28e42c31d7c230e8b0a55ebc51/myfm-0.4.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:443e25d7cc6506d247195b31ecc3a347fa6e980768ec254589bf77ab8a765930", size = 230106, upload-time = "2025-07-11T14:05:38.746Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/52/062c6d402fbaf99f209d806f4e3a62ad7b8c7a08d9d42710b532040dd003/myfm-0.4.0-cp312-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:4fdcef3e98ac1b8707b4f642055ae02854793871719e7367ff95e2af7163ce3b", size = 660521, upload-time = "2025-07-11T14:05:40.389Z" },
+    { url = "https://files.pythonhosted.org/packages/97/b7/40b46221da761c2ecf9f27d0561d04694ae253afa4374c8be71be1827f17/myfm-0.4.0-cp312-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:9ab0c5ed19f3adf158d8ff742555e0b2cc6582657249210370bb111380861533", size = 689183, upload-time = "2025-07-11T14:05:41.902Z" },
+    { url = "https://files.pythonhosted.org/packages/51/a0/7b6b05b82d54aa1376afec50a45b07ba621d10a5c8d683cfeb306c0fee33/myfm-0.4.0-cp312-abi3-win_amd64.whl", hash = "sha256:f6a92feb6ce239346a45b3b88ed4c6ada5d0f13126db45564b9737281f223afa", size = 229827, upload-time = "2025-07-11T14:05:43.502Z" },
+]
 
 [[package]]
 name = "mypy"
@@ -4073,7 +4081,7 @@ requires-dist = [
     { name = "lightgbm", specifier = ">=4.6.0" },
     { name = "matplotlib", specifier = ">=3.10.5" },
     { name = "minisom", specifier = ">=2.3.5" },
-    { name = "myfm", specifier = "==0.3.2.0" },
+    { name = "myfm", specifier = "==0.4.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.17.1" },
     { name = "numerapi", specifier = ">=2.20.7" },
     { name = "numerblox", specifier = ">=1.6.1" },
