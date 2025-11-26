@@ -14,21 +14,30 @@ METRIC_PREDICTION_VALUE = 'Metric'
 # - https://stackoverflow.com/questions/32401493/how-to-create-customize-your-own-scorer-function-in-scikit-learn  # noqa: E501
 # - https://scikit-learn.org/stable/modules/model_evaluation.html
 # - https://github.com/scikit-learn/scikit-learn/blob/8c9c1f27b/sklearn/metrics/_scorer.py#L604  # noqa: E501
-def numerai_scorer(
-    metric: Callable,
-    greater_is_better: bool,
-) -> Callable:
-    ascending = 1.0 if greater_is_better else -1.0
+class NumeraiScorer:
+    def __init__(
+        self,
+        metric: Callable,
+        greater_is_better: bool,
+    ) -> None:
+        self.metric = metric
+        self.greater_is_better = greater_is_better
 
-    def scorer(estimator: Any, x: np.ndarray, y: np.ndarray) -> float:
+    def __call__(self, estimator: Any, x: np.ndarray, y: np.ndarray) -> float:
+        ascending = 1.0 if self.greater_is_better else -1.0
         y_true = y
         if y.ndim > 1 and 1 not in y.shape:
             y_true = y_true[:, [COLUMN_INDEX_TARGET]]
         y_true = y_true.ravel()
         y_pred = estimator.predict(x)
-        return ascending * metric(x, y_true, y_pred)
+        return ascending * self.metric(x, y_true, y_pred)
 
-    return scorer
+
+def numerai_scorer(
+    metric: Callable,
+    greater_is_better: bool,
+) -> Callable:
+    return NumeraiScorer(metric=metric, greater_is_better=greater_is_better)
 
 
 TABLE_EVALUATION = 'Evaluation Table'
