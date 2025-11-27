@@ -20,11 +20,6 @@ from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adam  # noqa: E402
 from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 
-from shrubbery.utilities import (  # noqa: E402
-    deserialize_keras_model,
-    serialize_keras_model,
-)
-
 
 class Autoencoder(BaseEstimator, TransformerMixin):
     def __init__(
@@ -82,12 +77,16 @@ class Autoencoder(BaseEstimator, TransformerMixin):
             epochs=self.epochs,
         )
         embedder = Sequential(model.layers[: 2 * len(self.layer_units)])
-        embedder.compile(optimizer=optimizer, loss=MeanSquaredError())
-        self.serialized_embedder_ = serialize_keras_model(embedder)
+        embedder.build(input_shape=(None, x.shape[1]))
+        embedder_config = embedder.get_config()
+        embedder_weights = embedder.get_weights()
+        self.serialized_embedder_ = (embedder_config, embedder_weights)
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_embedder_ is not None
-        embedder = deserialize_keras_model(self.serialized_embedder_)
+        embedder_config, embedder_weights = self.serialized_embedder_
+        embedder = Sequential.from_config(embedder_config)
+        embedder.set_weights(embedder_weights)
         result = embedder.predict(convert_to_tensor(x))
         return result
