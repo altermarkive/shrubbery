@@ -136,6 +136,11 @@ class Ensembler(
                 )
         logger.info('Creating ensemble')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
+        if wandb.run is not None:
+            wandb.run.summary.update(
+                {'best_model': ' '.join(self.estimator_names_best_)}
+            )
+
         ensemble = get_ensemble(self.ensemble_type)
         return mix_predictions(
             predictions, self.estimator_names_best_, ensemble
