@@ -24,6 +24,8 @@ class NumeraiScorer:
         self.greater_is_better = greater_is_better
         if hasattr(metric, '__name__'):
             self.__name__ = metric.__name__
+        elif hasattr(metric, '__class__'):
+            self.__name__ = metric.__class__.__name__
         else:
             self.__name__ = str(metric)
 
@@ -35,6 +37,9 @@ class NumeraiScorer:
         y_true = y_true.ravel()
         y_pred = estimator.predict(x)
         return ascending * self.metric(x, y_true, y_pred)
+
+    def __str__(self) -> str:
+        return self.__name__
 
 
 def numerai_scorer(
