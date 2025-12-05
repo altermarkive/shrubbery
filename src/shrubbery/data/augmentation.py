@@ -75,7 +75,7 @@ def get_biggest_change_features(
 
 def numeric_eras(name: str, data: pd.DataFrame) -> list:
     eras = sorted(list(set(data[COLUMN_ERA])))
-    logger.info(f'Eras ({name}): {eras[:2]} - {eras[-2:]}')
+    logger.info(f'Eras in {name}: {eras[:2]} - {eras[-2:]}')
     return eras
 
 
