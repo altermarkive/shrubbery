@@ -329,8 +329,4 @@ def main(config: DictConfig) -> None:
 
 
 if __name__ == '__main__':
-    # # To prevent crash/freeze with n_jobs > 1
-    # # (hinted at in TPOT's documentation)
-    # import multiprocessing
-    # multiprocessing.set_start_method('forkserver')
     main()
