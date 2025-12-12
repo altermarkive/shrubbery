@@ -313,7 +313,7 @@ def main(config: DictConfig) -> None:
         pass
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
     update_tournament_submissions(runner.numerai_model_id)
-    wandb.init(tags=tags)
+    wandb.init(tags=tags, dir='/tmp/wandb')
     _save_config_file_to_wandb(config)
     runner.run()
     wandb.finish()
