@@ -2553,7 +2553,7 @@ wheels = [
 
 [[package]]
 name = "numerapi"
-version = "2.20.8"
+version = "2.21.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -2563,9 +2563,9 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0b/fe/3ddef39d0fd2969a0a9b3dfdda22e0f2b3362751be3c091c89b1e4c0d255/numerapi-2.20.8.tar.gz", hash = "sha256:25353a1eb53d170944cd6cb9cffcd81d5b38b2b813071f06960c65e13e315376", size = 24309, upload-time = "2025-09-18T05:52:19.113Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/d3/6c2b7c1cb6e89d06adfeb0c7bb2d6900964acdee36cf764c6851829464a2/numerapi-2.21.0.tar.gz", hash = "sha256:3c13a5dcb0574807def7709e447ea485d4625e225688d6d98751ca3ef5824f46", size = 28760, upload-time = "2025-12-08T09:07:35.531Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/c4/d19ea5fa0fafb30f613ba36ea054b2717507f4e47bf32a8f090461a24f28/numerapi-2.20.8-py3-none-any.whl", hash = "sha256:0460e301aebe5659d2b082a49ac58db618992d816288dbf809e4c9c3ec807053", size = 26039, upload-time = "2025-09-18T05:52:17.942Z" },
+    { url = "https://files.pythonhosted.org/packages/60/e9/37cafd2e55dcc461a6c23246f22625e5313d1c5370f01e5075085f3ddd30/numerapi-2.21.0-py3-none-any.whl", hash = "sha256:2ec56b1f8b99a8deb72eee8106a2cbe318bf08fda95c0256a8ac824193e9cc25", size = 26617, upload-time = "2025-12-08T09:07:34.651Z" },
 ]
 
 [[package]]
