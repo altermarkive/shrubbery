@@ -1,3 +1,4 @@
+import io
 from abc import ABC, abstractmethod
 from typing import Callable
 
@@ -46,16 +47,19 @@ class TorchRegressor(BaseEstimator, RegressorMixin, ABC):
             progress.set_description(
                 f'Training - epoch: {epoch}; metric: {metric:.5f}'
             )
-        self.serialized_model_ = jit.script(module)
+        self.serialized_model_ = io.BytesIO()
+        jit.save(jit.script(module), self.serialized_model_)
+        self.serialized_model_.seek(0)
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-        self.serialized_model_.eval()
+        self.serialized_model_.seek(0)
+        model = torch.jit.load(self.serialized_model_)
+        self.serialized_model_.seek(0)
+        model.eval()
         with torch.no_grad():
-            predictions = (
-                self.serialized_model_(x_tensor).cpu().numpy().squeeze()
-            )
+            predictions = model(x_tensor).cpu().numpy().squeeze()
         return predictions
 
     @abstractmethod
