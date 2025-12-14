@@ -96,7 +96,7 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
             if round_number is None:
                 continue
             entry = performances[
-                performances[COLUMN_ROUND_NUMBER] == round_number
+                performances[COLUMN_ROUND_NUMBER] == int(round_number)
             ]
             scores = {
                 score_key: entry[score_key].item()
