@@ -86,16 +86,13 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
         for run in runs:
             if 'submitted' not in run.tags:
                 continue
-            if f'numerai_model_id:{numerai_model_id}' not in run.tags:
-                continue
             if 'scored' in run.tags:
                 continue
-            round_number: int | None = None
-            for tag in run.tags:
-                try:
-                    round_number = int(tag)
-                except ValueError:
-                    continue
+            if 'numerai_model_id' not in run.summary:
+                continue
+            if run.summary['numerai_model_id'] != numerai_model_id:
+                continue
+            round_number = run.summary.get('tournament_round')
             if round_number is None:
                 continue
             entry = performances[
