@@ -7,23 +7,6 @@ import torch.optim as optim
 from shrubbery.adapter import TorchRegressor
 
 
-def mse_with_weight_regularization(
-    module: nn.Module, scale: float, device: str
-) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
-    mse = nn.MSELoss()
-
-    def l2_regularization(
-        y_prediction: torch.Tensor, y_true: torch.Tensor
-    ) -> torch.Tensor:
-        reg_loss = torch.tensor(0.0).to(device)
-        for param in module.parameters():
-            if param.ndim > 1:
-                reg_loss += torch.sum(param**2)
-        return mse(y_prediction, y_true) + scale * reg_loss
-
-    return l2_regularization
-
-
 def bce_with_weight_regularization(
     module: nn.Module, scale: float, device: str
 ) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
