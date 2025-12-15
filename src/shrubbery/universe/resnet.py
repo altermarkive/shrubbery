@@ -24,6 +24,23 @@ def mse_with_weight_regularization(
     return l2_regularization
 
 
+def bce_with_weight_regularization(
+    module: nn.Module, scale: float, device: str
+) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
+    bce = nn.BCELoss()
+
+    def l2_regularization(
+        y_prediction: torch.Tensor, y_true: torch.Tensor
+    ) -> torch.Tensor:
+        reg_loss = torch.tensor(0.0).to(device)
+        for param in module.parameters():
+            if param.ndim > 1:
+                reg_loss += torch.sum(param**2)
+        return bce(y_prediction, y_true) + scale * reg_loss
+
+    return l2_regularization
+
+
 class ResidualBlock(nn.Module):
     def __init__(self, hidden_dim: int) -> None:
         super().__init__()
@@ -92,7 +109,7 @@ class ResNetRegressor(TorchRegressor):
         optimizer = optim.Adam(
             module.parameters(), lr=self.learning_rate, weight_decay=0.0
         )
-        criterion = mse_with_weight_regularization(
+        criterion = bce_with_weight_regularization(
             module, 1e-3, self.device
         )
         return (module, optimizer, criterion)
