@@ -40,7 +40,7 @@ class ResidualBlock(nn.Module):
         out = self.activation(out)
         out = self.dense2(out)
         out = self.bn2(out)
-        out = out + residual  # Skip connection
+        out += residual  # Skip connection
         out = self.activation(out)
         return out
 
@@ -52,13 +52,16 @@ class ResNetRegressor(TorchRegressor):
         epochs: int,
         hidden_dim: int,
         num_blocks: int,
+        dropout_rate: float,
+        learning_rate: float,
         device: str,
     ) -> None:
         super().__init__(epochs=epochs, device=device)
         self.batch_size = batch_size
         self.hidden_dim = hidden_dim
         self.num_blocks = num_blocks
-        self.learning_rate = 1e-4
+        self.dropout_rate = dropout_rate
+        self.learning_rate = learning_rate
 
     def prepare(
         self, input_dim: int
@@ -70,11 +73,10 @@ class ResNetRegressor(TorchRegressor):
         layers: list[nn.Module] = []
 
         # Input projection to hidden dimension
-        input_dense = nn.Linear(input_dim, self.hidden_dim)
-        layers.append(input_dense)
+        layers.append(nn.Linear(input_dim, self.hidden_dim))
         layers.append(nn.BatchNorm1d(self.hidden_dim))
         layers.append(nn.ReLU())
-        layers.append(nn.Dropout(0.2))
+        layers.append(nn.Dropout(self.dropout_rate))
 
         # Residual blocks
         for _ in range(self.num_blocks):
