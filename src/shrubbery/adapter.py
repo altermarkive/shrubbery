@@ -24,9 +24,11 @@ class TorchRegressor(BaseEstimator, RegressorMixin, ABC):
     def __init__(
         self,
         epochs: int,
+        batch_size: int,
         device: str,
     ) -> None:
         self.epochs = epochs
+        self.batch_size = batch_size
         self.device = device
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'TorchRegressor':

@@ -33,16 +33,16 @@ class ResidualBlock(nn.Module):
 class ResNetRegressor(TorchRegressor):
     def __init__(
         self,
-        batch_size: int,
-        epochs: int,
         hidden_dim: int,
         num_blocks: int,
         dropout_rate: float,
         learning_rate: float,
         weight_decay: float,
+        epochs: int,
+        batch_size: int,
         device: str,
     ) -> None:
-        super().__init__(epochs=epochs, device=device)
+        super().__init__(epochs=epochs, batch_size=batch_size, device=device)
         self.batch_size = batch_size
         self.hidden_dim = hidden_dim
         self.num_blocks = num_blocks
@@ -58,26 +58,22 @@ class ResNetRegressor(TorchRegressor):
         Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
     ]:
         layers: list[nn.Module] = []
-
         # Input projection to hidden dimension
         layers.append(nn.Linear(input_dim, self.hidden_dim))
         layers.append(nn.BatchNorm1d(self.hidden_dim))
         layers.append(nn.ReLU())
         layers.append(nn.Dropout(self.dropout_rate))
-
         # Residual blocks
         for _ in range(self.num_blocks):
             layers.append(ResidualBlock(self.hidden_dim, self.dropout_rate))
-
         # Output projection (two-layer head with bottleneck)
         layers.append(nn.Linear(self.hidden_dim, self.hidden_dim // 2))
         layers.append(nn.ReLU())
         layers.append(nn.Dropout(self.dropout_rate))
         layers.append(nn.Linear(self.hidden_dim // 2, 1))
         layers.append(nn.Sigmoid())
-
+        # Model
         module = nn.Sequential(*layers)
-
         # Optimizer & criterion
         optimizer = optim.AdamW(
             module.parameters(),
