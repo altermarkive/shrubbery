@@ -1,3 +1,4 @@
+# Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/classifier/model.py  # noqa: E501
 from typing import Callable
 
 import torch
