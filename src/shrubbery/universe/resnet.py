@@ -69,10 +69,11 @@ class ResNetRegressor(TorchRegressor):
         for _ in range(self.num_blocks):
             layers.append(ResidualBlock(self.hidden_dim, self.dropout_rate))
 
-        # Output projection
-        output_dense = nn.Linear(self.hidden_dim, 1)
-        nn.init.zeros_(output_dense.bias)
-        layers.append(output_dense)
+        # Output projection (two-layer head with bottleneck)
+        layers.append(nn.Linear(self.hidden_dim, self.hidden_dim // 2))
+        layers.append(nn.ReLU())
+        layers.append(nn.Dropout(self.dropout_rate))
+        layers.append(nn.Linear(self.hidden_dim // 2, 1))
         layers.append(nn.Sigmoid())
 
         module = nn.Sequential(*layers)
