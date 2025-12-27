@@ -4069,7 +4069,7 @@ wheels = [
 
 [[package]]
 name = "skorch"
-version = "1.3.0"
+version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
@@ -4078,9 +4078,9 @@ dependencies = [
     { name = "tabulate" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/51/a8/cce187b42c66609103e66d730005226353c624e1a45d5185d8f25b3bded4/skorch-1.3.0.tar.gz", hash = "sha256:98fae45ffd3d40605f182dda5999bdd0953630852d8e615d80653affe1d93e00", size = 249195, upload-time = "2025-11-19T11:08:10.072Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/21/12/90d072b197bef5033c694ceca3fc5714edda122d8a5ef003d8d03febcb1e/skorch-1.3.1.tar.gz", hash = "sha256:7081a0c9ab2361d524826f90c84b04a74cf55338c2b2028fa59a2e39a9019e43", size = 249195, upload-time = "2025-12-22T16:55:32.169Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/d7/bf8451da4d2d3bd4a6a62592005faa051a6dc80640c15c90ac30ed28eaec/skorch-1.3.0-py3-none-any.whl", hash = "sha256:23787e23c811e412ac8cbfee6d7d7b68869ab577ecb27ecea69914ecf0aa1ba0", size = 268459, upload-time = "2025-11-19T11:08:07.914Z" },
+    { url = "https://files.pythonhosted.org/packages/56/4d/6fbe78427fa6b5c54cbdbd3b9bdacd214a5bcf9bf4dd247fc9537fba1644/skorch-1.3.1-py3-none-any.whl", hash = "sha256:bb06c65a15d0bfc765928a0b3fadf569222e7ec772f81b21d422603d52b4ad32", size = 268491, upload-time = "2025-12-22T16:55:30.546Z" },
 ]
 
 [[package]]
