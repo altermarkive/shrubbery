@@ -3977,7 +3977,6 @@ dependencies = [
     { name = "scikit-network" },
     { name = "sklearn-genetic" },
     { name = "sklearn-genetic-opt" },
-    { name = "skorch" },
     { name = "tabulate" },
     { name = "torch" },
     { name = "tpot" },
@@ -4018,7 +4017,6 @@ requires-dist = [
     { name = "scikit-network", specifier = ">=0.33.3" },
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
     { name = "sklearn-genetic-opt", specifier = ">=0.12.0" },
-    { name = "skorch", specifier = ">=1.3.0" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "tpot", specifier = ">=1.1.0" },
@@ -4065,22 +4063,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/41/39/4b3ff7d5ef107bda7cbf155a376188074c0a50c5295dacc9c487bb36185a/sklearn_genetic_opt-0.12.0.tar.gz", hash = "sha256:4e526cc62b424706d6158048a0b50ecb0162fe8015d0c8889aaec1a2d40c0ac6", size = 34058, upload-time = "2025-07-23T16:44:22.14Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/10/15c3c2e30b4393a04469761c99ffbee7a00e1eb255b418c08197a7261312/sklearn_genetic_opt-0.12.0-py3-none-any.whl", hash = "sha256:7e0b9b5c0db51b822bf731a05f14fbf2a6a79b1f6b8418fdb077ed76cf134365", size = 37469, upload-time = "2025-07-23T16:44:20.865Z" },
-]
-
-[[package]]
-name = "skorch"
-version = "1.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-    { name = "tabulate" },
-    { name = "tqdm" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/51/a8/cce187b42c66609103e66d730005226353c624e1a45d5185d8f25b3bded4/skorch-1.3.0.tar.gz", hash = "sha256:98fae45ffd3d40605f182dda5999bdd0953630852d8e615d80653affe1d93e00", size = 249195, upload-time = "2025-11-19T11:08:10.072Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/d7/bf8451da4d2d3bd4a6a62592005faa051a6dc80640c15c90ac30ed28eaec/skorch-1.3.0-py3-none-any.whl", hash = "sha256:23787e23c811e412ac8cbfee6d7d7b68869ab577ecb27ecea69914ecf0aa1ba0", size = 268459, upload-time = "2025-11-19T11:08:07.914Z" },
 ]
 
 [[package]]
