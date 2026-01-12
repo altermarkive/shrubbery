@@ -8,7 +8,14 @@ from shrubbery.adapter import TorchRegressor
 
 
 class CNNModule(nn.Module):
-    def __init__(self, input_dim, num_filters, kernel_size, dense_units, dropout_rate):
+    def __init__(
+        self,
+        input_dim: int,
+        num_filters: int,
+        kernel_size: int,
+        dense_units: int,
+        dropout_rate: float,
+    ) -> None:
         super().__init__()
         self.conv1d = nn.Conv1d(
             in_channels=1,
@@ -25,7 +32,7 @@ class CNNModule(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
         self.output = nn.Linear(dense_units, 1)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x.unsqueeze(1)
         x = self.conv1d(x)
         x = self.bn(x)
