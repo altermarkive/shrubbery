@@ -190,7 +190,7 @@ class DeepModule(nn.Module):
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout_rate))
             input_dim = unit
-        layers.append(nn.Linear(input_dim, 1))
+        layers.append(nn.Linear(units[-1], 1))
         self.network = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -209,16 +209,16 @@ class WideAndDeepModule(nn.Module):
         self.wide_batch_norm = nn.BatchNorm1d(input_dim)
         # Deep path
         deep_layers: list[nn.Module] = []
-        deep_input_dim = input_dim
+        layer_input_dim = input_dim
         for unit in units:
-            deep_layers.append(nn.Linear(deep_input_dim, unit))
+            deep_layers.append(nn.Linear(layer_input_dim, unit))
             deep_layers.append(nn.BatchNorm1d(unit))
             deep_layers.append(nn.ReLU())
             deep_layers.append(nn.Dropout(dropout_rate))
-            deep_input_dim = unit
+            layer_input_dim = unit
         self.deep_network = nn.Sequential(*deep_layers)
         # Combined output: concat wide + deep features, then project
-        combined_dim = input_dim + deep_input_dim
+        combined_dim = input_dim + units[-1]
         self.output_layer = nn.Linear(combined_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
