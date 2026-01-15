@@ -304,16 +304,9 @@ def _save_config_file_to_wandb(config: DictConfig) -> None:
 
 @hydra.main(version_base=None, config_path='.', config_name='main')
 def main(config: DictConfig) -> None:
-    # W&B Tags
-    tags = []
-    try:
-        round = napi.get_current_round()
-        tags.append(str(round))
-    except ValueError:
-        pass
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
     update_tournament_submissions(runner.numerai_model_id)
-    wandb.init(tags=tags, dir='/tmp/wandb')
+    wandb.init(dir='/tmp/wandb')
     _save_config_file_to_wandb(config)
     runner.run()
     wandb.finish()
