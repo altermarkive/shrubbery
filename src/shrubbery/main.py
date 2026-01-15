@@ -206,7 +206,7 @@ class NumeraiRunner:
 
     def run(self, config_content: str, config_name: str) -> None:
         silence_false_positive_warnings()
-        update_tournament_submissions(runner.numerai_model_id)
+        update_tournament_submissions(self.numerai_model_id)
         wandb.init(dir='/tmp/wandb')
         _save_config_file_to_wandb(config_content, config_name)
         if wandb.run is not None:
