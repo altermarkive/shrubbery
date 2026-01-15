@@ -1,7 +1,7 @@
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
+import plotly.graph_objects as go
 import wandb
 from minisom import MiniSom
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -38,10 +38,14 @@ def _som_embed(som: SOM, x: np.ndarray) -> np.ndarray:
 
 def _plot_som_diagnostics(som: MiniSom) -> None:
     u_matrix = som.distance_map()
-    plt.imshow(u_matrix, cmap='viridis')
-    plt.colorbar()
-    plt.title('U-Matrix')
-    plt.show()
+    fig = go.Figure(
+        data=go.Heatmap(z=u_matrix, colorscale='Viridis', colorbar=dict(title=''))
+    )
+    fig.update_layout(
+        title='U-Matrix',
+        xaxis=dict(title='', showticklabels=False),
+        yaxis=dict(title='', showticklabels=False, autorange='reversed'),
+    )
     som_matrix_view_path = locate_numerai_file('som_matrix_view.png')
-    plt.savefig(som_matrix_view_path)
+    fig.write_image(str(som_matrix_view_path))
     wandb.log({'SOM Matrix View': wandb.Image(str(som_matrix_view_path))})
