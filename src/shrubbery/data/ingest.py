@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pyarrow.parquet
 
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.data.augmentation import numeric_eras
@@ -66,11 +65,6 @@ def download_file_and_investigate(
             if None not in [current_file_hash, previous_file_hash]
             else None
         )
-    if file_name.endswith('.parquet'):
-        schema = pyarrow.parquet.read_schema(
-            current_file_path, memory_map=True
-        )
-        logger.info(f'Column count for {file_name}: {len(schema.names)}')
     return different
 
 
@@ -133,13 +127,10 @@ def read_parquet_and_unpack(
 
 
 def get_training_targets() -> list[str]:
+    with open(locate_numerai_file('features.json'), 'r') as handle:
+        feature_metadata = json.load(handle)
+    available_targets = feature_metadata['targets']
     train_parquet_file_path = locate_numerai_file('train.parquet')
-    schema = pyarrow.parquet.read_schema(
-        train_parquet_file_path, memory_map=True
-    )
-    available_targets = [
-        column for column in schema.names if column.startswith('target')
-    ]
     training_data = pd.read_parquet(
         train_parquet_file_path, columns=available_targets
     )
