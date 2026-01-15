@@ -296,7 +296,7 @@ class NumeraiRunner:
 
 
 def _save_config_file_to_wandb(
-        config_content: bytes, config_name: str
+    config_content: bytes, config_name: str
 ) -> None:
     directory = get_workspace_path()
     config_path = directory / config_name
