@@ -299,7 +299,7 @@ def _save_config_file_to_wandb(config_content: str, config_name: str) -> None:
     directory = get_workspace_path()
     config_path = directory / config_name
     with open(config_path, 'wb') as handle:
-        handle.write()
+        handle.write(config_content)
     wandb.save(config_path, base_path=directory)
 
 
