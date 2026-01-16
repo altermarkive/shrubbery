@@ -57,7 +57,7 @@ def download_file_and_investigate(
     logger.info(f'Downloading {file_name} to {current_file_path}')
     if investigate:
         previous_file_hash = file_hash(previous_file_path)
-    napi.download_dataset(f'v5.0/{file_name}', str(current_file_path))
+    napi.download_dataset(f'v5.2/{file_name}', str(current_file_path))
     if investigate:
         current_file_hash = file_hash(current_file_path)
         different = (
