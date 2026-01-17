@@ -1,4 +1,5 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
+import io
 import os
 
 os.environ['KERAS_BACKEND'] = 'torch'
@@ -8,6 +9,7 @@ import keras.random  # noqa: E402
 import keras.regularizers  # noqa: E402
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
+import torch.jit as jit  # noqa: E402
 import torch.nn as nn  # noqa: E402
 import torch.nn.init as init  # noqa: E402
 from keras.initializers import VarianceScaling  # noqa: E402
@@ -231,30 +233,29 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
 
                 optimizer.step()
 
-        # Store model configuration and weights
-        self.input_dim_ = input_dim
-        self.encoder_state_dict_ = model.encoder.state_dict()
+        # Serialize encoder using torch.jit
+        self.serialized_encoder_ = io.BytesIO()
+        jit.save(jit.script(model.encoder), self.serialized_encoder_)
+        self.serialized_encoder_.seek(0)
         self.device_ = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
         """Transform data using the trained encoder."""
-        assert hasattr(self, 'encoder_state_dict_'), 'Model not fitted yet'
+        assert hasattr(self, 'serialized_encoder_'), 'Model not fitted yet'
 
         device = torch.device(self.device_)
 
-        # Reconstruct encoder
-        full_model = AutoencoderNetwork(self.input_dim_, self.layer_units).to(
-            device
-        )
-        full_model.encoder.load_state_dict(self.encoder_state_dict_)
-        full_model.encoder.eval()
+        # Load encoder from serialized model
+        self.serialized_encoder_.seek(0)
+        encoder = torch.jit.load(self.serialized_encoder_)
+        self.serialized_encoder_.seek(0)
+        encoder.eval()
 
         # Transform data
         x_tensor = torch.FloatTensor(x).to(device)
         with torch.no_grad():
-            encoded = full_model.encode(x_tensor)
-            result = encoded.cpu().numpy()
+            result = encoder(x_tensor).cpu().numpy()
 
         return result
