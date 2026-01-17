@@ -48,7 +48,7 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         predictions = []
-        for _ in range(self.n_shuffles_fit):
+        for _ in range(self.n_shuffles_predict):
             shuffled_x = shuffle(x)
             joint_x = np.concatenate([x, shuffled_x], axis=1)
             predictions.append(self.estimator.predict(joint_x))
