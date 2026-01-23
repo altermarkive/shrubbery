@@ -325,13 +325,12 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         y_tensor = torch.tensor(y, dtype=torch.float32).to(self.device)
         dataset = TensorDataset(x_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
-        for epoch in range(self.epochs):
-            for x_batch, y_batch in (
-                progress := tqdm(loader, desc=f'Epoch {epoch + 1}/{self.epochs}')
-            ):
+        for epoch in (progress := tqdm(range(self.epochs))):
+            discriminator.train()
+            generator.train()
+            for x_batch, y_batch in loader:
                 batch_size_actual = x_batch.size(0)
                 # Train discriminator
-                discriminator.train()
                 d_optimizer.zero_grad()
                 # Real samples
                 real_labels = torch.ones(batch_size_actual, 1).to(self.device)
@@ -350,7 +349,6 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                 d_loss.backward()
                 d_optimizer.step()
                 # Train generator
-                generator.train()
                 g_optimizer.zero_grad()
                 # Generate samples and try to fool discriminator
                 g_noise = torch.randn(2 * batch_size_actual, self.latent_dim).to(
@@ -363,10 +361,10 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                 g_loss = criterion(fake_outputs, g_labels)
                 g_loss.backward()
                 g_optimizer.step()
-                progress.set_description(
-                    f'Epoch {epoch + 1}/{self.epochs} - '
-                    f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
-                )
+            progress.set_description(
+                f'Training - epoch: {epoch}; '
+                f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
+            )
         # Extract embedder from discriminator (remove last 2 layers to exclude final logit output)
         # Removes: final Linear(to 1), final BatchNorm
         # Keeps: all layers up to and including the last hidden LeakyReLU
