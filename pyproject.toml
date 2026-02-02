@@ -18,9 +18,9 @@ dependencies = [
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
     "hydra-core>=1.3.2",
-    "kaleido>=1.2.0",
     "keras>=3.11.1",
     "lightgbm>=4.6.0",
+    "matplotlib>=3.10.8",
     "minisom>=2.3.5",
     # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
     #     from ._myfm import RelationBlock
@@ -28,14 +28,13 @@ dependencies = [
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
     "numerblox>=1.6.1",
-    "plotly>=6.2.0",
     "scikit-network>=0.33.3",
     "sklearn-genetic>=0.6.0",
     "sklearn-genetic-opt>=0.12.0",
     "tabulate>=0.9.0",
     "torch>=2.8.0",
     "tpot>=1.1.0",
-    "wandb>=0.24.0",
+    "wandb>=0.24.1",
 ]
 
 [project.scripts]

@@ -1,10 +1,12 @@
 import operator
 from typing import Any, Generator
 
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as graph_objects
 import wandb
+from pandas.plotting import parallel_coordinates
 from sklearn.model_selection import BaseCrossValidator
 
 from shrubbery.constants import COLUMN_INDEX_ERA
@@ -133,41 +135,31 @@ def cross_validation_to_parallel_coordinates(
     result.columns = [
         column.replace('param_', '') for column in result.columns
     ]
-    dimensions = []
     for column in result.columns:
         if result[column].dtype == 'object':
             values = result[column].apply(str)
             categories = values.unique().tolist()
-            values = values.apply(categories.index)
-            result[column] = values
-            dimension = dict(
-                values=values,
-                label=column,
-                range=[values.min(), values.max()],
-                tickvals=list(range(len(categories))),
-                ticktext=categories,
-            )
-        else:
-            values = result[column]
-            dimension = dict(
-                values=values,
-                label=column,
-                range=[values.min(), values.max()],
-            )
-        dimensions.append(dimension)
-    figure = graph_objects.Figure(
-        data=graph_objects.Parcoords(
-            line=dict(
-                color=result['mean_test_score'],
-                colorscale='Rainbow',
-                showscale=True,
-            ),
-            dimensions=dimensions,
-        )
+            result[column] = values.apply(categories.index)
+    result = result.sort_values('mean_test_score').reset_index(drop=True)
+    min_score = result['mean_test_score'].min()
+    max_score = result['mean_test_score'].max()
+    score_span = max_score - min_score
+    result['class'] = (result['mean_test_score'] - min_score) / score_span
+    fig, ax = plt.subplots(figsize=(12, 6))
+    cmap = plt.colormaps['rainbow']
+    parallel_coordinates(
+        result, class_column='class', colormap=cmap, ax=ax, alpha=0.7
     )
+    sm = plt.cm.ScalarMappable(
+        cmap=cmap, norm=plt.Normalize(vmin=min_score, vmax=max_score)
+    )
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label('mean_test_score')
     title = f'Cross-validation result for {model_name}'
-    figure.update_layout(
-        title_text=title,
-        title_x=0.5,
-    )
-    wandb.log({title: figure})
+    ax.set_title(title)
+    if ax.legend_ is not None:
+        ax.legend_.remove()
+    plt.tight_layout()
+    wandb.log({title: fig})
+    plt.close(fig)
