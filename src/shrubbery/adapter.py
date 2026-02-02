@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import torch.jit as jit
 import torch.nn as nn
+import torch.nn.init as init
 from sklearn.base import BaseEstimator, RegressorMixin
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
@@ -73,3 +74,16 @@ class TorchRegressor(BaseEstimator, RegressorMixin, ABC):
         Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
     ]:
         pass
+
+
+def variance_scaling_initializer_with_fan_in(module: nn.Module) -> None:
+    """Initialize weights using variance scaling (with fan-in and factor of 1.0)."""
+    for submodule in module.modules():
+        if isinstance(submodule, nn.Linear):
+            fan_in = submodule.weight.size(1)
+            std = (1.0 / fan_in) ** 0.5
+            init.trunc_normal_(
+                submodule.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
+            )
+            if submodule.bias is not None:
+                init.zeros_(submodule.bias)

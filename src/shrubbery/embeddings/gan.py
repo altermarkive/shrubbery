@@ -13,7 +13,6 @@ import numpy as np  # noqa: E402
 import torch  # noqa: E402
 import torch.jit as jit  # noqa: E402
 import torch.nn as nn  # noqa: E402
-import torch.nn.init as init  # noqa: E402
 from keras.initializers import VarianceScaling  # noqa: E402
 from keras.layers import (  # noqa: E402
     Activation,
@@ -30,6 +29,9 @@ from sklearn.utils import shuffle  # noqa: E402
 from torch.utils.data import DataLoader, TensorDataset  # noqa: E402
 from tqdm import tqdm  # noqa: E402
 
+from shrubbery.adapter import (  # noqa: E402
+    variance_scaling_initializer_with_fan_in,
+)
 from shrubbery.utilities import (  # noqa: E402
     deserialize_keras_model,
     serialize_keras_model,
@@ -210,19 +212,6 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         )
         result = embedder.predict(convert_to_tensor(x))
         return result
-
-
-def variance_scaling_initializer_with_fan_in(module: nn.Module) -> None:
-    """Initialize weights using variance scaling (with fan-in and factor of 1.0)."""
-    for submodule in module.modules():
-        if isinstance(submodule, nn.Linear):
-            fan_in = submodule.weight.size(1)
-            std = (1.0 / fan_in) ** 0.5
-            init.trunc_normal_(
-                submodule.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
-            )
-            if submodule.bias is not None:
-                init.zeros_(submodule.bias)
 
 
 class DiscriminatorNetwork(nn.Module):
