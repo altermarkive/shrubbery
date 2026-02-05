@@ -1,5 +1,7 @@
+import argparse
 import gc
-from typing import Any, Callable
+from pathlib import Path
+from typing import Any, Callable, Namespace
 
 import hydra
 import hydra.utils
@@ -303,6 +305,18 @@ def _save_config_file_to_wandb(
     with open(config_path, 'wb') as handle:
         handle.write(config_content)
     wandb.save(config_path, base_path=directory)
+
+
+def config_content(config_path: str) -> bytes:
+    return Path(config_path).read_bytes()
+
+
+def main_arguments() -> Namespace:
+    parser = argparse.ArgumentParser(description='Shrubbery')
+    parser.add_argument(
+        '--retrain', action='store_true', help='Use this flag to retrain'
+    )
+    return parser.parse_args()
 
 
 @hydra.main(version_base=None, config_path='.', config_name='main')
