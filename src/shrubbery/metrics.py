@@ -149,10 +149,12 @@ class MaxFeatureExposure:
             _get_validation_data_grouped(x, y_true, y_pred)
         )
         max_per_era = validation_data_grouped.apply(
-            lambda group: group[feature_indices]
-            .corrwith(group[COLUMN_Y_PRED])
-            .abs()
-            .max(),
+            lambda group: (
+                group[feature_indices]
+                .corrwith(group[COLUMN_Y_PRED])
+                .abs()
+                .max()
+            ),
             include_groups=False,
         )
         return max_per_era.mean()

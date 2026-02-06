@@ -86,9 +86,11 @@ def adversarial_downsampling(
     downsampled_training_data = training_data.loc[
         training_results.groupby(COLUMN_ERA)
         .apply(
-            lambda group: group[COLUMN_DATA_TYPE_CONFIDENCE]
-            .nlargest(int(len(group) * downsampling_ratio))
-            .index.tolist(),
+            lambda group: (
+                group[COLUMN_DATA_TYPE_CONFIDENCE]
+                .nlargest(int(len(group) * downsampling_ratio))
+                .index.tolist()
+            ),
             include_groups=False,
         )
         .explode()
