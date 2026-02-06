@@ -111,7 +111,9 @@ def mix_combinatorial(
             for item in validation_stats
         }
         ranking = (
-            pd.DataFrame(lut.items(), columns=['Prediction', sort_by])
+            pd.DataFrame(
+                lut.items(), columns=pd.Series(['Prediction', sort_by])
+            )
             .set_index('Prediction')
             .sort_values(by=sort_by, ascending=sort_ascending)
         )
