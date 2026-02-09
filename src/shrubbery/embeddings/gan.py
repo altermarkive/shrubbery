@@ -321,6 +321,7 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         y_tensor = torch.tensor(y, dtype=torch.float32).to(self.device)
         dataset = TensorDataset(x_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+        generator.train()
         for epoch in (progress := tqdm(range(self.epochs))):
             for x_batch, y_batch in loader:
                 batch_size = x_batch.size(0)
@@ -344,7 +345,6 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                 d_optimizer.step()
                 # Train generator
                 discriminator.eval()
-                generator.train()
                 g_optimizer.zero_grad()
                 d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
                     self.device
