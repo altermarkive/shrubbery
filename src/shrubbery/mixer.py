@@ -110,12 +110,9 @@ def mix_combinatorial(
             item[METRIC_PREDICTION_ID]: item[sort_by]
             for item in validation_stats
         }
-        ranking = (
-            pd.DataFrame(
-                lut.items(), columns=pd.Series(['Prediction', sort_by])
-            )
-            .sort_values(by=sort_by, ascending=sort_ascending)
-        )
+        ranking = pd.DataFrame(
+            lut.items(), columns=pd.Series(['Prediction', sort_by])
+        ).sort_values(by=sort_by, ascending=sort_ascending)
         for _, row in ranking.iterrows():
             logger.info(f'Ranking: {row[sort_by]} {row["Prediction"]}')
     top = top_mix(lut, sort_ascending)
