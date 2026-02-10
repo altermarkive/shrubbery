@@ -114,7 +114,6 @@ def mix_combinatorial(
             pd.DataFrame(
                 lut.items(), columns=pd.Series(['Prediction', sort_by])
             )
-            .set_index('Prediction')
             .sort_values(by=sort_by, ascending=sort_ascending)
         )
         for _, row in ranking.iterrows():
