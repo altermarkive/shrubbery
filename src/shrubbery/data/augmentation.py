@@ -36,7 +36,7 @@ def get_biggest_change_features(
 
     data = np.concatenate([x, y.reshape(-1, 1)], axis=1)
 
-    def per_era_feature_correlations(data: pd.DataFrame) -> pd.DataFrame:
+    def per_era_feature_correlations(data: np.ndarray) -> pd.DataFrame:
         with warnings.catch_warnings():
             # For newly added features, some eras may be filled with 0.5
             # which results in a correlation of NaN hence we ignore the warning
