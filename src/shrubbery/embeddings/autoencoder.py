@@ -189,9 +189,9 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         criterion = nn.MSELoss()
         dataset = TensorDataset(x_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
-        for epoch in (progress := tqdm(range(self.epochs))):
+        for epoch in range(self.epochs):
             module.train()
-            for x_batch, y_batch in loader:
+            for x_batch, y_batch in (progress := tqdm(loader)):
                 optimizer.zero_grad()
                 outputs = module(x_batch)
                 metric = criterion(outputs, y_batch)
@@ -200,9 +200,9 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
                     module.parameters(), max_norm=1.0
                 )
                 optimizer.step()
-            progress.set_description(
-                f'Training - epoch: {epoch}; metric: {metric:.5f}'
-            )
+                progress.set_description(
+                    f'Training - epoch: {epoch}; loss: {metric:.4f}'
+                )
         self.serialized_model_ = io.BytesIO()
         jit.save(jit.script(module.encoder), self.serialized_model_)
         self.serialized_model_.seek(0)
