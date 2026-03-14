@@ -16,7 +16,7 @@ jobs:
           TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:${{ github.sha }}"
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
       - name: QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
