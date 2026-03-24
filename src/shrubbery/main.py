@@ -9,7 +9,6 @@ import wandb
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
-from shrubbery.adversarial_validation import adversarial_downsampling
 from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_ID,
@@ -193,7 +192,6 @@ class NumeraiRunner:
         numerai_model_id: str,
         version: str,
         notes: str,
-        adversarial_downsampling_ratio: float | None = None,
     ) -> None:
         self.feature_set_name = feature_set_name
         self.retrain = retrain
@@ -201,7 +199,6 @@ class NumeraiRunner:
         self.numerai_model_id = numerai_model_id
         self.version = version
         self.notes = notes
-        self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
 
     def run(self, config_content: bytes, config_name: str) -> None:
         silence_false_positive_warnings()
@@ -231,13 +228,6 @@ class NumeraiRunner:
             'live.parquet', read_columns, feature_cols
         )
         override_numerai_era(training_eras + validation_eras, live_data)
-        if self.retrain and self.adversarial_downsampling_ratio is not None:
-            _, training_data, _ = adversarial_downsampling(
-                feature_cols,
-                training_data,
-                validation_data,
-                self.adversarial_downsampling_ratio,
-            )
 
         # Check for nans and fill nans
         nans_per_col = live_data[feature_cols].isna().sum()
