@@ -15,7 +15,6 @@ dependencies = [
     "autokeras>=2.0.0",
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
-    "keras>=3.11.1",
     "lightgbm>=4.6.0",
     "matplotlib>=3.10.8",
     # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
