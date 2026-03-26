@@ -6,24 +6,19 @@ from typing import Any, Callable
 import numpy as np
 import pandas as pd
 import wandb
-from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
 from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_ID,
-    COLUMN_INDEX_TARGET,
 )
 from shrubbery.data.augmentation import override_numerai_era
-from shrubbery.data.downsampling import FitDownsamplerBySample
 from shrubbery.data.ingest import (
     download_numerai_files,
     get_feature_set,
     get_training_targets,
-    lookup_target_index,
     read_parquet_and_unpack,
 )
-from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import submit_diagnostic_predictions
 from shrubbery.napi import napi
 from shrubbery.observability import logger, silence_false_positive_warnings
@@ -31,110 +26,13 @@ from shrubbery.tournament import (
     submit_tournament_predictions,
     update_tournament_submissions,
 )
-from shrubbery.utilities import PrintableModelMixin, load_model, store_model
+from shrubbery.utilities import load_model, store_model
 from shrubbery.validation import (
-    NumeraiTimeSeriesSplitter,
     cross_validation_to_parallel_coordinates,
     get_best_parameters,
     reformat_cross_validation_result,
 )
 from shrubbery.workspace import get_workspace_path
-
-
-class NumeraiBestGridSearchEstimator(
-    BaseEstimator, MetaEstimatorMixin, RegressorMixin, PrintableModelMixin
-):
-    def __init__(
-        self,
-        estimator: Any,
-        model_name: str,
-        drop_era_column: bool,
-        downsample_cross_validation: int,
-        downsample_full_train: int,
-        targets: list[int | str],
-        cv: int,
-        cv_param_grid: dict,
-        cv_scoring: Callable,
-        embargo: int,
-        neutralization_feature_indices: list[int] | None,
-        neutralization_proportion: float,
-        neutralization_normalize: bool,
-    ) -> None:
-        self.estimator = NumeraiMetaEstimator(
-            estimator=estimator,
-            drop_era_column=drop_era_column,
-            target=COLUMN_INDEX_TARGET,
-            neutralization_feature_indices=neutralization_feature_indices,
-            neutralization_proportion=neutralization_proportion,
-            neutralization_normalize=neutralization_normalize,
-        )
-        self.model_name = model_name
-        self.drop_era_column = drop_era_column
-        self.downsample_cross_validation = downsample_cross_validation
-        self.downsample_full_train = downsample_full_train
-        self.targets = targets
-        self.cv = cv
-        self.cv_param_grid = cv_param_grid
-        self.cv_scoring = cv_scoring
-        self.embargo = embargo
-        self.neutralization_feature_indices = neutralization_feature_indices
-        self.neutralization_proportion = neutralization_proportion
-        self.neutralization_normalize = neutralization_normalize
-
-    def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
-    ) -> NumeraiMetaEstimator:
-        logger.info(f'Shape of training data - x:{x.shape} y:{y.shape}')
-        targets = [
-            target if isinstance(target, int) else lookup_target_index(target)
-            for target in self.targets
-        ]
-        y = y[:, targets]
-
-        logger.info('Entering time series cross validation loop')
-        grid_search_cv = GridSearchCV(
-            self.estimator,
-            param_grid=self.cv_param_grid | {'target': range(y.shape[1])},
-            cv=NumeraiTimeSeriesSplitter(
-                cv=self.cv,
-                embargo=self.embargo,
-            ),
-            scoring=self.cv_scoring,
-            refit=False,
-        )
-        FitDownsamplerBySample(
-            estimator=grid_search_cv,
-            sample_stride=self.downsample_cross_validation,
-        ).fit(x, y)
-
-        cv_results = grid_search_cv.cv_results_
-        logger.info(
-            f'Cross-validation results {self.model_name}: {cv_results}'
-        )
-        cross_validation_to_parallel_coordinates(cv_results, self.model_name)
-        cross_validation_result = reformat_cross_validation_result(
-            cv_results, self.model_name
-        )
-        self.best_target = get_best_parameters(
-            cross_validation_result, 'target', top_k=1
-        )[0]
-        best_model_parameters: dict = {
-            parameter: get_best_parameters(
-                cross_validation_result, parameter, top_k=1
-            )[0]
-            for parameter in self.cv_param_grid.keys()
-        }
-        model_parameters = best_model_parameters | {'target': self.best_target}
-        logger.info(f'Model creator arguments: {model_parameters}')
-        # Now do a full train
-        logger.info('Entering full training section')
-        self.estimator.set_params(**model_parameters)
-        self.estimator.fit(x, y)
-        self.fitted_cv_results_ = grid_search_cv.cv_results_
-        return self.estimator
-
-    def predict(self, x: np.ndarray) -> np.ndarray:
-        return self.estimator.predict(x)
 
 
 class WandbGridSearchCV(GridSearchCV):

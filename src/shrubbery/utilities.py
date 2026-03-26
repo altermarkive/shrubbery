@@ -8,9 +8,6 @@ import numpy as np
 import pandas as pd
 import requests
 import wandb
-from keras import Model
-from keras.saving import load_model as load_keras_model
-from keras.saving import save_model as save_keras_model
 
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.observability import logger
@@ -74,28 +71,6 @@ def load_model(name: str, version: str = 'latest') -> tuple[Any, str]:
         logger.error('Model failed to materialize')
         return None, ''
     return model, version
-
-
-# TODO: Move away from Keras
-def serialize_keras_model(model: Model) -> bytes:
-    with tempfile.NamedTemporaryFile(
-        suffix='.keras', delete_on_close=False
-    ) as handle:
-        handle.close()
-        path = Path(handle.name)
-        save_keras_model(model, path)
-        return path.read_bytes()
-
-
-# TODO: Move away from Keras
-def deserialize_keras_model(model: bytes) -> Model:
-    with tempfile.NamedTemporaryFile(
-        suffix='.keras', delete_on_close=False
-    ) as handle:
-        handle.close()
-        path = Path(handle.name)
-        path.write_bytes(model)
-        return load_keras_model(path)
 
 
 def pare_down_number_of_eras_in_training_data(
