@@ -47,7 +47,7 @@ url = "https://download.pytorch.org/whl/cu126"
 
 [tool.black]
 line-length = 79
-target-version = ['py310']
+target-version = ['py313']
 skip-string-normalization = 1
 
 [tool.mypy]
