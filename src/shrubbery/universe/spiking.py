@@ -4,9 +4,33 @@ import torch
 import torch.nn as nn
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_array, check_X_y
-from torch.utils.data import DataLoader, TensorDataset
+from skorch import NeuralNetRegressor
 
-from shrubbery.observability import logger
+
+class SpikingModule(nn.Module):
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        output_dim: int,
+        beta: float,
+        with_surrogate_gradients: bool,
+    ) -> None:
+        super().__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.lif1 = (
+            snn.Leaky(beta=beta, spike_grad=snn.surrogate.fast_sigmoid())
+            if with_surrogate_gradients
+            else snn.Leaky(beta=beta)
+        )
+        self.fc2 = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.fc1(x)
+        mem1 = torch.zeros(x.size(0), self.fc1.out_features, device=x.device)
+        spk1, _ = self.lif1(x, mem1)
+        x = self.fc2(spk1)
+        return x
 
 
 class SpikingRegressor(BaseEstimator, RegressorMixin):
@@ -15,7 +39,6 @@ class SpikingRegressor(BaseEstimator, RegressorMixin):
         hidden_dim: int,
         beta: float,
         with_surrogate_gradients: bool,
-        num_steps: int,
         lr: float,
         batch_size: int,
         epochs: int,
@@ -25,7 +48,6 @@ class SpikingRegressor(BaseEstimator, RegressorMixin):
         self.hidden_dim = hidden_dim
         self.beta = beta
         self.with_surrogate_gradients = with_surrogate_gradients
-        self.num_steps = num_steps
         self.lr = lr
         self.batch_size = batch_size
         self.epochs = epochs
@@ -37,53 +59,33 @@ class SpikingRegressor(BaseEstimator, RegressorMixin):
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'SpikingRegressor':
         x, y = check_X_y(x, y, y_numeric=True)
-        x_tensor = torch.from_numpy(x).to(torch.float32)
-        y_tensor = torch.from_numpy(y).to(torch.float32).unsqueeze(1)
+        x_tensor = torch.from_numpy(x).to(torch.float32).to(self.device)
+        y_tensor = (
+            torch.from_numpy(y).to(torch.float32).to(self.device).unsqueeze(1)
+        )
         # Build model
-        input_dim = x.shape[1]
-        output_dim = 1
-        fc1 = nn.Linear(input_dim, self.hidden_dim)
-        if self.with_surrogate_gradients:
-            lif1 = snn.Leaky(
-                beta=self.beta, spike_grad=snn.surrogate.fast_sigmoid()
-            )
-        else:
-            lif1 = snn.Leaky(beta=self.beta)
-        fc2 = nn.Linear(self.hidden_dim, output_dim)
-        model = nn.Sequential(fc1, lif1, fc2).to(self.device)
+        module = SpikingModule(
+            input_dim=x.shape[1],
+            hidden_dim=self.hidden_dim,
+            output_dim=1,
+            beta=self.beta,
+            with_surrogate_gradients=self.with_surrogate_gradients,
+        ).to(self.device)
         # Train model
-        optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
-        criterion = nn.MSELoss()
-        dataset = TensorDataset(x_tensor, y_tensor)
-        loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
-        model.train()
-        for epoch in range(self.epochs):
-            total_loss = 0
-            for xb, yb in loader:
-                xb, yb = xb.to(self.device), yb.to(self.device)
-                spk_rec = []
-                mem = lif1.init_leaky()
-                for _ in range(self.num_steps):
-                    cur = fc1(xb)
-                    spk, mem = lif1(cur, mem)
-                    out = fc2(spk)
-                    spk_rec.append(out)
-                out_rec = torch.stack(spk_rec).mean(0)
-                loss = criterion(out_rec, yb)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                total_loss += loss.item()
-            logger.info(
-                f'Epoch {epoch + 1}/{self.epochs} - Loss: {total_loss / len(loader):.6f}'
-            )
-        self.scripted_model_ = torch.jit.script(model)
+        self.model_ = NeuralNetRegressor(
+            module,
+            criterion=torch.nn.MSELoss,
+            optimizer=torch.optim.Adam,
+            lr=self.lr,
+            batch_size=self.batch_size,
+            max_epochs=self.epochs,
+            train_split=None,
+            device=self.device,
+        )
+        self.model_.fit(x_tensor, y_tensor)
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         x = check_array(x)
         x_tensor = torch.from_numpy(x).to(torch.float32).to(self.device)
-        self.scripted_model_.eval()
-        with torch.no_grad():
-            predictions = self.scripted_model_(x_tensor)
-        return predictions.cpu().numpy().ravel()
+        return self.model_.predict(x_tensor)
