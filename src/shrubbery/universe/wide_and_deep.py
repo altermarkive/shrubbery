@@ -206,8 +206,6 @@ class WideAndDeepModule(nn.Module):
         use_batch_norm: bool = False,
     ) -> None:
         super().__init__()
-        # Wide path: pure linear model (no batch norm)
-        self.wide_linear = nn.Linear(input_dim, 1)
         # Deep path
         deep_layers: list[nn.Module] = []
         deep_input_dim = input_dim
@@ -218,14 +216,16 @@ class WideAndDeepModule(nn.Module):
             deep_layers.append(nn.ReLU())
             deep_layers.append(nn.Dropout(dropout_rate))
             deep_input_dim = unit
-        deep_layers.append(nn.Linear(deep_input_dim, 1))
         self.deep_network = nn.Sequential(*deep_layers)
+        # Combined output: concat wide (raw input) + deep features, then project
+        combined_dim = input_dim + deep_input_dim
+        self.output_layer = nn.Linear(combined_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        wide_output = self.wide_linear(x)
+        wide_output = x  # Wide path: raw features (no transformation)
         deep_output = self.deep_network(x)
-        # Additive combination (as in original Wide & Deep paper)
-        return wide_output + deep_output
+        combined = torch.cat([wide_output, deep_output], dim=1)
+        return self.output_layer(combined)
 
 
 def mse_with_l1_l2_regularization(
