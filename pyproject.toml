@@ -37,7 +37,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.17.1",
     "pdbpp>=0.11.7", # Extension of Python debugger
     "ruff>=0.12.11",
     "ty>=0.0.15",
