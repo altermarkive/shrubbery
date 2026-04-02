@@ -57,10 +57,6 @@ class Ensembler(
         ensemble_metric: str,
         ensemble_type: EnsembleType,
         mix_combinatorial_cap: int | None,
-        neutralization_feature_indices: list[int],
-        neutralization_proportion: float,
-        neutralization_normalize: bool,
-        tb: int,
     ) -> None:
         self.estimators = estimators
         self.numerai_model_id = numerai_model_id
@@ -68,10 +64,6 @@ class Ensembler(
         self.ensemble_metric = ensemble_metric
         self.ensemble_type = ensemble_type
         self.mix_combinatorial_cap = mix_combinatorial_cap
-        self.neutralization_feature_indices = neutralization_feature_indices
-        self.neutralization_proportion = neutralization_proportion
-        self.neutralization_normalize = neutralization_normalize
-        self.tb = tb
         self.estimator_names_best_ = [config.name for config in estimators]
 
     def fit(
@@ -113,10 +105,6 @@ class Ensembler(
             sort_by=ensemble_metric,
             sort_ascending=ensemble_metric_ascending,
             cap=self.mix_combinatorial_cap,
-            neutralization_feature_indices=self.neutralization_feature_indices,
-            neutralization_proportion=self.neutralization_proportion,
-            neutralization_normalize=self.neutralization_normalize,
-            tb=self.tb,
         )
         gc.collect()
         if best:

@@ -46,7 +46,7 @@ def _calculate_validation_correlations(
 
 def _get_validation_data_grouped(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> tuple[pd.DataFrame, Sequence[int]]:
+) -> tuple[pd.DataFrame, list[int]]:
     feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
     validation_data = pd.DataFrame(
         np.concatenate(

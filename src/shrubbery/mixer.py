@@ -81,10 +81,6 @@ def mix_combinatorial(
     sort_by: str,
     sort_ascending: bool,
     cap: int | None,
-    neutralization_feature_indices: list[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
 ) -> list[str] | None:
     lut = {
         item[METRIC_PREDICTION_ID]: item[sort_by]
