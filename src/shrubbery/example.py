@@ -13,7 +13,6 @@ if __name__ == '__main__':
         version='latest',
         feature_set_name='small',  # fncv3_features
         retrain=True,
-        adversarial_downsampling_ratio=None,
         estimator=NumeraiNeutralization(
             neutralization_cap=50,
             neutralization_proportion=1.0,
