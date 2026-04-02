@@ -16,7 +16,6 @@ from shrubbery.constants import (
     COLUMN_Y_PRED,
     COLUMN_Y_TRUE,
 )
-from shrubbery.data.augmentation import FILE_VALIDATION_IDS
 from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.napi import napi
 from shrubbery.observability import logger
@@ -138,7 +137,7 @@ def numerai_metrics(
     y_true: NDArray, y_pred: NDArray, numerai_model_id: str
 ) -> Dict[str, float]:
     prediction_data = pd.read_csv(
-        locate_numerai_file(FILE_VALIDATION_IDS), index_col=COLUMN_ID
+        locate_numerai_file('DEPRECATED'), index_col=COLUMN_ID
     )
     prediction_data['predictions'] = y_pred
     prediction_name = 'validation'

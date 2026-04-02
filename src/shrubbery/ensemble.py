@@ -14,9 +14,7 @@ from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_TRAINING,
-    COLUMN_DATA_TYPE_VALIDATION,
     COLUMN_INDEX_DATA_TYPE,
-    COLUMN_INDEX_TARGET,
 )
 from shrubbery.evaluation import metric_to_ascending, validation_metrics
 from shrubbery.mixer import mix_combinatorial, mix_predictions
@@ -89,9 +87,6 @@ class Ensembler(
         training_data_selection = (
             x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_TRAINING
         )
-        validation_data_selection = (
-            x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_VALIDATION
-        )
         x_training = x[
             training_data_selection, :COLUMN_INDEX_DATA_TYPE
         ].astype(np.float32)
@@ -105,20 +100,14 @@ class Ensembler(
         # Keep track of prediction columns and stats
         predictions: Dict[str, NDArray] = {}
         validation_stats: List[Dict[str, float]] = []
-        x_validation = x[
-            validation_data_selection, :COLUMN_INDEX_DATA_TYPE
-        ].astype(np.float32)
-        y_true = y[validation_data_selection, [COLUMN_INDEX_TARGET]].astype(
-            np.float32
-        )
         for config in self.estimators:
             logger.info(f'Predicting model: {config.name}')
             logger.info(f'Model config: {config.estimator}')
-            y_predictions = config.estimator.predict(x_validation)
+            y_predictions = config.estimator.predict(x_training)
             predictions[config.name] = y_predictions
             validation_metrics(
-                x_validation,
-                y_true,
+                x_training,
+                y_training,
                 y_predictions,
                 validation_stats,
                 config.name,
@@ -128,8 +117,8 @@ class Ensembler(
         ensemble_metric = self.ensemble_metric
         ensemble_metric_ascending = metric_to_ascending(ensemble_metric)
         best = mix_combinatorial(
-            x_validation,
-            y_true,
+            x_training,
+            y_training,
             predictions,
             validation_stats,
             get_ensemble(self.ensemble_type),
