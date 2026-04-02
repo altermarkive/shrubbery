@@ -20,7 +20,7 @@ RUN apt-get -yq update && \
         libfreetype-dev \
         libhdf5-dev \
         libjpeg-dev \
-        libnvidia-compute-580-server \
+        libnvidia-compute-590-server \
         libopenblas-dev \
         pkg-config \
         software-properties-common \
@@ -36,7 +36,7 @@ RUN apt-get -yq update && \
 # libfreetype-dev - matplotlib (older, non-wheel version)
 # libhdf5-dev - Keras
 # libjpeg-dev - Pillow (older, non-wheel version)
-# libnvidia-compute-580-server - lightgbm
+# libnvidia-compute-c-server - lightgbm
 # libopenblas-dev - N/A
 # pkg-config - matplotlib (older, non-wheel version)
 # software-properties-common - Python
