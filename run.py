@@ -2,9 +2,6 @@
 
 import argparse
 import os
-import shlex
-import tempfile
-import time
 from pathlib import Path
 
 
@@ -53,19 +50,20 @@ def main() -> None:
 def run_docker(arguments: argparse.Namespace) -> None:
     base = Path(__file__).parent
     command = [
-        'docker',
+        'podman',
         'run',
         '--rm',
         f'-i{"" if arguments.headless else "t"}',
+        '--userns=keep-id',
         '-v',
-        f'{os.getcwd()}:/w',
+        f'{os.getcwd()}:/w:U',
         '-w',
         '/w',
         '--env-file',
         f'{base / ".env"}',
     ]
     if arguments.gpus:
-        command.extend(['--gpus', 'all'])
+        command.extend(['--device', 'nvidia.com/gpu=all'])
     if not (arguments.lint or arguments.debug):
         command.extend(['--entrypoint', '/usr/local/bin/uv'])
     if not arguments.local:
