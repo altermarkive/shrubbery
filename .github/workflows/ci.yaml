@@ -13,7 +13,7 @@ jobs:
         id: tags
         run: |
           DOCKER_IMAGE='ghcr.io/${{ github.repository_owner }}/shrubbery'
-          TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:${{ github.sha }}"
+          TAGS="${DOCKER_IMAGE}:latest,${DOCKER_IMAGE}:${{ github.sha }},shrubbery"
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
       - name: QEMU
         uses: docker/setup-qemu-action@v3
@@ -34,7 +34,7 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.tags.outputs.tags }}
       - name: Linting
-        run: docker run --rm -v ${{ github.workspace }}:/app -w /app --entrypoint /bin/sh ghcr.io/${{ github.repository_owner }}/shrubbery:latest -c "ruff check --select I src; ruff format --check; mypy src"
+        run: docker run --rm -v ${{ github.workspace }}:/app -w /app --entrypoint /bin/sh shrubbery -c "ruff check --select I src; ruff format --check; mypy src"
       - name: Trash
         uses: actions/delete-package-versions@v5
         with:
