@@ -642,7 +642,7 @@ nvrtc = [
 
 [[package]]
 name = "cudf-cu13"
-version = "26.2.0"
+version = "26.2.1"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
     { name = "cachetools" },
@@ -664,8 +664,8 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 wheels = [
-    { url = "https://pypi.nvidia.com/cudf-cu13/cudf_cu13-26.2.0-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:a86d0feb8fa4b40ec167f87fa7002603d6ba8f8d52eaf27381bf2310165e7640" },
-    { url = "https://pypi.nvidia.com/cudf-cu13/cudf_cu13-26.2.0-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:619767b207e80cb16d1da9fc1db769c7ef3ec2b83503240c2fb46f15a0503b2b" },
+    { url = "https://pypi.nvidia.com/cudf-cu13/cudf_cu13-26.2.1-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fefa974398801e95c42f2d8d232aad1f290f9318e0dd558806164da406b2b15d" },
+    { url = "https://pypi.nvidia.com/cudf-cu13/cudf_cu13-26.2.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:777e12d75fe55a301e4d1030ba1e68217dfa30c368483ec10062742a23090617" },
 ]
 
 [[package]]
