@@ -2345,6 +2345,7 @@ dependencies = [
     { name = "reservoirpy" },
     { name = "scikit-network" },
     { name = "sklearn-genetic" },
+    { name = "sklearn-genetic-opt" },
     { name = "skorch" },
     { name = "snntorch" },
     { name = "tabulate" },
@@ -2385,6 +2386,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
     { name = "scikit-network", specifier = ">=0.33.3" },
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
+    { name = "sklearn-genetic-opt", specifier = ">=0.12.0" },
     { name = "skorch", specifier = ">=1.2.0" },
     { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
@@ -2418,6 +2420,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e1/c5/50b30647e3b073afd6a178937e6477d694cf25b44962464c0829ea830262/sklearn-genetic-0.6.0.tar.gz", hash = "sha256:d5b5623e59feb6722cf5bb03b914dc93b8d93b3dff9103e5b9825241281b5338", size = 10971, upload-time = "2024-01-20T12:23:23.986Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/fa/ed2f4cdf4bbd1264248311243a593c515672e397733f6c961ef881bf29f8/sklearn_genetic-0.6.0-py3-none-any.whl", hash = "sha256:276ec0b44d8bcd50c67295b7cb2e9f3e8f38c6eb493f1cec5072d4ab48fdffbb", size = 11588, upload-time = "2024-01-20T12:23:22.152Z" },
+]
+
+[[package]]
+name = "sklearn-genetic-opt"
+version = "0.12.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "deap" },
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/41/39/4b3ff7d5ef107bda7cbf155a376188074c0a50c5295dacc9c487bb36185a/sklearn_genetic_opt-0.12.0.tar.gz", hash = "sha256:4e526cc62b424706d6158048a0b50ecb0162fe8015d0c8889aaec1a2d40c0ac6", size = 34058, upload-time = "2025-07-23T16:44:22.14Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5c/10/15c3c2e30b4393a04469761c99ffbee7a00e1eb255b418c08197a7261312/sklearn_genetic_opt-0.12.0-py3-none-any.whl", hash = "sha256:7e0b9b5c0db51b822bf731a05f14fbf2a6a79b1f6b8418fdb077ed76cf134365", size = 37469, upload-time = "2025-07-23T16:44:20.865Z" },
 ]
 
 [[package]]
