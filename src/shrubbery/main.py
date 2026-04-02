@@ -14,12 +14,6 @@ from shrubbery.constants import (
     COLUMN_ID,
     COLUMN_INDEX_TARGET,
 )
-from shrubbery.validation import (
-    NumeraiTimeSeriesSplitter,
-    cross_validation_to_parallel_coordinates,
-    get_best_parameters,
-    reformat_cross_validation_result,
-)
 from shrubbery.data.augmentation import override_numerai_era
 from shrubbery.data.downsampling import FitDownsamplerBySample
 from shrubbery.data.ingest import (
@@ -38,6 +32,12 @@ from shrubbery.tournament import (
     update_tournament_submissions,
 )
 from shrubbery.utilities import PrintableModelMixin, load_model, store_model
+from shrubbery.validation import (
+    NumeraiTimeSeriesSplitter,
+    cross_validation_to_parallel_coordinates,
+    get_best_parameters,
+    reformat_cross_validation_result,
+)
 from shrubbery.workspace import get_workspace_path
 
 
