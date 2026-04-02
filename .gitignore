@@ -1,0 +1,14 @@
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv
+.mypy_cache
+.vscode
+.env
+artifacts
+outputs
+wandb
+workspace
