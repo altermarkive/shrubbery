@@ -8,7 +8,7 @@ from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
 from shrubbery.data.augmentation import get_biggest_change_features
 from shrubbery.neutralization import neutralize
 from shrubbery.observability import logger
-from shrubbery.utilities import PrintableModelMixin, load_model, store_model
+from shrubbery.utilities import PrintableModelMixin
 
 
 # Numerai-specific estimator wrapper
@@ -97,36 +97,4 @@ class NumeraiMetaEstimator(
                 )
                 .to_numpy()
             )
-        return predictions
-
-
-class PersistentRegressor(
-    BaseEstimator, MetaEstimatorMixin, RegressorMixin, PrintableModelMixin
-):
-    def __init__(
-        self,
-        estimator: Any,
-        model_name: str,
-        model_version: str = 'latest',
-        **kwargs: dict,
-    ) -> None:
-        self.model_name = model_name
-        self.model_version = model_version
-        model, version = load_model(model_name, model_version)
-        if model is not None:
-            estimator = model
-            self.model_version = version
-        kwargs['estimator'] = estimator
-        super().__init__(**kwargs)
-
-    def fit(
-        self, x: Any, y: Any, **kwargs: dict[str, Any]
-    ) -> 'PersistentRegressor':
-        super().fit(x, y)  # ty: ignore[unresolved-attribute]
-        self.model_version = store_model(self.estimator, self.model_name)  # ty: ignore[unresolved-attribute]
-        self.fitted_ = True
-        return self
-
-    def predict(self, x: Any) -> np.ndarray:
-        predictions = self.estimator.predict(x)  # ty: ignore[unresolved-attribute]
         return predictions
