@@ -11,7 +11,6 @@ from numpy.typing import NDArray
 
 from shrubbery.constants import (
     COLUMN_ERA,
-    COLUMN_EXAMPLE_PREDICTIONS,
     COLUMN_ID,
     COLUMN_INDEX_ERA,
     COLUMN_Y_PRED,
@@ -20,7 +19,7 @@ from shrubbery.constants import (
 from shrubbery.data.augmentation import FILE_VALIDATION_IDS
 from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.napi import napi
-from shrubbery.neutralization import neutralize, neutralize_series
+from shrubbery.neutralization import neutralize
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
 
@@ -109,38 +108,6 @@ def _get_validation_data_grouped(
     validation_data = validation_data.set_axis(columns, axis=1)
     return (
         validation_data.groupby(COLUMN_ERA, group_keys=False),
-        feature_indices,
-    )
-
-
-def _get_validation_and_example_data_grouped(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    example_predictions: NDArray,
-) -> Tuple[pd.DataFrame, Sequence[int]]:
-    feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
-    validation_and_example_data = pd.DataFrame(
-        np.concatenate(
-            [
-                x,
-                y_true.reshape(-1, 1),
-                y_pred.reshape(-1, 1),
-                example_predictions.reshape(-1, 1),
-            ],
-            axis=1,
-        )
-    )
-    columns = validation_and_example_data.columns.to_list()
-    columns[COLUMN_INDEX_ERA] = COLUMN_ERA
-    columns[-3] = COLUMN_Y_TRUE
-    columns[-2] = COLUMN_Y_PRED
-    columns[-1] = COLUMN_EXAMPLE_PREDICTIONS
-    validation_and_example_data = validation_and_example_data.set_axis(
-        columns, axis=1
-    )
-    return (
-        validation_and_example_data.groupby(COLUMN_ERA, group_keys=False),
         feature_indices,
     )
 
@@ -293,17 +260,6 @@ def tb_fast_score_by_date(
     return result
 
 
-def exposure_dissimilarity_per_era(
-    df: pd.DataFrame,
-    prediction_col: str,
-    example_col: str,
-    feature_indices: Sequence[int],
-):
-    u = df.loc[:, feature_indices].corrwith(df[prediction_col])
-    e = df.loc[:, feature_indices].corrwith(df[example_col])
-    return 1 - (np.dot(u, e) / np.dot(e, e))
-
-
 ABSTRACT_METRIC_SHARPE = 'Sharpe'
 METRIC_SHARPE_MEAN = _compose_metric_name(ABSTRACT_METRIC_SHARPE, 'Mean')
 METRIC_SHARPE_SD = _compose_metric_name(ABSTRACT_METRIC_SHARPE, 'SD')
@@ -382,93 +338,6 @@ def max_feature_exposure(
         include_groups=False,
     )
     return max_per_era.mean()
-
-
-ABSTRACT_METRIC_MMC = 'MMC'
-METRIC_MMC_MEAN = _compose_metric_name(ABSTRACT_METRIC_MMC, 'Mean')
-METRIC_MMC_CORR_SHARPE = _compose_metric_name(
-    ABSTRACT_METRIC_MMC, 'Corr Sharpe'
-)
-
-
-def mmc_metrics(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    example_predictions: NDArray,
-    neutralization_proportion: float,
-) -> Dict[str, float]:
-    # MMC over validation
-    validation_and_example_data, _ = _get_validation_and_example_data_grouped(
-        x, y_true, y_pred, example_predictions
-    )
-    mmc_scores = []
-    corr_scores = []
-    for _, group in validation_and_example_data:
-        series = neutralize_series(
-            _unif(group[COLUMN_Y_PRED]),
-            group[COLUMN_EXAMPLE_PREDICTIONS],
-            neutralization_proportion,
-        )
-        mmc_scores.append(
-            np.cov(series, group[COLUMN_Y_TRUE])[0, 1] / (0.29**2)
-        )
-        corr_scores.append(
-            _unif(group[COLUMN_Y_PRED]).corr(group[COLUMN_Y_TRUE])
-        )
-
-    val_mmc_mean = np.mean(mmc_scores)
-    corr_plus_mmcs = [c + m for c, m in zip(corr_scores, mmc_scores)]
-    corr_plus_mmc_sharpe = np.mean(corr_plus_mmcs) / np.std(corr_plus_mmcs)
-
-    return {
-        METRIC_MMC_MEAN: val_mmc_mean,
-        METRIC_MMC_CORR_SHARPE: corr_plus_mmc_sharpe,
-    }
-
-
-METRIC_CORR_WITH_EXAMPLE_PREDICTIONS = 'Corr with Example Predictions'
-
-
-def corr_with_example_predictions(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    example_predictions: NDArray,
-) -> float:
-    # Check correlation with example predictions
-    validation_and_example_data, _ = _get_validation_and_example_data_grouped(
-        x, y_true, y_pred, example_predictions
-    )
-    per_era_corrs = validation_and_example_data.apply(
-        lambda group: _unif(group[COLUMN_Y_PRED]).corr(
-            _unif(group[COLUMN_EXAMPLE_PREDICTIONS])
-        ),
-        include_groups=False,
-    )
-    return per_era_corrs.mean()
-
-
-METRIC_EXPOSURE_DISSIMILARITY_MEAN = 'Exposure Dissimilarity Mean'
-
-
-def exposure_dissimilarity_mean(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
-    example_predictions: NDArray,
-) -> float:
-    # Check exposure dissimilarity per era
-    grouped_data, feature_indices = _get_validation_and_example_data_grouped(
-        x, y_true, y_pred, example_predictions
-    )
-    tdf = grouped_data.apply(
-        lambda df: exposure_dissimilarity_per_era(
-            df, COLUMN_Y_PRED, COLUMN_EXAMPLE_PREDICTIONS, feature_indices
-        ),
-        include_groups=False,
-    )
-    return tdf.mean()
 
 
 METRIC_MSE = 'MSE'
