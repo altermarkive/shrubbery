@@ -8,10 +8,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+import wandb
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
-import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_TRAINING,
     COLUMN_DATA_TYPE_VALIDATION,
