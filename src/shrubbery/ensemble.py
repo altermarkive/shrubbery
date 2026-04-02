@@ -9,7 +9,7 @@ import wandb
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
-from shrubbery.evaluation import metric_to_ascending, validation_metrics
+from shrubbery.evaluation import METRIC_PREDICTION_VALUE, validation_metrics
 from shrubbery.mixer import mix_combinatorial, mix_predictions
 from shrubbery.observability import logger
 from shrubbery.utilities import PrintableModelMixin
@@ -40,6 +40,9 @@ def ensemble_sum_and_rank(y_preds: np.ndarray) -> np.ndarray:
     return pd.DataFrame(y_preds).sum(axis=1).rank(pct=True).to_numpy()
 
 
+METRIC = 'Metric'
+
+
 @dataclass
 class EstimatorConfig:
     name: str
@@ -53,13 +56,17 @@ class Ensembler(
         self,
         estimators: list[EstimatorConfig],
         numerai_model_id: str,
-        ensemble_metric: str,
+        ensemble_metric_function: Callable,
+        ensemble_metric_greater_is_better: bool,
         ensemble_type: EnsembleType,
         mix_combinatorial_cap: int | None,
     ) -> None:
         self.estimators = estimators
         self.numerai_model_id = numerai_model_id
-        self.ensemble_metric = ensemble_metric
+        self.ensemble_metric_function = ensemble_metric_function
+        self.ensemble_metric_greater_is_better = (
+            ensemble_metric_greater_is_better
+        )
         self.ensemble_type = ensemble_type
         self.mix_combinatorial_cap = mix_combinatorial_cap
         self.estimator_names_best_ = [config.name for config in estimators]
@@ -87,20 +94,22 @@ class Ensembler(
                 x_training,
                 y_training[:, COLUMN_INDEX_TARGET].ravel(),
                 y_predictions,
+                self.ensemble_metric_function,
                 validation_stats,
                 config.name,
             )
             gc.collect()
         logger.info('Creating ensemble for validation')
-        ensemble_metric = self.ensemble_metric
-        ensemble_metric_ascending = metric_to_ascending(ensemble_metric)
+        ensemble_metric_function = self.ensemble_metric_function
+        ensemble_metric_ascending = not self.ensemble_metric_greater_is_better
         best = mix_combinatorial(
             x_training,
             y_training,
             predictions,
+            ensemble_metric_function,
             validation_stats,
             get_ensemble(self.ensemble_type),
-            sort_by=ensemble_metric,
+            sort_by=METRIC_PREDICTION_VALUE,
             sort_ascending=ensemble_metric_ascending,
             cap=self.mix_combinatorial_cap,
         )
