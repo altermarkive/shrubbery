@@ -104,8 +104,6 @@ def create_generator(
 
 
 class GANEmbedder(BaseEstimator, TransformerMixin):
-    """Original Keras-based GAN embedder."""
-
     def __init__(
         self,
         batch_size: int,
@@ -287,8 +285,6 @@ class GeneratorNetwork(nn.Module):
 
 
 class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
-    """Pure PyTorch-based GAN embedder."""
-
     def __init__(
         self,
         batch_size: int,

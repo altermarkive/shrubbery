@@ -29,8 +29,6 @@ from tqdm import tqdm  # noqa: E402
 
 
 class Autoencoder(BaseEstimator, TransformerMixin):
-    """Original Keras-based autoencoder embedder."""
-
     def __init__(
         self,
         batch_size: int,
@@ -157,8 +155,6 @@ class AutoencoderNetwork(nn.Module):
 
 
 class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
-    """Original Torch-based autoencoder embedder."""
-
     def __init__(
         self,
         batch_size: int,
