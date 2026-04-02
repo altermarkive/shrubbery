@@ -69,6 +69,7 @@ class Ensembler(
         self.ensemble_type = ensemble_type
         self.mix_combinatorial_cap = mix_combinatorial_cap
         self.estimator_names_best_ = [config.name for config in estimators]
+        self.numerai_model_id = numerai_model_id
 
     def fit(
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
