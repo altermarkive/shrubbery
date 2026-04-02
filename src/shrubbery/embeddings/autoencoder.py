@@ -11,7 +11,12 @@ import keras.ops  # noqa: E402
 import keras.random  # noqa: E402
 import keras.regularizers  # noqa: E402
 from keras.initializers import VarianceScaling  # noqa: E402
-from keras.layers import BatchNormalization, Dense, Input  # noqa: E402
+from keras.layers import (
+    Activation,
+    BatchNormalization,
+    Dense,
+    Input,
+)  # noqa: E402
 from keras.losses import MeanSquaredError  # noqa: E402
 from keras.models import Model, Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
@@ -32,12 +37,13 @@ class Autoencoder(BaseEstimator, TransformerMixin):
         epochs: int,
         layer_units: List[int],
         denoise: bool,
+        learning_rate: float,
     ) -> None:
         self.batch_size = batch_size
         self.epochs = epochs
         self.layer_units = layer_units
         self.denoise = denoise
-        self.learning_rate = 1e-4
+        self.learning_rate = learning_rate
 
     def fit(self, x: NDArray, y: NDArray) -> 'Autoencoder':
         model: Model = Sequential()
@@ -48,26 +54,17 @@ class Autoencoder(BaseEstimator, TransformerMixin):
             scale=1.0, mode='fan_in', distribution='truncated_normal'
         )
         all_layer_units = self.layer_units + self.layer_units[:-1][::-1]
+        all_layer_units = all_layer_units + [x.shape[1]]  # Reconstruction
         for units in all_layer_units:
             model.add(
                 Dense(
                     units,
-                    activation='sigmoid',
                     kernel_initializer=sigmoid_init,
                     kernel_regularizer=keras.regularizers.l2(1e-3),
                 )
             )
-            model.add(BatchNormalization())
-        # Reconstruction
-        model.add(
-            Dense(
-                2,
-                activation='sigmoid',
-                kernel_initializer=sigmoid_init,
-                kernel_regularizer=keras.regularizers.l2(1e-3),
-            )
-        )
-        model.add(BatchNormalization())
+            model.add(BatchNormalization(epsilon=1e-5))
+            model.add(Activation('sigmoid'))
         # Training
         if self.denoise:
             _, x_variance = keras.ops.moments(x, axes=[0])
@@ -84,7 +81,7 @@ class Autoencoder(BaseEstimator, TransformerMixin):
         model.compile(optimizer=optimizer, loss=MeanSquaredError())
         model.fit(
             convert_to_tensor(x),
-            convert_to_tensor(y),
+            convert_to_tensor(x),
             batch_size=self.batch_size,
             epochs=self.epochs,
         )
