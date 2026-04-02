@@ -22,14 +22,14 @@ def output_initializer(tensor: torch.Tensor) -> torch.Tensor:
 
 
 def mse_with_weight_regularization(
-    module: nn.Module, scale: float
+    module: nn.Module, scale: float, device: str
 ) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
     mse = nn.MSELoss()
 
     def l2_regularization(
         y_prediction: torch.Tensor, y_true: torch.Tensor
     ) -> torch.Tensor:
-        reg_loss = torch.tensor(0.0)
+        reg_loss = torch.tensor(0.0).to(device)
         for param in module.parameters():
             if param.ndim > 1:
                 reg_loss += torch.sum(param**2)
@@ -77,5 +77,5 @@ class FeedforwardNeuralNetworkRegressor(TorchRegressor):
         optimizer = optim.Adam(
             module.parameters(), lr=self.learning_rate, weight_decay=0.0
         )
-        criterion = mse_with_weight_regularization(module, 1e-3)
+        criterion = mse_with_weight_regularization(module, 1e-3, device)
         return (module, optimizer, criterion)
