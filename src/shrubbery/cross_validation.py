@@ -10,11 +10,10 @@ import plotly.graph_objects as graph_objects
 from numpy.typing import NDArray
 from sklearn.model_selection import BaseCrossValidator
 
+import wandb
 from shrubbery.constants import COLUMN_INDEX_ERA
 from shrubbery.observability import logger
 from shrubbery.utilities import dict_of_lists_to_list_of_dicts
-
-import wandb  # isort: skip
 
 
 # Numerai-specific cross-validation generator

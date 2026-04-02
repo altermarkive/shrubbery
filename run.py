@@ -60,7 +60,7 @@ def main() -> None:
         command.extend(
             [
                 '-c',
-                '"isort --check --diff src; black --check --diff src; flake8 src; mypy src"',  # noqa: E501
+                '"ruff check --select I src; ruff format --check; mypy src"',  # noqa: E501
             ]
         )
     if not arguments.lint and not arguments.debug:

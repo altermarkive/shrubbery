@@ -15,6 +15,7 @@ from omegaconf import DictConfig, OmegaConf
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
+import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE,
     COLUMN_DATA_TYPE_TOURNAMENT,
@@ -48,8 +49,6 @@ from shrubbery.tournament import (
 )
 from shrubbery.utilities import PrintableModelMixin, load_model, store_model
 from shrubbery.workspace import get_workspace_path
-
-import wandb  # isort: skip
 
 
 class NumeraiBestGridSearchEstimator(

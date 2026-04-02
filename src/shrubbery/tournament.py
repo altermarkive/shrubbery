@@ -8,6 +8,7 @@ from typing import Optional
 import pandas as pd
 import requests
 
+import wandb
 from shrubbery.constants import (
     COLUMN_MMC,
     COLUMN_ROUND_NUMBER,
@@ -16,8 +17,6 @@ from shrubbery.constants import (
 from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
-
-import wandb  # isort: skip
 
 
 def submit_tournament_predictions(

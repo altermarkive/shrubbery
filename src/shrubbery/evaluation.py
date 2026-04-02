@@ -8,6 +8,8 @@ from typing import Any, Callable, Dict, List, Union
 import pandas as pd
 from numpy.typing import NDArray
 
+# from sklearn.metrics import mean_squared_error
+import wandb
 from shrubbery.constants import (
     COLUMN_EXAMPLE_PREDICTIONS,
     COLUMN_INDEX_TARGET,
@@ -42,10 +44,6 @@ from shrubbery.metrics import (
     tb_fast_score_by_date,
     tb_feature_neutral_mean,
 )
-
-# from sklearn.metrics import mean_squared_error
-
-import wandb  # isort: skip
 
 
 @dataclass

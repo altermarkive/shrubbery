@@ -11,6 +11,7 @@ import pandas as pd
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
+import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_TRAINING,
     COLUMN_DATA_TYPE_VALIDATION,
@@ -22,8 +23,6 @@ from shrubbery.evaluation import metric_to_ascending, validation_metrics
 from shrubbery.mixer import mix_combinatorial, mix_predictions
 from shrubbery.observability import logger
 from shrubbery.utilities import PrintableModelMixin
-
-import wandb  # isort: skip
 
 
 class EnsembleType(str, Enum):
