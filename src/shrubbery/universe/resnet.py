@@ -7,30 +7,15 @@ import torch.optim as optim
 from shrubbery.adapter import TorchRegressor
 
 
-def bce_with_weight_regularization(
-    module: nn.Module, scale: float, device: str
-) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
-    bce = nn.BCELoss()
-
-    def l2_regularization(
-        y_prediction: torch.Tensor, y_true: torch.Tensor
-    ) -> torch.Tensor:
-        reg_loss = torch.tensor(0.0).to(device)
-        for param in module.parameters():
-            if param.ndim > 1:
-                reg_loss += torch.sum(param**2)
-        return bce(y_prediction, y_true) + scale * reg_loss
-
-    return l2_regularization
-
-
 class ResidualBlock(nn.Module):
-    def __init__(self, hidden_dim: int) -> None:
+    def __init__(self, hidden_dim: int, dropout_rate: float) -> None:
         super().__init__()
         self.dense1 = nn.Linear(hidden_dim, hidden_dim)
         self.bn1 = nn.BatchNorm1d(hidden_dim)
+        self.dropout1 = nn.Dropout(dropout_rate)
         self.dense2 = nn.Linear(hidden_dim, hidden_dim)
         self.bn2 = nn.BatchNorm1d(hidden_dim)
+        self.dropout2 = nn.Dropout(dropout_rate)
         self.activation = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -38,8 +23,10 @@ class ResidualBlock(nn.Module):
         out = self.dense1(x)
         out = self.bn1(out)
         out = self.activation(out)
+        out = self.dropout1(out)
         out = self.dense2(out)
         out = self.bn2(out)
+        out = self.dropout2(out)
         out += residual  # Skip connection
         out = self.activation(out)
         return out
@@ -54,6 +41,7 @@ class ResNetRegressor(TorchRegressor):
         num_blocks: int,
         dropout_rate: float,
         learning_rate: float,
+        weight_decay: float,
         device: str,
     ) -> None:
         super().__init__(epochs=epochs, device=device)
@@ -62,6 +50,7 @@ class ResNetRegressor(TorchRegressor):
         self.num_blocks = num_blocks
         self.dropout_rate = dropout_rate
         self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
 
     def prepare(
         self, input_dim: int
@@ -80,7 +69,7 @@ class ResNetRegressor(TorchRegressor):
 
         # Residual blocks
         for _ in range(self.num_blocks):
-            layers.append(ResidualBlock(self.hidden_dim))
+            layers.append(ResidualBlock(self.hidden_dim, self.dropout_rate))
 
         # Output projection
         output_dense = nn.Linear(self.hidden_dim, 1)
@@ -91,10 +80,10 @@ class ResNetRegressor(TorchRegressor):
         module = nn.Sequential(*layers)
 
         # Optimizer & criterion
-        optimizer = optim.Adam(
-            module.parameters(), lr=self.learning_rate, weight_decay=0.0
+        optimizer = optim.AdamW(
+            module.parameters(),
+            lr=self.learning_rate,
+            weight_decay=self.weight_decay,
         )
-        criterion = bce_with_weight_regularization(
-            module, 1e-3, self.device
-        )
+        criterion = nn.BCELoss()
         return (module, optimizer, criterion)
