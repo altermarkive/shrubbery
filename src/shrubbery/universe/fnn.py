@@ -41,15 +41,17 @@ def mse_with_weight_regularization(
 class FeedforwardNeuralNetworkRegressor(TorchRegressor):
     def __init__(
         self,
-        batch_size: int,
-        epochs: int,
         layer_units: list[int],
+        batch_size: int,
+        learning_rate: float,
+        regularization_scale: float,
+        epochs: int,
         device: str,
     ) -> None:
-        super().__init__(epochs=epochs, device=device)
-        self.batch_size = batch_size
+        super().__init__(epochs=epochs, batch_size=batch_size, device=device)
         self.layer_units = layer_units
-        self.learning_rate = 1e-4
+        self.learning_rate = learning_rate
+        self.regularization_scale = regularization_scale
 
     def prepare(
         self, input_dim: int
@@ -78,6 +80,6 @@ class FeedforwardNeuralNetworkRegressor(TorchRegressor):
             module.parameters(), lr=self.learning_rate, weight_decay=0.0
         )
         criterion = mse_with_weight_regularization(
-            module, 1e-3, self.device
+            module, self.regularization_scale, self.device
         )
         return (module, optimizer, criterion)
