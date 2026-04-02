@@ -147,7 +147,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
             optimizer=Adam(learning_rate=self.learning_rate),
         )
         # Training
-        for _ in range(self.epochs):
+        for epoch in range(self.epochs):
             x_epoch, y_epoch = shuffle(x, y)
             for i in (
                 progress := tqdm(range(0, len(x_epoch), self.batch_size))
@@ -189,7 +189,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
                     convert_to_tensor(d_noise), convert_to_tensor(y_mislabled)
                 )
                 progress.set_description(
-                    f'Training - d_loss: {d_loss:.5f}; g_loss: {g_loss:.5f}'
+                    f'Training - epoch: {epoch}; dloss: {d_loss:.4f}; gloss: {g_loss:.4f}'
                 )
         embedder = Sequential(
             discriminator.layers[:-3]
