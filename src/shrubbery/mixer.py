@@ -63,10 +63,6 @@ def mix_all(
     validation_stats: List[Dict[str, float]],
     pred_cols: List[str],
     ensemble: Callable[[NDArray], NDArray],
-    neutralization_feature_indices: List[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
 ) -> None:
     predictions_name = _encode(set(pred_cols))
     y_prediction = mix_predictions(predictions, pred_cols, ensemble)
@@ -77,10 +73,6 @@ def mix_all(
         y_prediction,
         validation_stats,
         predictions_name,
-        neutralization_feature_indices=neutralization_feature_indices,
-        neutralization_proportion=neutralization_proportion,
-        neutralization_normalize=neutralization_normalize,
-        tb=tb,
     )
 
 
@@ -117,10 +109,6 @@ def mix_combinatorial(
             validation_stats,
             list(_decode(mix)),
             ensemble,
-            neutralization_feature_indices=neutralization_feature_indices,
-            neutralization_proportion=neutralization_proportion,
-            neutralization_normalize=neutralization_normalize,
-            tb=tb,
         )
         lut = {
             item[METRIC_PREDICTION_ID]: item[sort_by]

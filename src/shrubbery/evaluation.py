@@ -19,23 +19,15 @@ from shrubbery.constants import (
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import (
     METRIC_APY,
-    METRIC_FEATURE_NEUTRAL_MEAN,
     METRIC_MAX_DRAWDOWN,
     METRIC_MAX_FEATURE_EXPOSURE,
     METRIC_SHARPE_MEAN,
     METRIC_SHARPE_SD,
     METRIC_SHARPE_VALUE,
-    METRIC_TB_FEATURE_NEUTRAL_MEAN,
-    METRIC_TB_MEAN,
-    METRIC_TB_SD,
-    METRIC_TB_SHARPE,
-    feature_neutral_mean,
     max_feature_exposure,
     per_era_max_apy,
     per_era_max_drawdown,
     per_era_sharpe,
-    tb_fast_score_by_date,
-    tb_feature_neutral_mean,
 )
 
 
@@ -57,82 +49,46 @@ ARGUMENTS_DEFAULT = [ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
 ARGUMENTS_WITH_X = [ARGUMENT_X, ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
 
 
-def _metrics(
-    neutralization_feature_indices: List[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
-) -> List[MetricConfig]:
-    metrics: List[MetricConfig] = [
-        MetricConfig(
-            [METRIC_SHARPE_MEAN, METRIC_SHARPE_SD, METRIC_SHARPE_VALUE],
-            [True, False, True],
-            per_era_sharpe,
-            ARGUMENTS_WITH_X,
-        ),
-        MetricConfig(
-            [METRIC_MAX_DRAWDOWN],
-            [True],
-            per_era_max_drawdown,
-            ARGUMENTS_WITH_X,
-        ),
-        MetricConfig(
-            [METRIC_APY],
-            [True],
-            per_era_max_apy,
-            ARGUMENTS_WITH_X,
-        ),
-        # MetricConfig(  # TODO: Commented out due to OOM - check if it happens after reboot  # noqa: E501
-        #     [METRIC_MSE],
-        #     [False],
-        #     mean_squared_error,
-        #     ARGUMENTS_DEFAULT,
-        # ),
-        MetricConfig(
-            [METRIC_MAX_FEATURE_EXPOSURE],
-            [False],
-            max_feature_exposure,
-            ARGUMENTS_WITH_X,
-        ),
-        MetricConfig(
-            [METRIC_FEATURE_NEUTRAL_MEAN],
-            [True],
-            partial(
-                feature_neutral_mean,
-                neutralization_feature_indices=neutralization_feature_indices,
-                neutralization_proportion=neutralization_proportion,
-                neutralization_normalize=neutralization_normalize,
-            ),
-            ARGUMENTS_WITH_X,
-        ),
-        MetricConfig(
-            [METRIC_TB_FEATURE_NEUTRAL_MEAN],
-            [True],
-            partial(
-                tb_feature_neutral_mean,
-                neutralization_feature_indices=neutralization_feature_indices,
-                neutralization_proportion=neutralization_proportion,
-                neutralization_normalize=neutralization_normalize,
-                tb=tb,
-            ),
-            ARGUMENTS_WITH_X,
-        ),
-        MetricConfig(
-            [METRIC_TB_MEAN, METRIC_TB_SD, METRIC_TB_SHARPE],
-            [True, False, True],
-            partial(tb_fast_score_by_date, tb=tb),
-            ARGUMENTS_WITH_X,
-        ),
-        # MetricConfig(
-        #     [???],  # TODO: Create a function/constant for this
-        #     [???],  # TODO: Create a function/constant for this
-        #     lambda y_true, y_pred: partial(
-        #         numerai_metrics, numerai_model_id=numerai_model_id
-        #     ),
-        #     ARGUMENTS_DEFAULT
-        # ),
-    ]
-    return metrics
+METRICS: List[MetricConfig] = [
+    MetricConfig(
+        [METRIC_SHARPE_MEAN, METRIC_SHARPE_SD, METRIC_SHARPE_VALUE],
+        [True, False, True],
+        per_era_sharpe,
+        ARGUMENTS_WITH_X,
+    ),
+    MetricConfig(
+        [METRIC_MAX_DRAWDOWN],
+        [True],
+        per_era_max_drawdown,
+        ARGUMENTS_WITH_X,
+    ),
+    MetricConfig(
+        [METRIC_APY],
+        [True],
+        per_era_max_apy,
+        ARGUMENTS_WITH_X,
+    ),
+    # MetricConfig(  # TODO: Commented out due to OOM - check if it happens after reboot  # noqa: E501
+    #     [METRIC_MSE],
+    #     [False],
+    #     mean_squared_error,
+    #     ARGUMENTS_DEFAULT,
+    # ),
+    MetricConfig(
+        [METRIC_MAX_FEATURE_EXPOSURE],
+        [False],
+        max_feature_exposure,
+        ARGUMENTS_WITH_X,
+    ),
+    # MetricConfig(
+    #     [???],  # TODO: Create a function/constant for this
+    #     [???],  # TODO: Create a function/constant for this
+    #     lambda y_true, y_pred: partial(
+    #         numerai_metrics, numerai_model_id=numerai_model_id
+    #     ),
+    #     ARGUMENTS_DEFAULT
+    # ),
+]
 
 
 # See also:
@@ -154,19 +110,8 @@ def numerai_scorer(
     return metric(x, y_true, y_pred)
 
 
-def metric_to_ascending(
-    metric: str,
-    neutralization_feature_indices: List[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
-) -> bool:
-    for metric_config in _metrics(
-        neutralization_feature_indices=neutralization_feature_indices,
-        neutralization_proportion=neutralization_proportion,
-        neutralization_normalize=neutralization_normalize,
-        tb=tb,
-    ):
+def metric_to_ascending(metric: str) -> bool:
+    for metric_config in METRICS:
         if metric in metric_config.metric_names:
             return not metric_config.greater_is_better[
                 metric_config.metric_names.index(metric)
@@ -182,20 +127,8 @@ def _extract_metric_if_composite(
     return result
 
 
-def metric_to_simple_scorer(
-    metric: str,
-    neutralization_feature_indices: List[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
-) -> Callable:
-    metrics = _metrics(
-        neutralization_feature_indices=neutralization_feature_indices,
-        neutralization_proportion=neutralization_proportion,
-        neutralization_normalize=neutralization_normalize,
-        tb=tb,
-    )
-    for metric_config in metrics:
+def metric_to_simple_scorer(metric: str) -> Callable:
+    for metric_config in METRICS:
         if metric in metric_config.metric_names:
             ascending = 1.0 if metric_config.greater_is_better else -1.0
             if metric_config.metric_function_arguments == ARGUMENTS_DEFAULT:
@@ -233,10 +166,6 @@ def validation_metrics(
     y_pred: NDArray,
     validation_stats: List[Dict[str, float]],
     prediction_id: str,
-    neutralization_feature_indices: List[int],
-    neutralization_proportion: float,
-    neutralization_normalize: bool,
-    tb: int,
 ) -> None:
     evaluation: Dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
     arguments = {
@@ -244,12 +173,7 @@ def validation_metrics(
         ARGUMENT_Y_TRUE: y_true,
         ARGUMENT_Y_PRED: y_pred,
     }
-    for metric_config in _metrics(
-        neutralization_feature_indices=neutralization_feature_indices,
-        neutralization_proportion=neutralization_proportion,
-        neutralization_normalize=neutralization_normalize,
-        tb=tb,
-    ):
+    for metric_config in METRICS:
         result = metric_config.metric_function(
             **{
                 key: arguments[key]
