@@ -125,7 +125,9 @@ def read_parquet_and_unpack(
     data[feature_cols] = (
         data[feature_cols].apply(lambda x: x / 4.0).astype(np.float16)
     )
-    data[COLUMN_ERA] = data[COLUMN_ERA].astype(np.float32)
+    data[COLUMN_ERA] = np.where(
+        data[COLUMN_ERA] == 'X', np.nan, data[COLUMN_ERA]
+    ).astype(np.float32)
     eras = numeric_eras(file_name, data)
     return data, eras
 
