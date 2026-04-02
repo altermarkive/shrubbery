@@ -167,12 +167,15 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
 class WideModule(nn.Module):
     def __init__(self, input_dim: int) -> None:
         super().__init__()
-        self.batch_norm = nn.BatchNorm1d(input_dim)
-        self.linear = nn.Linear(input_dim, 1)
+        # Build a wide model using Sequential API
+        # (linear regression with no activation)
+        layers: list[nn.Module] = []
+        layers.append(nn.BatchNorm1d(input_dim))
+        layers.append(nn.Linear(input_dim, 1))
+        self.model = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.batch_norm(x)
-        return self.linear(x)
+        return self.model(x)
 
 
 class DeepModule(nn.Module):
@@ -183,6 +186,8 @@ class DeepModule(nn.Module):
         dropout_rate: float,
     ) -> None:
         super().__init__()
+        # Build a deep model using Sequential API
+        # (focusing solely on a deep neural network for regression)
         layers: list[nn.Module] = []
         for unit in units:
             layers.append(nn.Linear(input_dim, unit))
@@ -190,11 +195,12 @@ class DeepModule(nn.Module):
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout_rate))
             input_dim = unit
-        layers.append(nn.Linear(units[-1], 1))
-        self.network = nn.Sequential(*layers)
+        # Output layer, no activation for regression
+        layers.append(nn.Linear(input_dim, 1))
+        self.model = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.network(x)
+        return self.model(x)
 
 
 class WideAndDeepModule(nn.Module):
@@ -205,31 +211,41 @@ class WideAndDeepModule(nn.Module):
         dropout_rate: float,
     ) -> None:
         super().__init__()
-        # Wide path
-        self.wide_batch_norm = nn.BatchNorm1d(input_dim)
-        # Deep path
+        # The Wide and Deep architecture is a specific neural network
+        # architecture introduced by Google for handling a combination
+        # of memorization
+        # (shallow, wide paths for memorizing sparse features)
+        # and generalization
+        # (deep paths for learning abstract representations).
+        #
+        # Define the deep path
         deep_layers: list[nn.Module] = []
-        layer_input_dim = input_dim
+        deep_input_dim = input_dim
         for unit in units:
-            deep_layers.append(nn.Linear(layer_input_dim, unit))
+            deep_layers.append(nn.Linear(deep_input_dim, unit))
             deep_layers.append(nn.BatchNorm1d(unit))
             deep_layers.append(nn.ReLU())
             deep_layers.append(nn.Dropout(dropout_rate))
-            layer_input_dim = unit
-        self.deep_network = nn.Sequential(*deep_layers)
-        # Combined output: concat wide + deep features, then project
-        combined_dim = input_dim + units[-1]
-        self.output_layer = nn.Linear(combined_dim, 1)
+            deep_input_dim = unit
+        self.deep_model = nn.Sequential(*deep_layers)
+        # Define the wide path (linear model)
+        wide_layers: list[nn.Module] = []
+        wide_input_dim = input_dim
+        wide_layers.append(nn.BatchNorm1d(wide_input_dim))
+        self.wide_model = nn.Sequential(*wide_layers)
+        # Final output layer
+        self.output_layer = nn.Linear(deep_input_dim + wide_input_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        wide_output = self.wide_batch_norm(x)
-        deep_output = self.deep_network(x)
+        wide_output = self.wide_model(x)
+        deep_output = self.deep_model(x)
+        # Concatenate deep and wide paths
         combined = torch.cat([wide_output, deep_output], dim=1)
         return self.output_layer(combined)
 
 
-def mse_with_l1_l2_regularization(
-    module: nn.Module, l1_scale: float, l2_scale: float, device: str
+def mse_with_l1_regularization(
+    module: nn.Module, l1_scale: float, device: str
 ) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
     mse = nn.MSELoss()
 
@@ -237,12 +253,9 @@ def mse_with_l1_l2_regularization(
         y_prediction: torch.Tensor, y_true: torch.Tensor
     ) -> torch.Tensor:
         l1_loss = torch.tensor(0.0).to(device)
-        l2_loss = torch.tensor(0.0).to(device)
         for param in module.parameters():
-            if param.ndim > 1:
-                l1_loss += torch.sum(torch.abs(param))
-                l2_loss += torch.sum(param**2)
-        return mse(y_prediction, y_true) + l1_scale * l1_loss + l2_scale * l2_loss
+            l1_loss += torch.sum(torch.abs(param))
+        return mse(y_prediction, y_true) + l1_scale * l1_loss
 
     return regularized_loss
 
@@ -299,28 +312,31 @@ class WideAndDeepRegressor(TorchRegressor):
                 )
             case _:
                 raise NotImplementedError()
-
         optimizer: torch.optim.Optimizer
         match self.optimizer_type:
             case OptimizerType.SGD:
                 optimizer = optim.SGD(
-                    module.parameters(), lr=self.optimizer_learning_rate
+                    module.parameters(),
+                    lr=self.optimizer_learning_rate,
+                    weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAM:
                 optimizer = optim.Adam(
-                    module.parameters(), lr=self.optimizer_learning_rate
+                    module.parameters(),
+                    lr=self.optimizer_learning_rate,
+                    weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAGRAD:
                 optimizer = optim.Adagrad(
-                    module.parameters(), lr=self.optimizer_learning_rate
+                    module.parameters(),
+                    lr=self.optimizer_learning_rate,
+                    weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case _:
                 raise NotImplementedError()
-
-        criterion = mse_with_l1_l2_regularization(
+        criterion = mse_with_l1_regularization(
             module,
             self.optimizer_l1_regularization_strength,
-            self.optimizer_l2_regularization_strength,
             self.device,
         )
 
