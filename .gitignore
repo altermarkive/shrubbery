@@ -12,3 +12,4 @@ artifacts
 outputs
 wandb
 workspace
+.claude/settings.local.json
