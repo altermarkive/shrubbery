@@ -132,6 +132,7 @@ class Ensembler(
                 predictions[config.name] = config.estimator.predict(
                     x.astype(np.float32)
                 )
+                gc.collect()
         logger.info('Creating ensemble')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
         if wandb.run is not None:
