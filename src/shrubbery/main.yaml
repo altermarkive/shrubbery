@@ -1,0 +1,48 @@
+_target_: shrubbery.main.NumeraiRunner
+numerai_model_id:
+  _target_: os.getenv
+  _args_: [NUMERAI_MODEL]
+notes: Example
+version: latest
+feature_set_name: small
+retrain: true
+extra_training_targets: 1
+data_preprocessors:
+  - _target_: shrubbery.data.augmentation.numeric_eras
+    _partial_: true
+  - _target_: shrubbery.data.augmentation.numerai_keep_ids
+    _partial_: true
+estimator:
+  _target_: shrubbery.ensemble.Ensembler
+  numerai_model_id: ${..numerai_model_id}
+  training_metric: Sharpe
+  ensemble_metric: ${.training_metric}
+  ensemble_type: sum_and_rank
+  mix_combinatorial_cap: 20
+  neutralization_feature_indices: null
+  neutralization_proportion: 1.0
+  neutralization_normalize: true
+  tb: 200
+  estimators:
+    - _target_: shrubbery.ensemble.EstimatorConfig
+      name: xgboost
+      estimator:
+        _target_: shrubbery.main.NumeraiBestGridSearchEstimator
+        estimator:
+          _target_: xgboost.XGBRegressor
+          device: cuda
+          verbosity: 1
+          n_jobs: -1
+        numerai_model_id: ${.....numerai_model_id}
+        model_name: ${..name}
+        drop_era_column: true
+        downsample_cross_validation: 10
+        downsample_full_train: 10
+        cv: 2
+        cv_param_grid: {}
+        cv_metric: ${....training_metric}
+        embargo: 12
+        neutralization_feature_indices: ${....neutralization_feature_indices}
+        neutralization_proportion: ${....neutralization_proportion}
+        neutralization_normalize: ${....neutralization_proportion}
+        tb: ${....tb}
