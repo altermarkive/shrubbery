@@ -62,7 +62,6 @@ class NumeraiBestGridSearchEstimator(
         neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
-        numerai_model_id: str = 'DEPRECATED',
     ) -> None:
         self.estimator = NumeraiMetaEstimator(
             estimator=estimator,
@@ -84,7 +83,6 @@ class NumeraiBestGridSearchEstimator(
         self.neutralization_feature_indices = neutralization_feature_indices
         self.neutralization_proportion = neutralization_proportion
         self.neutralization_normalize = neutralization_normalize
-        self.numerai_model_id = numerai_model_id
 
     def fit(
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
