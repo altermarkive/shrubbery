@@ -39,7 +39,9 @@ def _som_embed(som: SOM, x: np.ndarray) -> np.ndarray:
 def _plot_som_diagnostics(som: MiniSom) -> None:
     u_matrix = som.distance_map()
     fig = go.Figure(
-        data=go.Heatmap(z=u_matrix, colorscale='Viridis', colorbar=dict(title=''))
+        data=go.Heatmap(
+            z=u_matrix, colorscale='Viridis', colorbar=dict(title='')
+        )
     )
     fig.update_layout(
         title='U-Matrix',
