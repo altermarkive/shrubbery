@@ -214,7 +214,10 @@ class NumeraiRunner:
                 tags + [f'numerai_model_id:{self.numerai_model_id}']
             )
             wandb.run.summary.update(
-                {'numerai_model_id': self.numerai_model_id}
+                {
+                    'numerai_model_id': self.numerai_model_id,
+                    'tournament_round': napi.get_current_round(),
+                }
             )
             wandb.run.notes = self.notes
         download_numerai_files()
