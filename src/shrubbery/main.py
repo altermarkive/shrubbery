@@ -50,7 +50,6 @@ class NumeraiBestGridSearchEstimator(
     def __init__(
         self,
         estimator: Any,
-        numerai_model_id: str,
         model_name: str,
         drop_era_column: bool,
         downsample_cross_validation: int,
@@ -63,6 +62,7 @@ class NumeraiBestGridSearchEstimator(
         neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
+        numerai_model_id: str = 'DEPRECATED',
     ) -> None:
         self.estimator = NumeraiMetaEstimator(
             estimator=estimator,
@@ -72,7 +72,6 @@ class NumeraiBestGridSearchEstimator(
             neutralization_proportion=neutralization_proportion,
             neutralization_normalize=neutralization_normalize,
         )
-        self.numerai_model_id = numerai_model_id
         self.model_name = model_name
         self.drop_era_column = drop_era_column
         self.downsample_cross_validation = downsample_cross_validation
