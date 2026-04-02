@@ -22,6 +22,10 @@ class NumeraiScorer:
     ) -> None:
         self.metric = metric
         self.greater_is_better = greater_is_better
+        if hasattr(metric, '__name__'):
+            self.__name__ = metric.__name__
+        else:
+            self.__name__ = str(metric)
 
     def __call__(self, estimator: Any, x: np.ndarray, y: np.ndarray) -> float:
         ascending = 1.0 if self.greater_is_better else -1.0
