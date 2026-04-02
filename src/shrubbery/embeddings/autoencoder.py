@@ -179,7 +179,7 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
             x_stddev = np.sqrt(x_variance)
             noise = np.random.normal(0, 0.1 * x_stddev, size=x.shape)
             x_train = x_train + noise
-        x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
+        x_tensor = torch.tensor(x_train, dtype=torch.float32).to(self.device)
         y_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
         optimizer = torch.optim.Adam(
             module.parameters(),
@@ -191,7 +191,8 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         for epoch in range(self.epochs):
             module.train()
-            for x_batch, y_batch in (progress := tqdm(loader)):
+            metric_sum = 0.0
+            for i, (x_batch, y_batch) in enumerate(progress := tqdm(loader)):
                 optimizer.zero_grad()
                 outputs = module(x_batch)
                 metric = criterion(outputs, y_batch)
@@ -200,8 +201,10 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
                     module.parameters(), max_norm=1.0
                 )
                 optimizer.step()
+                metric_sum += metric.item()
+                metric_average = metric_sum / (i + 1)
                 progress.set_description(
-                    f'Training - epoch: {epoch}; loss: {metric:.4f}'
+                    f'Training - epoch: {epoch}; loss: {metric_average:.4f}'
                 )
         self.serialized_model_ = io.BytesIO()
         jit.save(jit.script(module.encoder), self.serialized_model_)
