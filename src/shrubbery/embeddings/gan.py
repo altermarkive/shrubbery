@@ -14,6 +14,7 @@ from keras.layers import (  # noqa: E402
     Activation,
     BatchNormalization,
     Dense,
+    Input,
     LeakyReLU,
 )
 from keras.models import Model, Sequential  # noqa: E402
@@ -35,6 +36,7 @@ def create_discriminator(feature_count: int, layer_units: list[int]) -> Model:
     )
     weights_reg = keras.regularizers.l2(1e-3)
     discriminator: Model = Sequential(name='discriminator')
+    discriminator.add(Input(shape=(feature_count,)))
     all_layer_units = layer_units + [1]  # Adding logits to embedder
     for i, units in enumerate(all_layer_units):
         discriminator.add(
@@ -42,7 +44,6 @@ def create_discriminator(feature_count: int, layer_units: list[int]) -> Model:
                 units,
                 kernel_initializer=softmax_init,
                 kernel_regularizer=weights_reg,
-                input_dim=feature_count if i == 0 else None,
             )
         )
         # Placing normalization before activation may:
@@ -68,6 +69,7 @@ def create_generator(
     )
     weights_reg = keras.regularizers.l2(1e-3)
     generator: Model = Sequential(name='generator')
+    generator.add(Input(shape=(latent_dim,)))
     all_layer_units = layer_units + [feature_count]
     for i, units in enumerate(all_layer_units):
         generator.add(
@@ -75,7 +77,6 @@ def create_generator(
                 units,
                 kernel_initializer=sigmoid_init,
                 kernel_regularizer=weights_reg,
-                input_dim=latent_dim if i == 0 else None,
             )
         )
         # Placing normalization before activation may:
