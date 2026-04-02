@@ -2667,7 +2667,7 @@ name = "nvidia-cudnn-cu13"
 version = "9.13.0.50"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-cublas" },
+    { name = "nvidia-cublas", marker = "sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://pypi.nvidia.com/nvidia-cudnn-cu13/nvidia_cudnn_cu13-9.13.0.50-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:33f0aa0b64230101b348648fd0693342188071d3f8a137c0cf50051c24b3584b" },
@@ -4074,7 +4074,6 @@ dependencies = [
     { name = "scikit-network" },
     { name = "sklearn-genetic" },
     { name = "sklearn-genetic-opt" },
-    { name = "skorch" },
     { name = "snntorch" },
     { name = "tabulate" },
     { name = "torch" },
@@ -4120,7 +4119,6 @@ requires-dist = [
     { name = "scikit-network", specifier = ">=0.33.3" },
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
     { name = "sklearn-genetic-opt", specifier = ">=0.12.0" },
-    { name = "skorch", specifier = ">=1.2.0" },
     { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
@@ -4168,22 +4166,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/41/39/4b3ff7d5ef107bda7cbf155a376188074c0a50c5295dacc9c487bb36185a/sklearn_genetic_opt-0.12.0.tar.gz", hash = "sha256:4e526cc62b424706d6158048a0b50ecb0162fe8015d0c8889aaec1a2d40c0ac6", size = 34058, upload-time = "2025-07-23T16:44:22.14Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/10/15c3c2e30b4393a04469761c99ffbee7a00e1eb255b418c08197a7261312/sklearn_genetic_opt-0.12.0-py3-none-any.whl", hash = "sha256:7e0b9b5c0db51b822bf731a05f14fbf2a6a79b1f6b8418fdb077ed76cf134365", size = 37469, upload-time = "2025-07-23T16:44:20.865Z" },
-]
-
-[[package]]
-name = "skorch"
-version = "1.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-    { name = "tabulate" },
-    { name = "tqdm" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/fd/b0ed3e7de02af81e45518b0762f55e174489d8585cffe03169255ac305f7/skorch-1.2.0.tar.gz", hash = "sha256:2f4e688c00b94522557043a5d00fff2d0e82503d5dabea34fe959af520f5589d", size = 243795, upload-time = "2025-08-08T11:04:51.931Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/c2/af8c3b7ebe52ec577e08701b6782944bc963caa449ae71229c4e0d567ade/skorch-1.2.0-py3-none-any.whl", hash = "sha256:b1acbf97421ca9318cc449bf5b3df41561b1d1daf5f974fdd9f8a4be83d7baf9", size = 263103, upload-time = "2025-08-08T11:04:49.283Z" },
 ]
 
 [[package]]
