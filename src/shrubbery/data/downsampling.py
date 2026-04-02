@@ -57,23 +57,3 @@ class FitDownsamplerByEra(
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x)
-
-
-class FitOnFeaturesOnly(
-    BaseEstimator, MetaEstimatorMixin, PrintableModelMixin
-):
-    def __init__(self, estimator: Any) -> None:
-        self.estimator = estimator
-
-    def fit(
-        self,
-        x: np.ndarray,
-        y: np.ndarray,
-        **kwargs: dict[str, Any],
-    ) -> 'FitOnFeaturesOnly':
-        result = self.estimator.fit(x[:, COLUMN_INDEX_ERA:], y, **kwargs)
-        self.fitted_ = True
-        return result
-
-    def predict(self, x: np.ndarray) -> np.ndarray:
-        return self.estimator.predict(x[:, COLUMN_INDEX_ERA:])
