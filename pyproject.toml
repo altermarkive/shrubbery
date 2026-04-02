@@ -38,12 +38,13 @@ shrubbery = "shrubbery:main.main"
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cu126" },
+  { index = "pytorch-cu129" },
 ]
 
 [[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
 
 [tool.black]
 line-length = 79
