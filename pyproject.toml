@@ -33,11 +33,9 @@ shrubbery = "shrubbery:main.main"
 
 [project.optional-dependencies]
 dev = [
-    "black>=25.1.0",
-    "flake8>=7.3.0",
-    "isort>=6.0.1",
     "mypy>=1.17.1",
     "pdbpp>=0.11.7", # Extension of Python debugger
+    "ruff>=0.12.11",
     "types-requests>=2.32.4.20250809",
     "wat>=0.7.0", # Deep inspection of Python objects
 ]
@@ -52,15 +50,11 @@ name = "pytorch-cu129"
 url = "https://download.pytorch.org/whl/cu129"
 explicit = true
 
-[tool.black]
+[tool.ruff]
 line-length = 79
-target-version = ['py313']
-skip-string-normalization = 1
+
+[tool.ruff.format]
+quote-style = "single"
 
 [tool.mypy]
 ignore_missing_imports = true
-
-[tool.isort]
-line_length = 79
-profile = "black"
-multi_line_output = 3

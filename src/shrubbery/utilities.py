@@ -15,11 +15,10 @@ from keras.saving import load_model as load_keras_model
 from keras.saving import save_model as save_keras_model
 from numpy.typing import NDArray
 
+import wandb
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.observability import logger
 from shrubbery.workspace import get_workspace_path
-
-import wandb  # isort: skip
 
 MODEL_SUBDIRECTORY = 'models'
 PREDICTIONS_SUBDIRECTORY = 'predictions'

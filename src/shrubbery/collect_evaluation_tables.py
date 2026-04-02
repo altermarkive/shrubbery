@@ -8,11 +8,10 @@ from typing import Dict, List
 import pandas as pd
 from tqdm import tqdm
 
+import wandb
 from shrubbery.constants import COLUMN_ROUND_NUMBER
 from shrubbery.evaluation import METRIC_PREDICTION_ID, TABLE_EVALUATION
 from shrubbery.tournament import get_performances, get_projects
-
-import wandb  # isort: skip
 
 
 def collect_from_project(project: str) -> List[Dict]:

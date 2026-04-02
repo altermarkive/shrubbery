@@ -7,14 +7,13 @@ import plotly.express as px
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 
+import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_VALIDATION,
     COLUMN_INDEX_DATA_TYPE,
     COLUMN_INDEX_ERA,
     COLUMN_INDEX_TARGET,
 )
-
-import wandb  # isort: skip
 
 
 class PlotBasicDataInformation(BaseEstimator, TransformerMixin):
