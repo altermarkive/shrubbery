@@ -3,16 +3,15 @@ import time
 import numpy as np
 import pandas as pd
 import requests
+import wandb
 from sklearn.metrics import mean_squared_error
 
 from shrubbery.constants import (
     COLUMN_ERA,
-    COLUMN_ID,
     COLUMN_INDEX_ERA,
     COLUMN_Y_PRED,
     COLUMN_Y_TRUE,
 )
-from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
@@ -148,50 +147,39 @@ def mse(x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return mean_squared_error(y_true, y_pred)
 
 
-# TODO: Diagnostics
-# MetricConfig(
-#     ???,  # TODO: Create a function/constant for this
-#     ???,  # TODO: Create a function/constant for this
-#     lambda y_true, y_pred: partial(
-#         numerai_metrics, numerai_model_id=numerai_model_id
-#     ),
-# ),
-def numerai_metrics(
-    y_true: np.ndarray, y_pred: np.ndarray, numerai_model_id: str
+def submit_diagnostic_predictions(
+    prediction_data: pd.DataFrame, numerai_model_id: str
 ) -> dict[str, float]:
-    prediction_data = pd.read_csv(
-        locate_numerai_file('DEPRECATED'), index_col=COLUMN_ID
-    )
-    prediction_data['predictions'] = y_pred
     prediction_name = 'validation'
     prediction_path = save_prediction(prediction_data, prediction_name)
     # Upload validation prediction (Scores -> Models -> Run Diagnostics)
+    model_id = napi.get_models()[numerai_model_id]
     while True:
         try:
-            logger.info('Uploading prediction')
+            logger.info('Uploading diagnostic predictions')
             diagnostics_id = napi.upload_diagnostics(
                 file_path=str(prediction_path),
-                model_id=numerai_model_id,
+                model_id=model_id,
             )
-            logger.info('Uploaded prediction')
+            logger.info('Uploaded diagnostic predictions')
             break
         except requests.exceptions.HTTPError as error:
             if (
                 error.response is not None
                 and error.response.status_code == 429
             ):
-                logger.info('Backing off')
+                logger.info('Backing off upload of diagnostic predictions')
                 time.sleep(30 * 60)
             else:
-                logger.exception('Network failure')
+                logger.exception('Network failure for diagnostic predictions')
                 time.sleep(60)
         except Exception:
-            logger.exception('Upload failure')
+            logger.exception('Upload failure for diagnostic predictions')
             time.sleep(10)
     # Fetch diagnostics
     while True:
         diagnostics = napi.diagnostics(
-            model_id=numerai_model_id, diagnostics_id=diagnostics_id
+            model_id=model_id, diagnostics_id=diagnostics_id
         )[0]
         if diagnostics['status'] == 'done':
             break
@@ -199,5 +187,7 @@ def numerai_metrics(
     metrics = {}
     for key, value in diagnostics.items():
         if isinstance(value, float) or isinstance(value, int):
-            metrics[f'Numerai {key}'] = float(value)
+            metrics[f'{key}_diagnostic'] = float(value)
+    if wandb.run is not None:
+        wandb.run.summary.update(metrics)
     return metrics
