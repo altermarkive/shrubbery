@@ -103,7 +103,7 @@ def create_generator(
     return generator
 
 
-class GAN(BaseEstimator, TransformerMixin):
+class GANEmbedder(BaseEstimator, TransformerMixin):
     """Original Keras-based GAN embedder."""
 
     def __init__(
@@ -121,7 +121,7 @@ class GAN(BaseEstimator, TransformerMixin):
         self.discriminator_layer_units = discriminator_layer_units
         self.learning_rate = 1e-4
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GAN':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GANEmbedder':
         # GAN
         feature_count = x.shape[1]
         discriminator: Model = create_discriminator(
@@ -287,7 +287,7 @@ class GeneratorNetwork(nn.Module):
         return self.model(x)
 
 
-class GANEmbedder(BaseEstimator, TransformerMixin):
+class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
     """Pure PyTorch-based GAN embedder."""
 
     def __init__(
@@ -308,7 +308,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         self.learning_rate = learning_rate
         self.device = device
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GANEmbedder':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GenerativeAdversarialNetworkEmbedder':
         # Create networks
         feature_count = x.shape[1]
         discriminator = DiscriminatorNetwork(
