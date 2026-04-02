@@ -59,7 +59,6 @@ class Ensembler(
         ensemble_metric_greater_is_better: bool,
         ensemble_type: EnsembleType,
         mix_combinatorial_cap: int | None,
-        numerai_model_id: str = 'DEPRECATED',
     ) -> None:
         self.estimators = estimators
         self.ensemble_metric_function = ensemble_metric_function
@@ -69,7 +68,6 @@ class Ensembler(
         self.ensemble_type = ensemble_type
         self.mix_combinatorial_cap = mix_combinatorial_cap
         self.estimator_names_best_ = [config.name for config in estimators]
-        self.numerai_model_id = numerai_model_id
 
     def fit(
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
