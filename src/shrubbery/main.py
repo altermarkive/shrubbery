@@ -139,10 +139,7 @@ class NumeraiBestGridSearchEstimator(
         # Now do a full train
         logger.info('Entering full training section')
         self.estimator.set_params(**model_parameters)
-        FitDownsamplerBySample(
-            estimator=self.estimator,
-            sample_stride=self.downsample_full_train,
-        ).fit(x, y)
+        self.estimator.fit(x, y)
         self.fitted_cv_results_ = grid_search_cv.cv_results_
         return self.estimator
 
