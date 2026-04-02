@@ -315,18 +315,15 @@ def main(config: DictConfig) -> None:
         pass
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
     update_tournament_submissions(runner.numerai_model_id)
-    # XGBoost will handle CPU to GPU transfer of data
-    warnings.filterwarnings(
-        'ignore',
-        category=UserWarning,
-        message='.*Falling back to prediction using DMatrix.*',
-    )
-    # There is currently no way around LGBMRegressor naming features
-    warnings.filterwarnings(
-        'ignore',
-        category=UserWarning,
-        message='.*but LGBMRegressor was fitted with feature names.*',
-    )
+    for message in [
+        # XGBoost will handle CPU to GPU transfer of data
+        '.*Falling back to prediction using DMatrix.*',
+        # There is currently no way around LGBMRegressor naming features
+        '.*but LGBMRegressor was fitted with feature names.*',
+    ]:
+        warnings.filterwarnings(
+            'ignore', category=UserWarning, message=message
+        )
     wandb.init(tags=tags)
     _save_config_file_to_wandb(config)
     runner.run()
