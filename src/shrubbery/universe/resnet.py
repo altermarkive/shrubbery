@@ -12,10 +12,9 @@ class ResidualBlock(nn.Module):
         super().__init__()
         self.dense1 = nn.Linear(hidden_dim, hidden_dim)
         self.bn1 = nn.BatchNorm1d(hidden_dim)
-        self.dropout1 = nn.Dropout(dropout_rate)
+        self.dropout = nn.Dropout(dropout_rate)
         self.dense2 = nn.Linear(hidden_dim, hidden_dim)
         self.bn2 = nn.BatchNorm1d(hidden_dim)
-        self.dropout2 = nn.Dropout(dropout_rate)
         self.activation = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -23,10 +22,9 @@ class ResidualBlock(nn.Module):
         out = self.dense1(x)
         out = self.bn1(out)
         out = self.activation(out)
-        out = self.dropout1(out)
+        out = self.dropout(out)
         out = self.dense2(out)
         out = self.bn2(out)
-        out = self.dropout2(out)
         out += residual  # Skip connection
         out = self.activation(out)
         return out
