@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet
 
-from shrubbery.constants import COLUMN_TARGET
+from shrubbery.constants import COLUMN_ERA, COLUMN_TARGET
+from shrubbery.data.augmentation import numeric_eras
 from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.workspace import get_workspace_path
@@ -114,9 +115,9 @@ def get_feature_set(selected_feature_set: str) -> list[str]:
     return sorted(features)
 
 
-def read_parquet_and_unpack_feature_encoding(
+def read_parquet_and_unpack(
     file_name: str, read_columns: list[str], feature_cols: list[str]
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, list]:
     data = pd.read_parquet(
         locate_numerai_file(file_name), columns=read_columns
     )
@@ -124,7 +125,9 @@ def read_parquet_and_unpack_feature_encoding(
     data[feature_cols] = (
         data[feature_cols].apply(lambda x: x / 4.0).astype(np.float16)
     )
-    return data
+    data[COLUMN_ERA] = data[COLUMN_ERA].astype(np.float32)
+    eras = numeric_eras(file_name, data)
+    return data, eras
 
 
 def _get_available_training_targets() -> list[str]:

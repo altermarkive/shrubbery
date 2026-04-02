@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gc
-import os
-import subprocess
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import hydra
 import hydra.utils
@@ -18,7 +16,6 @@ from sklearn.model_selection import GridSearchCV
 
 from shrubbery.constants import (
     COLUMN_DATA_TYPE,
-    COLUMN_DATA_TYPE_TOURNAMENT,
     COLUMN_ERA,
     COLUMN_ID,
     COLUMN_INDEX_TARGET,
@@ -29,14 +26,13 @@ from shrubbery.cross_validation import (
     get_best_parameters,
     reformat_cross_validation_result,
 )
-from shrubbery.data.augmentation import FILE_LIVE_IDS
+from shrubbery.data.augmentation import override_numerai_era
 from shrubbery.data.downsampling import FitDownsamplerBySample
 from shrubbery.data.ingest import (
     download_numerai_files,
     get_feature_set,
     get_training_targets,
-    locate_numerai_file,
-    read_parquet_and_unpack_feature_encoding,
+    read_parquet_and_unpack,
 )
 from shrubbery.evaluation import metric_to_simple_scorer
 from shrubbery.meta_estimator import NumeraiMetaEstimator
@@ -152,7 +148,6 @@ class NumeraiRunner:
         self,
         feature_set_name: str,
         retrain: bool,
-        data_preprocessors: List[Callable],
         estimator: Any,
         numerai_model_id: str,
         version: str,
@@ -161,7 +156,6 @@ class NumeraiRunner:
     ) -> None:
         self.feature_set_name = feature_set_name
         self.retrain = retrain
-        self.data_preprocessors = data_preprocessors
         self.estimator = estimator
         self.numerai_model_id = numerai_model_id
         self.version = version
@@ -186,17 +180,19 @@ class NumeraiRunner:
         )
 
         logger.info('Reading training data')
-        training_data = read_parquet_and_unpack_feature_encoding(
+        training_data, training_eras = read_parquet_and_unpack(
             'train.parquet', read_columns, feature_cols
         )
         logger.info('Reading validation data')
-        validation_data = read_parquet_and_unpack_feature_encoding(
+        validation_data, validation_eras = read_parquet_and_unpack(
             'validation.parquet', read_columns, feature_cols
         )
         logger.info('Reading tournament data')
-        live_data = read_parquet_and_unpack_feature_encoding(
+        live_data, _ = read_parquet_and_unpack(
             'live.parquet', read_columns, feature_cols
         )
+        override_numerai_era(training_eras + validation_eras, live_data)
+
         # Check for nans and fill nans
         nans_per_col = live_data[feature_cols].isna().sum()
         logger.info('Checking for nans in the tournament data')
@@ -213,11 +209,7 @@ class NumeraiRunner:
             ].fillna(0.5)
         else:
             logger.info('No nans in the features this week!')
-        # Concatenate & preprocess data
-        data = pd.concat([training_data, validation_data, live_data])
-        for data_preprocessor in self.data_preprocessors:
-            feature_cols, data = data_preprocessor(feature_cols, data)
-
+        # Load model if present
         model_name = f'model_{self.numerai_model_id}'
         model, version = (
             (None, 'latest')
@@ -228,10 +220,10 @@ class NumeraiRunner:
             # Now do a full train
             logger.info(f'Training model: {model_name}')
             self.estimator = self.estimator.fit(
-                data[
+                training_data[
                     [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE]
                 ].to_numpy(),
-                data[targets].to_numpy(),
+                training_data[targets].to_numpy(),
             )
             version = store_model(self.estimator, model_name)
         else:
@@ -242,11 +234,9 @@ class NumeraiRunner:
         # Garbage collection gets rid of unused data and frees up memory
         gc.collect()
 
-        prediction_data = pd.read_csv(
-            locate_numerai_file(FILE_LIVE_IDS), index_col=COLUMN_ID
-        )
+        prediction_data = pd.DataFrame(live_data.index).set_index(COLUMN_ID)
         prediction_data['predictions'] = self.estimator.predict(
-            data[data[COLUMN_DATA_TYPE] == COLUMN_DATA_TYPE_TOURNAMENT][
+            live_data[
                 [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE]
             ].to_numpy()
         )
@@ -263,24 +253,6 @@ def _save_config_file_to_wandb(config: DictConfig) -> None:
     wandb.save(config_path, base_path=directory)
 
 
-def _append_git_hash_if_available(tags: List[str]) -> None:
-    os.system('git config --global --add safe.directory /w')
-    hash = (
-        subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode()
-    )
-    if ' ' not in hash and not hash.startswith('fatal'):
-        tags.append(f'git:{hash}')
-
-
-def _save_git_diff_to_wandb() -> None:
-    git_diff = subprocess.check_output(['git', 'diff']).strip().decode()
-    directory = get_workspace_path()
-    git_diff_path = directory / 'diff.patch'
-    with open(git_diff_path, 'wb') as handle:
-        handle.write(git_diff.encode('utf-8'))
-    wandb.save(git_diff_path, base_path=directory)
-
-
 @hydra.main(version_base=None, config_path='.', config_name='main')
 def main(config: DictConfig) -> None:
     # W&B Tags
@@ -290,12 +262,10 @@ def main(config: DictConfig) -> None:
         tags.append(str(round))
     except ValueError:
         pass
-    _append_git_hash_if_available(tags)
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
     update_tournament_submissions(runner.numerai_model_id)
     wandb.init(tags=tags)
     _save_config_file_to_wandb(config)
-    _save_git_diff_to_wandb()
     runner.run()
     wandb.finish()
 
