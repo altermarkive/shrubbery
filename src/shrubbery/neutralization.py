@@ -3,7 +3,6 @@ from typing import Any, Dict, Sequence
 import numpy as np
 import pandas as pd
 import scipy
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
 from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
@@ -13,12 +12,12 @@ from shrubbery.utilities import PrintableModelMixin
 
 
 def neutralize(
-    x: NDArray,
-    y: NDArray,
+    x: np.ndarray,
+    y: np.ndarray,
     neutralizers: Sequence[int],
     proportion: float,
     normalize: bool,
-) -> NDArray:
+) -> np.ndarray:
     if not neutralizers:
         neutralizers = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
     data = np.concatenate([x, y.reshape(-1, 1)], axis=1)
@@ -83,7 +82,7 @@ class NumeraiNeutralization(
         self.neutralization_normalize = neutralization_normalize
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> 'NumeraiNeutralization':
         riskiest_features = get_biggest_change_features(
             x,
@@ -96,7 +95,7 @@ class NumeraiNeutralization(
         self.estimator = self.estimator.fit(x, y)
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
         predictions = self.estimator.predict(
             x[:, feature_indices] if self.drop_era_column else x

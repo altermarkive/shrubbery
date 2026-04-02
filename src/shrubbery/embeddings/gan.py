@@ -22,7 +22,7 @@ from keras.layers import (  # noqa: E402
 from keras.models import Model, Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adam  # noqa: E402
-from numpy.typing import NDArray  # noqa: E402
+from numpy.typing import np.ndarray  # noqa: E402
 from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 from sklearn.utils import shuffle  # noqa: E402
 from tqdm import tqdm  # noqa: E402
@@ -116,7 +116,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         self.discriminator_layer_units = discriminator_layer_units
         self.learning_rate = 1e-4
 
-    def fit(self, x: NDArray, y: NDArray) -> 'GANEmbedder':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GANEmbedder':
         # GAN
         feature_count = x.shape[1]
         discriminator: Model = create_discriminator(
@@ -196,7 +196,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         self.serialized_embedder_ = serialize_keras_model(embedder)
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_embedder_ is not None
         embedder = deserialize_keras_model(
             self.serialized_embedder_,

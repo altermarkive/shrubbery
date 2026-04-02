@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import wandb
 from minisom import MiniSom
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
@@ -13,7 +12,7 @@ from shrubbery.observability import logger
 
 
 class SOM(BaseEstimator, TransformerMixin):
-    def fit(self, x: NDArray, y: NDArray) -> 'SOM':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'SOM':
         som_grid_size = int(5 * math.sqrt(x.shape[1]))
         sigma = som_grid_size / (2 * math.sqrt(2))
         self.som_ = MiniSom(
@@ -23,12 +22,12 @@ class SOM(BaseEstimator, TransformerMixin):
         _plot_som_diagnostics(self.som_)
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.som_ is not None
         return _som_embed(self.som_, x)
 
 
-def _som_embed(som: SOM, x: NDArray) -> NDArray:
+def _som_embed(som: SOM, x: np.ndarray) -> np.ndarray:
     xy = np.array(
         [som.winner(sample) for sample in tqdm(x, desc='Embedding som')]
     )

@@ -22,7 +22,6 @@ from keras.layers import (  # noqa: E402
 from keras.models import Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adagrad, Adam  # noqa: E402
-from numpy.typing import NDArray  # noqa: E402
 from sklearn.base import BaseEstimator, RegressorMixin  # noqa: E402
 
 from shrubbery.utilities import (  # noqa: E402
@@ -73,7 +72,7 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
             optimizer_l2_regularization_strength
         )
 
-    def fit(self, x: NDArray, y: NDArray) -> 'WideAndDeep':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'WideAndDeep':
         model_columns = list(range(x.shape[1]))
 
         if self.optimizer_type == OptimizerType.SGD:
@@ -153,7 +152,7 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
         self.serialized_model_ = serialize_keras_model(model)
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_model_ is not None
         model = deserialize_keras_model(self.serialized_model_)
         result = model.predict(convert_to_tensor(x))

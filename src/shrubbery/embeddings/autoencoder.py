@@ -18,7 +18,6 @@ from keras.losses import MeanSquaredError  # noqa: E402
 from keras.models import Model, Sequential  # noqa: E402
 from keras.ops import convert_to_tensor  # noqa: E402
 from keras.optimizers import Adam  # noqa: E402
-from numpy.typing import NDArray  # noqa: E402
 from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 
 from shrubbery.utilities import (  # noqa: E402
@@ -42,7 +41,7 @@ class Autoencoder(BaseEstimator, TransformerMixin):
         self.denoise = denoise
         self.learning_rate = learning_rate
 
-    def fit(self, x: NDArray, y: NDArray) -> 'Autoencoder':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'Autoencoder':
         model: Model = Sequential()
         model_input = Input(shape=(x.shape[1],))
         model.add(model_input)
@@ -87,7 +86,7 @@ class Autoencoder(BaseEstimator, TransformerMixin):
         self.serialized_embedder_ = serialize_keras_model(embedder)
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_embedder_ is not None
         embedder = deserialize_keras_model(self.serialized_embedder_)
         result = embedder.predict(convert_to_tensor(x))
