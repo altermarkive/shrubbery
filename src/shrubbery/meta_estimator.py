@@ -122,11 +122,11 @@ class PersistentRegressor(
     def fit(
         self, x: Any, y: Any, **kwargs: dict[str, Any]
     ) -> 'PersistentRegressor':
-        super().fit(x, y)
-        self.model_version = store_model(self.estimator, self.model_name)
+        super().fit(x, y)  # ty: ignore[unresolved-attribute]
+        self.model_version = store_model(self.estimator, self.model_name)  # ty: ignore[unresolved-attribute]
         self.fitted_ = True
         return self
 
     def predict(self, x: Any) -> np.ndarray:
-        predictions = self.estimator.predict(x)
+        predictions = self.estimator.predict(x)  # ty: ignore[unresolved-attribute]
         return predictions
