@@ -73,11 +73,11 @@ stringData:
     WANDB_PROJECT: '{wandb_project}'
 """
 
-SPEC_WORKLOAD = """---
+SPEC_JOB = """---
 apiVersion: batch/v1
 kind: Job
 metadata:
-    name: shrubbery-workload-{workload_id}
+    name: shrubbery-job-{job_id}
     namespace: default
     labels:
         kueue.x-k8s.io/queue-name: {queue_name}
@@ -174,8 +174,8 @@ def configure_secrets() -> None:
 
 
 def enqueue_workload(arguments: argparse.Namespace) -> None:
-    spec_workload = SPEC_WORKLOAD.format(
-        workload_id=int(time.time()),
+    spec_workload = SPEC_JOB.format(
+        job_id=int(time.time() * 1000),
         queue_name=arguments.queue,
         workload_priority=arguments.priority,
         container_image='shrubbery' if arguments.local else 'ghcr.io/altermarkive/shrubbery:latest',
