@@ -167,9 +167,11 @@ class WideAndDeep(BaseEstimator, RegressorMixin):
 class WideModule(nn.Module):
     def __init__(self, input_dim: int) -> None:
         super().__init__()
+        self.batch_norm = nn.BatchNorm1d(input_dim)
         self.linear = nn.Linear(input_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.batch_norm(x)
         return self.linear(x)
 
 
@@ -179,14 +181,12 @@ class DeepModule(nn.Module):
         input_dim: int,
         units: list[int],
         dropout_rate: float,
-        use_batch_norm: bool = False,
     ) -> None:
         super().__init__()
         layers: list[nn.Module] = []
         for unit in units:
             layers.append(nn.Linear(input_dim, unit))
-            if use_batch_norm:
-                layers.append(nn.BatchNorm1d(unit))
+            layers.append(nn.BatchNorm1d(unit))
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout_rate))
             input_dim = unit
@@ -203,26 +203,26 @@ class WideAndDeepModule(nn.Module):
         input_dim: int,
         units: list[int],
         dropout_rate: float,
-        use_batch_norm: bool = False,
     ) -> None:
         super().__init__()
+        # Wide path
+        self.wide_batch_norm = nn.BatchNorm1d(input_dim)
         # Deep path
         deep_layers: list[nn.Module] = []
         deep_input_dim = input_dim
         for unit in units:
             deep_layers.append(nn.Linear(deep_input_dim, unit))
-            if use_batch_norm:
-                deep_layers.append(nn.BatchNorm1d(unit))
+            deep_layers.append(nn.BatchNorm1d(unit))
             deep_layers.append(nn.ReLU())
             deep_layers.append(nn.Dropout(dropout_rate))
             deep_input_dim = unit
         self.deep_network = nn.Sequential(*deep_layers)
-        # Combined output: concat wide (raw input) + deep features, then project
+        # Combined output: concat wide + deep features, then project
         combined_dim = input_dim + deep_input_dim
         self.output_layer = nn.Linear(combined_dim, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        wide_output = x  # Wide path: raw features (no transformation)
+        wide_output = self.wide_batch_norm(x)
         deep_output = self.deep_network(x)
         combined = torch.cat([wide_output, deep_output], dim=1)
         return self.output_layer(combined)
@@ -260,7 +260,6 @@ class WideAndDeepRegressor(TorchRegressor):
         optimizer_l1_regularization_strength: float,
         optimizer_l2_regularization_strength: float,
         device: str,
-        use_batch_norm: bool = False,
     ) -> None:
         super().__init__(epochs=epochs, batch_size=batch_size, device=device)
         self.model_type = model_type
@@ -274,7 +273,6 @@ class WideAndDeepRegressor(TorchRegressor):
         self.optimizer_l2_regularization_strength = (
             optimizer_l2_regularization_strength
         )
-        self.use_batch_norm = use_batch_norm
 
     def prepare(
         self, input_dim: int
@@ -292,14 +290,12 @@ class WideAndDeepRegressor(TorchRegressor):
                     input_dim,
                     self.units,
                     self.dropout_rate,
-                    self.use_batch_norm,
                 )
             case ModelType.WIDE_AND_DEEP:
                 module = WideAndDeepModule(
                     input_dim,
                     self.units,
                     self.dropout_rate,
-                    self.use_batch_norm,
                 )
             case _:
                 raise NotImplementedError()
