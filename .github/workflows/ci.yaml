@@ -34,7 +34,7 @@ jobs:
           platforms: linux/amd64
           tags: ${{ steps.tags.outputs.tags }}
       - name: Linting
-        run: docker run --rm -v ${{ github.workspace }}:/app -w /app --entrypoint /bin/sh ghcr.io/${{ github.repository_owner }}/shrubbery:latest -c "ruff check --select I src; ruff format --check; mypy src"
+        run: docker run --rm -v ${{ github.workspace }}:/app -w /app --entrypoint /bin/sh ghcr.io/${{ github.repository_owner }}/shrubbery:latest -c "ruff check --select I src; ruff format --check; uv run ty check"
       - name: Trash
         uses: actions/delete-package-versions@v5
         with:
