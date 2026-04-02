@@ -23,6 +23,7 @@ dependencies = [
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
     "opentsne>=1.0.2",
+    "pacmap>=0.8.0",
     "plotly>=6.2.0",
     "pyarrow>=19.0.1",
     "pykan>=0.2.8",
