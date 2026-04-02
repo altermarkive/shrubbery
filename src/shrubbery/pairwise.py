@@ -24,7 +24,7 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'Pairwise':
         y = y.reshape(-1, 1)
-        logger.info('Fitting...')
+        logger.info('Fitting pairwise interactions...')
         joint_x_list = []
         joint_y_list = []
         for _ in range(self.n_shuffles_fit):
