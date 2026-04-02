@@ -376,10 +376,11 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                     f'Epoch {epoch + 1}/{self.epochs} - '
                     f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
                 )
-        # Extract embedder from discriminator (remove last 3 layers to exclude final logit output)
-        # Removes: last hidden LeakyReLU, final Linear(to 1), final BatchNorm
-        # Keeps: all layers up to and including the last hidden BatchNorm
-        embedder_layers = list(discriminator.model.children())[:-3]
+        # Extract embedder from discriminator (remove last 2 layers to exclude final logit output)
+        # Removes: final Linear(to 1), final BatchNorm
+        # Keeps: all layers up to and including the last hidden LeakyReLU
+        # This matches TF/Keras behavior where embeddings are taken after activation
+        embedder_layers = list(discriminator.model.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
         # Serialize the embedder
         self.serialized_model_ = io.BytesIO()
