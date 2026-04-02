@@ -55,6 +55,19 @@ wheels = [
 ]
 
 [[package]]
+name = "amltk"
+version = "1.12.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "more-itertools" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "psutil" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9d/e3/37f1ae89e6e3040fd144f855a44cc418f5c076af6054ca4a4952fd88a997/amltk-1.12.1.tar.gz", hash = "sha256:89233856f87ecb005070583b37a34fd34d2b5b636a4ef3f89522a5b66ee662de", size = 174435, upload-time = "2024-08-13T07:36:05.998Z" }
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3648,6 +3661,7 @@ version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aisp" },
+    { name = "amltk" },
     { name = "autoviml" },
     { name = "cudf-cu13" },
     { name = "cuml-cu13" },
@@ -3688,6 +3702,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aisp", specifier = ">=0.4.1" },
+    { name = "amltk", specifier = ">=1.12.1" },
     { name = "autoviml", specifier = ">=0.1.710" },
     { name = "cudf-cu13", specifier = ">=25.10.0" },
     { name = "cuml-cu13", specifier = ">=25.10.0" },
