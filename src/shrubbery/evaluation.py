@@ -17,8 +17,6 @@ from shrubbery.metrics import (
     METRIC_APY,
     METRIC_MAX_DRAWDOWN,
     METRIC_MAX_FEATURE_EXPOSURE,
-    METRIC_SHARPE_MEAN,
-    METRIC_SHARPE_SD,
     METRIC_SHARPE_VALUE,
     max_feature_exposure,
     per_era_max_apy,
@@ -29,8 +27,8 @@ from shrubbery.metrics import (
 
 @dataclass
 class MetricConfig:
-    metric_names: List[str]
-    greater_is_better: List[bool]
+    metric_name: str
+    greater_is_better: bool
     metric_function: Callable
 
 
@@ -39,33 +37,33 @@ METRIC_PREDICTION_ID = 'Prediction ID'
 
 METRICS: List[MetricConfig] = [
     MetricConfig(
-        [METRIC_SHARPE_VALUE],
-        [True],
+        METRIC_SHARPE_VALUE,
+        True,
         per_era_sharpe,
     ),
     MetricConfig(
-        [METRIC_MAX_DRAWDOWN],
-        [True],
+        METRIC_MAX_DRAWDOWN,
+        True,
         per_era_max_drawdown,
     ),
     MetricConfig(
-        [METRIC_APY],
-        [True],
+        METRIC_APY,
+        True,
         per_era_max_apy,
     ),
     # MetricConfig(  # TODO: Commented out due to OOM - check if it happens after reboot  # noqa: E501
-    #     [METRIC_MSE],
-    #     [False],
+    #     METRIC_MSE,
+    #     False,
     #     lambda _, y_true, y_pred: mean_squared_error(y_true, y_pred)
     # ),
     MetricConfig(
-        [METRIC_MAX_FEATURE_EXPOSURE],
-        [False],
+        METRIC_MAX_FEATURE_EXPOSURE,
+        False,
         max_feature_exposure,
     ),
     # MetricConfig(
-    #     [???],  # TODO: Create a function/constant for this
-    #     [???],  # TODO: Create a function/constant for this
+    #     ???,  # TODO: Create a function/constant for this
+    #     ???,  # TODO: Create a function/constant for this
     #     lambda y_true, y_pred: partial(
     #         numerai_metrics, numerai_model_id=numerai_model_id
     #     ),
@@ -94,10 +92,8 @@ def numerai_scorer(
 
 def metric_to_ascending(metric: str) -> bool:
     for metric_config in METRICS:
-        if metric in metric_config.metric_names:
-            return not metric_config.greater_is_better[
-                metric_config.metric_names.index(metric)
-            ]
+        if metric == metric_config.metric_name:
+            return not metric_config.greater_is_better
     raise NotImplementedError(f'Metric {metric} not found')
 
 
@@ -111,7 +107,7 @@ def _extract_metric_if_composite(
 
 def metric_to_simple_scorer(metric: str) -> Callable:
     for metric_config in METRICS:
-        if metric in metric_config.metric_names:
+        if metric == metric_config.metric_name:
             ascending = 1.0 if metric_config.greater_is_better else -1.0
             scorer = partial(
                 numerai_scorer,
@@ -139,7 +135,7 @@ def validation_metrics(
     evaluation: Dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
     for metric_config in METRICS:
         result = metric_config.metric_function(x, y_true, y_pred)
-        evaluation[metric_config.metric_names[0]] = result
+        evaluation[metric_config.metric_name] = result
     validation_stats.append(evaluation)
     evaluation_table = pd.DataFrame.from_records(validation_stats)
     wandb.log({TABLE_EVALUATION: wandb.Table(data=evaluation_table)})
