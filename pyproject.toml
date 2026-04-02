@@ -3,7 +3,7 @@ name = "shrubbery"
 description = "shrubbery"
 version = "0.0.0"
 authors = [
-    { name = "altermarkive", email = "13467877+altermarkive@users.noreply.github.com" }
+    { name = "altermarkive", email = "altermarkive@users.noreply.github.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.13"
