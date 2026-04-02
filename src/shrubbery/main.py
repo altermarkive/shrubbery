@@ -3,12 +3,9 @@ import gc
 from pathlib import Path
 from typing import Any, Callable
 
-import hydra
-import hydra.utils
 import numpy as np
 import pandas as pd
 import wandb
-from omegaconf import DictConfig, OmegaConf
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
@@ -317,14 +314,3 @@ def main_arguments() -> argparse.Namespace:
         '--retrain', action='store_true', help='Use this flag to retrain'
     )
     return parser.parse_args()
-
-
-@hydra.main(version_base=None, config_path='.', config_name='main')
-def main(config: DictConfig) -> None:
-    config_content = OmegaConf.to_yaml(config).encode('utf-8')
-    runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
-    runner.run(config_content, 'run_config.yaml')
-
-
-if __name__ == '__main__':
-    main()

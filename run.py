@@ -61,15 +61,13 @@ def run_docker(arguments: argparse.Namespace) -> None:
         f'{os.getcwd()}:/w',
         '-w',
         '/w',
-        '--env',
-        'HYDRA_FULL_ERROR=1',
         '--env-file',
         f'{base / ".env"}',
     ]
     if arguments.gpus:
         command.extend(['--gpus', 'all'])
-    if arguments.lint or arguments.debug:
-        command.extend(['--entrypoint', '/bin/bash'])
+    if not (arguments.lint or arguments.debug):
+        command.extend(['--entrypoint', '/usr/local/bin/uv'])
     if not arguments.local:
         command.extend(
             [
