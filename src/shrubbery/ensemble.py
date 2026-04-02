@@ -101,7 +101,7 @@ class Ensembler(
                 config.name,
             )
             gc.collect()
-        logger.info('Creating ensemble for validation')
+        logger.info('Creating ensemble')
         ensemble_metric_function = self.ensemble_metric_function
         ensemble_metric_ascending = not self.ensemble_metric_greater_is_better
         best = mix_combinatorial(
@@ -134,7 +134,7 @@ class Ensembler(
                 predictions[config.name] = config.estimator.predict(
                     x.astype(np.float32)
                 )
-        logger.info('Creating ensemble for tournament')
+        logger.info('Creating ensemble')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
         ensemble = get_ensemble(self.ensemble_type)
         return mix_predictions(
