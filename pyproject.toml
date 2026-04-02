@@ -27,6 +27,7 @@ dependencies = [
     "plotly>=6.2.0",
     "pyarrow>=19.0.1",
     "pykan>=0.2.8",
+    "reservoirpy>=0.4.1",
     "scikit-network>=0.33.3",
     "skorch>=1.2.0",
     "snntorch>=0.9.4",
