@@ -27,6 +27,7 @@ dependencies = [
     "minisom>=2.3.5",
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
+    "numerblox>=1.6.1",
     "opentsne>=1.0.2",
     "pacmap>=0.8.0",
     "plotly>=6.2.0",
