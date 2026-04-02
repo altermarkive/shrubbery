@@ -134,7 +134,7 @@ class AutoencoderNetwork(nn.Module):
                     nn.Sigmoid(),
                 ]
             )
-            prev_units = units
+            previous_units = units
         # Two parts of the model
         self.encoder = nn.Sequential(*encoder_layers)
         self.decoder = nn.Sequential(*decoder_layers)
