@@ -7,10 +7,10 @@ from typing import Any, Dict, Generator, List, Tuple
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as graph_objects
+import wandb
 from numpy.typing import NDArray
 from sklearn.model_selection import BaseCrossValidator
 
-import wandb
 from shrubbery.constants import COLUMN_INDEX_ERA
 from shrubbery.observability import logger
 from shrubbery.utilities import dict_of_lists_to_list_of_dicts

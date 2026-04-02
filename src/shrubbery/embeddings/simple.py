@@ -10,11 +10,7 @@ from typing import Any, Dict, List
 import numpy as np
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.metrics import make_scorer, mean_squared_error
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.pipeline import Pipeline
 from tqdm import tqdm
-from xgboost import XGBRegressor
 
 from shrubbery.constants import (
     COLUMN_DATA_TYPE_TRAINING,
@@ -114,42 +110,3 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                 )
             )
         return np.concatenate([eras] + embeddings + [types], axis=1)
-
-
-class RandomizedSearchEmbedder(BaseEstimator, TransformerMixin):
-    def __init__(
-        self,
-        estimator: Any,
-        params: Dict,
-    ) -> None:
-        self.estimator = estimator
-        self.params = params
-
-    def fit(self, x: NDArray, y: NDArray) -> 'RandomizedSearchEmbedder':
-        pipeline = Pipeline(
-            [
-                ('embedder', self.estimator),
-                (
-                    'regressor',
-                    XGBRegressor(device='cuda', tree_method='approx'),
-                ),
-            ]
-        )
-        params = {
-            f'embedder__{key}': value for key, value in self.params.items()
-        }
-        search = RandomizedSearchCV(
-            pipeline,
-            params,
-            n_iter=100,
-            verbose=2,
-            scoring=make_scorer(mean_squared_error, greater_is_better=False),
-        )
-        search.fit(x, y)
-        logger.info(f'Best score for embedder is {search.best_score_}')
-        logger.info(f'Best params for embedder are {search.best_params_}')
-        self.estimator = search.best_estimator_.steps[0][1]
-        return self
-
-    def transform(self, x: NDArray) -> NDArray:
-        return self.estimator.transform(x)

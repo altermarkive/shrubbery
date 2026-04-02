@@ -6,10 +6,11 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Union
 
 import pandas as pd
-from numpy.typing import NDArray
 
 # from sklearn.metrics import mean_squared_error
 import wandb
+from numpy.typing import NDArray
+
 from shrubbery.constants import (
     COLUMN_EXAMPLE_PREDICTIONS,
     COLUMN_INDEX_TARGET,

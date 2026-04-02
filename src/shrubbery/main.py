@@ -10,12 +10,12 @@ import hydra
 import hydra.utils
 import numpy as np
 import pandas as pd
+import wandb
 from numpy.typing import NDArray
 from omegaconf import DictConfig, OmegaConf
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
-import wandb
 from shrubbery.constants import (
     COLUMN_DATA_TYPE,
     COLUMN_DATA_TYPE_TOURNAMENT,

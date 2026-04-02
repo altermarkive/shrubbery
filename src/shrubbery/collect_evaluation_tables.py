@@ -6,9 +6,9 @@ import sys
 from typing import Dict, List
 
 import pandas as pd
+import wandb
 from tqdm import tqdm
 
-import wandb
 from shrubbery.constants import COLUMN_ROUND_NUMBER
 from shrubbery.evaluation import METRIC_PREDICTION_ID, TABLE_EVALUATION
 from shrubbery.tournament import get_performances, get_projects

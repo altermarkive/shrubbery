@@ -4,10 +4,9 @@
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import wandb
 from numpy.typing import NDArray
 from sklearn.cluster import DBSCAN
-
-import wandb
 
 
 def _plot_2d_scatter(
