@@ -114,7 +114,7 @@ def mix_combinatorial(
             lut.items(), columns=pd.Series(['Prediction', sort_by])
         ).sort_values(by=sort_by, ascending=sort_ascending)
         logger.info(
-            f'Highest ranked: {ranking[0][sort_by]} {ranking[0]["Prediction"]}'
+            f'Highest ranked: {ranking.iloc[0][sort_by]} {ranking.iloc[0]["Prediction"]}'
         )
     top = top_mix(lut, sort_ascending)
     if top:
