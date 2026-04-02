@@ -20,7 +20,6 @@ dependencies = [
     "hydra-core>=1.3.2",
     "keras>=3.11.1",
     "lightgbm>=4.6.0",
-    "matplotlib>=3.10.5",
     "minisom>=2.3.5",
     # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
     #     from ._myfm import RelationBlock
