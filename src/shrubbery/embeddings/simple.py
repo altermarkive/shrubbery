@@ -30,8 +30,8 @@ def _apply_transform_in_chunks(
 class EmbedderConfig:
     name: str
     estimator: Any
-    portion: float
-    chunk_size: int
+    portion: float = 1.0
+    chunk_size: int = -1
 
 
 class GenericEmbedder(BaseEstimator, TransformerMixin):
