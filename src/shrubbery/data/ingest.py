@@ -1,12 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import hashlib
 import json
 import math
 import random
 from pathlib import Path
-from typing import List, Optional, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -35,13 +31,13 @@ FILES_TO_DOWNLOAD = {
 
 def fully_qualify_file_name(
     directory: Path, file_name: str
-) -> Tuple[Path, Path]:
+) -> tuple[Path, Path]:
     previous_file_name = file_name
     current_file_name = file_name
     return directory / current_file_name, directory / previous_file_name
 
 
-def file_hash(file_path: Path) -> Optional[str]:
+def file_hash(file_path: Path) -> str | None:
     try:
         with open(file_path, 'rb') as handle:
             file_hash_object = hashlib.sha512()
@@ -55,7 +51,7 @@ def file_hash(file_path: Path) -> Optional[str]:
 def download_file_and_investigate(
     file_name: str,
     investigate: bool = False,
-) -> Optional[bool]:
+) -> bool | None:
     different = None
     data_directory_path = get_workspace_path(DATA_SUBDIRECTORY)
     current_file_path, previous_file_path = fully_qualify_file_name(
@@ -104,7 +100,7 @@ def locate_numerai_file(file_name: str) -> Path:
     return file_path
 
 
-def get_feature_set(selected_feature_set: str) -> List[str]:
+def get_feature_set(selected_feature_set: str) -> list[str]:
     # Read the feature metadata and get a feature set
     with open(locate_numerai_file('features.json'), 'r') as handle:
         feature_metadata = json.load(handle)
@@ -121,7 +117,7 @@ def get_feature_set(selected_feature_set: str) -> List[str]:
 
 
 def read_parquet_and_unpack_feature_encoding(
-    file_name: str, read_columns: List[str], feature_cols: List[str]
+    file_name: str, read_columns: list[str], feature_cols: list[str]
 ) -> pd.DataFrame:
     data = pd.read_parquet(
         locate_numerai_file(file_name), columns=read_columns
@@ -133,7 +129,7 @@ def read_parquet_and_unpack_feature_encoding(
     return data
 
 
-def _get_available_training_targets() -> Set[str]:
+def _get_available_training_targets() -> list[str]:
     train_parquet_file_path = locate_numerai_file('train.parquet')
     schema = pyarrow.parquet.read_schema(
         train_parquet_file_path, memory_map=True
@@ -157,12 +153,17 @@ def _get_available_training_targets() -> Set[str]:
             logger.warning(
                 f'Dropped {target} after checking for infinity & NaN'
             )
-    logger.info(f'Available targets - {sorted(finite_targets)}')
-    return set(finite_targets)
+    finite_targets = sorted(finite_targets)
+    logger.info(f'Available targets - {finite_targets}')
+    return finite_targets
 
 
-def get_training_targets(k: int) -> List[str]:
-    other_training_targets = _get_available_training_targets() - set(
+def get_training_targets(k: int) -> list[str]:
+    training_targets = _get_available_training_targets()
+    target_names = locate_numerai_file('target_names.json')
+    with target_names.open('w') as handle:
+        json.dump(training_targets, handle, indent=4)
+    other_training_targets = set(training_targets) - set(
         ['target', COLUMN_TARGET]
     )
     targets = [COLUMN_TARGET]
@@ -171,3 +172,10 @@ def get_training_targets(k: int) -> List[str]:
         targets += sorted(random.sample(list(other_training_targets), k))
     logger.info(f'Selected targets - {targets}')
     return targets
+
+
+def lookup_target_index(target_name: str) -> int:
+    target_names = locate_numerai_file('target_names.json')
+    with target_names.open('r') as handle:
+        training_targets = json.load(handle)
+    return training_targets.index(target_name)
