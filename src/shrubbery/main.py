@@ -225,15 +225,12 @@ class NumeraiRunner:
         targets = get_training_targets()
         read_columns = [COLUMN_ERA] + feature_cols + targets
 
-        logger.info('Reading training data')
         training_data, training_eras = read_parquet_and_unpack(
             'train.parquet', read_columns, feature_cols
         )
-        logger.info('Reading validation data')
         validation_data, validation_eras = read_parquet_and_unpack(
             'validation.parquet', read_columns, feature_cols
         )
-        logger.info('Reading tournament data')
         live_data, _ = read_parquet_and_unpack(
             'live.parquet', read_columns, feature_cols
         )
