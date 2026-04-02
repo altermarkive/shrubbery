@@ -32,11 +32,10 @@ def adversarial_downsampling(
     feature_cols: list[str],
     training_data: pd.DataFrame,
     validation_data: pd.DataFrame,
-    live_data: pd.DataFrame,
     downsampling_ratio: float,
 ) -> tuple[list[str], pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if not (0.0 < downsampling_ratio < 1.0):
-        return feature_cols, training_data, validation_data, live_data
+        return feature_cols, training_data, validation_data
 
     training_data[COLUMN_DATA_TYPE_REFERENCE] = TRAINING_DATA
     validation_data[COLUMN_DATA_TYPE_REFERENCE] = VALIDATION_DATA
@@ -95,4 +94,4 @@ def adversarial_downsampling(
         .explode()
         .tolist()
     ]
-    return feature_cols, downsampled_training_data, validation_data, live_data
+    return feature_cols, downsampled_training_data, validation_data
