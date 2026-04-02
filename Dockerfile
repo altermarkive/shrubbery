@@ -6,7 +6,6 @@ FROM nvidia/cuda:13.1.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Python package dependencies
 RUN apt-get -yq update && \
     apt-get -yq remove python && \
     apt-get -yq install \
@@ -16,7 +15,6 @@ RUN apt-get -yq update && \
         git-lfs \
         libatlas3-base \
         libblas-dev \
-        libfftw3-dev \
         libfreetype-dev \
         libhdf5-dev \
         libjpeg-dev \
@@ -32,7 +30,6 @@ RUN apt-get -yq update && \
 # git-lfs - N/A
 # libatlas3-base - N/A
 # libblas-dev - N/A
-# libfftw3-dev - opentsne
 # libfreetype-dev - matplotlib (older, non-wheel version)
 # libhdf5-dev - Keras
 # libjpeg-dev - Pillow (older, non-wheel version)
