@@ -6,12 +6,6 @@ import pandas as pd
 import wandb
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
-from shrubbery.metrics import (
-    max_feature_exposure,
-    per_era_max_apy,
-    per_era_max_drawdown,
-    per_era_sharpe,
-)
 
 
 @dataclass
