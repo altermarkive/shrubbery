@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from typing import Any, Dict, Sequence
 
 import numpy as np

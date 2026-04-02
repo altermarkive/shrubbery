@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from typing import Any, Dict, Iterable, List, Optional, Union
 
 from numpy.typing import NDArray

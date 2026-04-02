@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from typing import Callable, Dict, List, Optional, Set
 
 import numpy as np
