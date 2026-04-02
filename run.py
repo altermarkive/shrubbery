@@ -81,7 +81,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         command.extend(
             [
                 '-c',
-                '"ruff check --select I src && ruff format --check --diff && uv run ty check"',  # noqa: E501
+                '"ruff check --select I src && ruff format --check --diff && ty check --extra-search-path /usr/local/lib/python3.13/dist-packages/"',  # noqa: E501
             ]
         )
     if not arguments.lint and not arguments.debug:
