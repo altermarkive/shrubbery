@@ -185,9 +185,7 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
                 y_mislabled = np.ones((2 * x_batch.shape[0], 1))
                 g_loss = model.train_on_batch(
                     convert_to_tensor(d_noise), convert_to_tensor(y_mislabled)
-                )[
-                    0  # Keep only loss
-                ]
+                )
                 progress.set_description(
                     f'Training - d_loss: {d_loss:.5f}; g_loss: {g_loss:.5f}'
                 )
