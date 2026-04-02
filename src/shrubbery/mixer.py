@@ -114,9 +114,9 @@ def mix_combinatorial(
             pd.DataFrame(lut.items(), columns=['Prediction', sort_by])
             .set_index('Prediction')
             .sort_values(by=sort_by, ascending=sort_ascending)
-            .to_markdown()
         )
-        logger.info(f'Ranking:\n{ranking}')
+        for _, row in ranking.iterrows():
+            logger.info(f'Ranking: {row[sort_by]} {row['Prediction']}')
     top = top_mix(lut, sort_ascending)
     if top:
         return list(_decode(top))
