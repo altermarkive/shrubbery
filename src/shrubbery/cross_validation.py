@@ -25,14 +25,14 @@ class NumeraiTimeSeriesSplitter(BaseCrossValidator):
 
     def get_n_splits(
         self, x: np.ndarray, y: np.ndarray, groups: Any = None
-    ) -> int:
+    ) -> int:  # ty: ignore[invalid-method-override]
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-get_n_splits
         return self._cv
 
     def split(
         self, x: np.ndarray, y: np.ndarray, groups: Any = None
-    ) -> Generator[tuple[np.ndarray, np.ndarray], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray], None, None]:  # ty: ignore[invalid-method-override]
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-split
         assert x is not None, 'Training vector was not provided'
