@@ -59,8 +59,6 @@ def run_docker(arguments: argparse.Namespace) -> None:
         f'{os.getcwd()}:/w:U',
         '-w',
         '/w',
-        '-e',
-        'KERAS_BACKEND=torch',
         '--env-file',
         f'{base / ".env"}',
     ]

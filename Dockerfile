@@ -47,6 +47,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && \
 
 RUN /usr/bin/python3.13 -m pip install --disable-pip-version-check --no-cache-dir --break-system-packages uv
 
+ENV KERAS_BACKEND=torch
 ADD . /tmp/shrubbery
 RUN cd /tmp/shrubbery && UV_HTTP_TIMEOUT=60 uv pip install --system '.[dev]' && rm -rf /tmp/shrubbery
 
