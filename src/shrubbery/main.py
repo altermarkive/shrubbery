@@ -15,7 +15,6 @@ from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
 
 from shrubbery.constants import (
-    COLUMN_DATA_TYPE,
     COLUMN_ERA,
     COLUMN_ID,
     COLUMN_INDEX_TARGET,
@@ -32,6 +31,7 @@ from shrubbery.data.ingest import (
     download_numerai_files,
     get_feature_set,
     get_training_targets,
+    lookup_target_index,
     read_parquet_and_unpack,
 )
 from shrubbery.evaluation import metric_to_simple_scorer
@@ -57,6 +57,7 @@ class NumeraiBestGridSearchEstimator(
         drop_era_column: bool,
         downsample_cross_validation: int,
         downsample_full_train: int,
+        targets: list[int | str],
         cv: int,
         cv_param_grid: Dict,
         cv_metric: str,
@@ -79,6 +80,7 @@ class NumeraiBestGridSearchEstimator(
         self.drop_era_column = drop_era_column
         self.downsample_cross_validation = downsample_cross_validation
         self.downsample_full_train = downsample_full_train
+        self.targets = targets
         self.cv = cv
         self.cv_param_grid = cv_param_grid
         self.cv_metric = cv_metric
@@ -92,6 +94,11 @@ class NumeraiBestGridSearchEstimator(
         self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
     ) -> NumeraiMetaEstimator:
         logger.info(f'Shape of training data - x:{x.shape} y:{y.shape}')
+        targets = [
+            target if isinstance(target, int) else lookup_target_index(target)
+            for target in self.targets
+        ]
+        y = y[:, targets]
 
         # Do cross val to get out of sample training preds
         # Get out of sample training preds via embargoed
@@ -174,10 +181,8 @@ class NumeraiRunner:
             wandb.run.notes = self.notes
         download_numerai_files()
         feature_cols = get_feature_set(self.feature_set_name)
-        targets = get_training_targets(self.extra_training_targets)
-        read_columns = (
-            [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE] + targets
-        )
+        targets = get_training_targets()
+        read_columns = [COLUMN_ERA] + feature_cols + targets
 
         logger.info('Reading training data')
         training_data, training_eras = read_parquet_and_unpack(
@@ -220,9 +225,7 @@ class NumeraiRunner:
             # Now do a full train
             logger.info(f'Training model: {model_name}')
             self.estimator = self.estimator.fit(
-                training_data[
-                    [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE]
-                ].to_numpy(),
+                training_data[[COLUMN_ERA] + feature_cols].to_numpy(),
                 training_data[targets].to_numpy(),
             )
             version = store_model(self.estimator, model_name)
@@ -236,9 +239,7 @@ class NumeraiRunner:
 
         prediction_data = pd.DataFrame(live_data.index).set_index(COLUMN_ID)
         prediction_data['predictions'] = self.estimator.predict(
-            live_data[
-                [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE]
-            ].to_numpy()
+            live_data[[COLUMN_ERA] + feature_cols].to_numpy()
         )
         gc.collect()
 

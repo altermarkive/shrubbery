@@ -12,11 +12,7 @@ from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
-from shrubbery.constants import (
-    COLUMN_DATA_TYPE_TRAINING,
-    COLUMN_INDEX_DATA_TYPE,
-    COLUMN_INDEX_ERA,
-)
+from shrubbery.constants import COLUMN_INDEX_ERA
 from shrubbery.embeddings.diagnostics import plot_diagnostics
 from shrubbery.observability import logger
 
@@ -57,16 +53,8 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         self.target_column_index = target_column_index
 
     def fit(self, x: NDArray, y: NDArray) -> 'GenericEmbedder':
-        training_data_selection = (
-            x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_TRAINING
-        )
-        x_training = x[
-            training_data_selection,
-            (COLUMN_INDEX_ERA + 1) : COLUMN_INDEX_DATA_TYPE,
-        ].astype(np.float32)
-        y_training = y[
-            training_data_selection, self.target_column_index
-        ].astype(np.float32)
+        x_training = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
+        y_training = y[:, self.target_column_index].astype(np.float32)
         training_count = x_training.shape[0]
         for estimator in self.estimators:
             all_indices = list(range(x_training.shape[0]))
@@ -98,20 +86,15 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
 
     def transform(self, x: NDArray) -> NDArray:
         eras = x[:, : (COLUMN_INDEX_ERA + 1)]
-        features = x[
-            :, (COLUMN_INDEX_ERA + 1) : COLUMN_INDEX_DATA_TYPE
-        ].astype(np.float32)
+        features = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
         embeddings = []
-        types = x[:, COLUMN_INDEX_DATA_TYPE:]
         for estimator in self.estimators:
             embeddings.append(
                 _apply_transform_in_chunks(
                     estimator.estimator, features, estimator.chunk_size
                 )
             )
-        return np.concatenate(
-            [eras] + [features] + embeddings + [types], axis=1
-        )
+        return np.concatenate([eras] + [features] + embeddings, axis=1)
 
 
 class PersistableEmbedder(BaseEstimator, TransformerMixin):
