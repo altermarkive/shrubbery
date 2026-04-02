@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Code inspired by:
 # * https://github.com/jimfleming/numerai/blob/master/models/adversarial/model.py  # noqa: E501
