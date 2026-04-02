@@ -96,10 +96,7 @@ class NumeraiNeutralization(
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
-        predictions = self.estimator.predict(
-            x[:, feature_indices] if self.drop_era_column else x
-        )
+        predictions = self.estimator.predict(x)
         neutralized = neutralize(
             x,
             predictions,
