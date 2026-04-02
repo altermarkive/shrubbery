@@ -11,11 +11,7 @@ import pandas as pd
 import wandb
 from numpy.typing import NDArray
 
-from shrubbery.constants import (
-    COLUMN_INDEX_TARGET,
-    COLUMN_Y_PRED,
-    COLUMN_Y_TRUE,
-)
+from shrubbery.constants import COLUMN_INDEX_TARGET
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import (
     METRIC_APY,
@@ -36,17 +32,9 @@ class MetricConfig:
     metric_names: List[str]
     greater_is_better: List[bool]
     metric_function: Callable
-    metric_function_arguments: List[str]
 
 
 METRIC_PREDICTION_ID = 'Prediction ID'
-
-ARGUMENT_X = 'x'
-ARGUMENT_Y_TRUE = COLUMN_Y_TRUE
-ARGUMENT_Y_PRED = COLUMN_Y_PRED
-
-ARGUMENTS_DEFAULT = [ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
-ARGUMENTS_WITH_X = [ARGUMENT_X, ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
 
 
 METRICS: List[MetricConfig] = [
@@ -54,31 +42,26 @@ METRICS: List[MetricConfig] = [
         [METRIC_SHARPE_MEAN, METRIC_SHARPE_SD, METRIC_SHARPE_VALUE],
         [True, False, True],
         per_era_sharpe,
-        ARGUMENTS_WITH_X,
     ),
     MetricConfig(
         [METRIC_MAX_DRAWDOWN],
         [True],
         per_era_max_drawdown,
-        ARGUMENTS_WITH_X,
     ),
     MetricConfig(
         [METRIC_APY],
         [True],
         per_era_max_apy,
-        ARGUMENTS_WITH_X,
     ),
     # MetricConfig(  # TODO: Commented out due to OOM - check if it happens after reboot  # noqa: E501
     #     [METRIC_MSE],
     #     [False],
-    #     mean_squared_error,
-    #     ARGUMENTS_DEFAULT,
+    #     lambda _, y_true, y_pred: mean_squared_error(y_true, y_pred)
     # ),
     MetricConfig(
         [METRIC_MAX_FEATURE_EXPOSURE],
         [False],
         max_feature_exposure,
-        ARGUMENTS_WITH_X,
     ),
     # MetricConfig(
     #     [???],  # TODO: Create a function/constant for this
@@ -86,7 +69,6 @@ METRICS: List[MetricConfig] = [
     #     lambda y_true, y_pred: partial(
     #         numerai_metrics, numerai_model_id=numerai_model_id
     #     ),
-    #     ARGUMENTS_DEFAULT
     # ),
 ]
 
@@ -131,29 +113,16 @@ def metric_to_simple_scorer(metric: str) -> Callable:
     for metric_config in METRICS:
         if metric in metric_config.metric_names:
             ascending = 1.0 if metric_config.greater_is_better else -1.0
-            if metric_config.metric_function_arguments == ARGUMENTS_DEFAULT:
-                scorer = partial(
-                    numerai_scorer,
-                    metric=lambda x, y_true, y_pred: ascending
-                    * metric_config.metric_function(y_true, y_pred),
-                )
-                scorer.__name__ = metric  # type: ignore[attr-defined]
-                return scorer
-            elif metric_config.metric_function_arguments == ARGUMENTS_WITH_X:
-                scorer = partial(
-                    numerai_scorer,
-                    metric=lambda x, y_true, y_pred: ascending
-                    * _extract_metric_if_composite(
-                        metric,
-                        metric_config.metric_function(x, y_true, y_pred),
-                    ),
-                )
-                scorer.__name__ = metric  # type: ignore[attr-defined]
-                return scorer
-            else:
-                NotImplementedError(
-                    f'Metric {metric} cannot be used as a simple scorer'
-                )
+            scorer = partial(
+                numerai_scorer,
+                metric=lambda x, y_true, y_pred: ascending
+                * _extract_metric_if_composite(
+                    metric,
+                    metric_config.metric_function(x, y_true, y_pred),
+                ),
+            )
+            scorer.__name__ = metric  # type: ignore[attr-defined]
+            return scorer
     raise NotImplementedError(f'Metric {metric} not found')
 
 
@@ -168,18 +137,8 @@ def validation_metrics(
     prediction_id: str,
 ) -> None:
     evaluation: Dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
-    arguments = {
-        ARGUMENT_X: x,
-        ARGUMENT_Y_TRUE: y_true,
-        ARGUMENT_Y_PRED: y_pred,
-    }
     for metric_config in METRICS:
-        result = metric_config.metric_function(
-            **{
-                key: arguments[key]
-                for key in metric_config.metric_function_arguments
-            }
-        )
+        result = metric_config.metric_function(x, y_true, y_pred)
         if isinstance(result, float):
             evaluation[metric_config.metric_names[0]] = result
         elif isinstance(result, dict):
