@@ -210,10 +210,6 @@ class NumeraiRunner:
         wandb.init(dir='/tmp/wandb')
         _save_config_file_to_wandb(config_content, config_name)
         if wandb.run is not None:
-            tags = list(wandb.run.tags) if wandb.run.tags else []
-            wandb.run.tags = tuple(
-                tags + [f'numerai_model_id:{self.numerai_model_id}']
-            )
             wandb.run.summary.update(
                 {
                     'numerai_model_id': self.numerai_model_id,
