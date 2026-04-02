@@ -12,7 +12,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "autokeras>=2.0.0",
     "catboost>=1.2.10",
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
