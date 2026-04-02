@@ -204,8 +204,11 @@ class NumeraiRunner:
         self.notes = notes
         self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
 
-    def run(self) -> None:
+    def run(self, config_content: str, config_name: str) -> None:
         silence_false_positive_warnings()
+        update_tournament_submissions(runner.numerai_model_id)
+        wandb.init(dir='/tmp/wandb')
+        _save_config_file_to_wandb(config_content, config_name)
         if wandb.run is not None:
             tags = list(wandb.run.tags) if wandb.run.tags else []
             wandb.run.tags = tuple(
@@ -293,23 +296,22 @@ class NumeraiRunner:
         gc.collect()
         submit_diagnostic_predictions(diagnostic_data, self.numerai_model_id)
 
+        wandb.finish()
 
-def _save_config_file_to_wandb(config: DictConfig) -> None:
+
+def _save_config_file_to_wandb(config_content: str, config_name: str) -> None:
     directory = get_workspace_path()
-    config_path = directory / 'run_config.yaml'
+    config_path = directory / config_name
     with open(config_path, 'wb') as handle:
-        handle.write(OmegaConf.to_yaml(config).encode('utf-8'))
+        handle.write()
     wandb.save(config_path, base_path=directory)
 
 
 @hydra.main(version_base=None, config_path='.', config_name='main')
 def main(config: DictConfig) -> None:
+    config_content = OmegaConf.to_yaml(config).encode('utf-8')
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
-    update_tournament_submissions(runner.numerai_model_id)
-    wandb.init(dir='/tmp/wandb')
-    _save_config_file_to_wandb(config)
-    runner.run()
-    wandb.finish()
+    runner.run(config_content, 'run_config.yaml')
 
 
 if __name__ == '__main__':
