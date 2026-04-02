@@ -30,7 +30,6 @@ dependencies = [
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
     "numerblox>=1.6.1",
-    "opentsne>=1.0.2",
     "plotly>=6.2.0",
     "pyarrow>=19.0.1",
     "reservoirpy>=0.4.1",
