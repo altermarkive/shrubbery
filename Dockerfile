@@ -25,15 +25,7 @@ RUN apt-get -yq update && \
         pkg-config \
         software-properties-common \
         unzip \
-        zlib1g-dev && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get -yq install python3.13-full python3.13-dev && \
-    python3 --version && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
-    update-alternatives --config python3 && \
-    python3 --version && \
-    /usr/bin/python3.13 -m ensurepip --upgrade && \
-    /usr/bin/python3.13 -m pip install --disable-pip-version-check --no-cache-dir --break-system-packages uv
+        zlib1g-dev
 # build-essential - tornado
 # cmake - lightgbm (older, non-wheel version)
 # curl - uv
@@ -50,6 +42,16 @@ RUN apt-get -yq update && \
 # software-properties-common - Python
 # unzip - N/A
 # zlib - Pillow (older, non-wheel version)
+
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get -yq install python3.13-full python3.13-dev && \
+    python3 --version && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 && \
+    update-alternatives --config python3 && \
+    python3 --version && \
+    /usr/bin/python3.13 -m ensurepip --upgrade
+
+RUN /usr/bin/python3.13 -m pip install --disable-pip-version-check --no-cache-dir --break-system-packages uv
 
 ADD . /tmp/shrubbery
 RUN cd /tmp/shrubbery && uv pip install --system . && rm -rf /tmp/shrubbery
