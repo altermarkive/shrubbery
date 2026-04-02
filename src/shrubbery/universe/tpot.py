@@ -40,6 +40,7 @@ class TPOTRegressorWrapper(
         random_state: Optional[int] = None,
         allow_inner_regressors: Optional[bool] = None,
         population_size: int = 50,
+        generations: Optional[int] = None,
     ) -> None:
         self.search_space = search_space
         self.scorers = scorers
@@ -68,6 +69,7 @@ class TPOTRegressorWrapper(
         self.random_state = random_state
         self.allow_inner_regressors = allow_inner_regressors
         self.population_size = population_size
+        self.generations = generations
 
     def fit(
         self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
@@ -100,6 +102,7 @@ class TPOTRegressorWrapper(
             random_state=self.random_state,
             allow_inner_regressors=self.allow_inner_regressors,
             population_size=self.population_size,
+            generations=self.generations,
         )
         estimator.fit(x, y)
         self.serialized_model_ = estimator.fitted_pipeline_
