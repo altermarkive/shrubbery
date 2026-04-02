@@ -77,5 +77,7 @@ class FeedforwardNeuralNetworkRegressor(TorchRegressor):
         optimizer = optim.Adam(
             module.parameters(), lr=self.learning_rate, weight_decay=0.0
         )
-        criterion = mse_with_weight_regularization(module, 1e-3, device)
+        criterion = mse_with_weight_regularization(
+            module, 1e-3, self.device
+        )
         return (module, optimizer, criterion)
