@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any, Callable
 
 import numpy as np
@@ -6,13 +5,6 @@ import pandas as pd
 import wandb
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
-
-
-@dataclass
-class MetricConfig:
-    metric_name: str
-    greater_is_better: bool
-    metric_function: Callable
 
 
 METRIC_PREDICTION_ID = 'Prediction ID'
