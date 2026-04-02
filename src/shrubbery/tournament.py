@@ -86,8 +86,6 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
         for run in runs:
             if 'submitted' not in run.tags:
                 continue
-            if 'scored' in run.tags:
-                continue
             if 'numerai_model_id' not in run.summary:
                 continue
             if run.summary['numerai_model_id'] != numerai_model_id:
@@ -105,6 +103,7 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
             try:
                 if any(math.isnan(value) for value in scores.values()):
                     continue
+                # Score changes over time - hence repeated check & update
                 run.summary.update(scores)
             except TypeError:
                 # New model, ignore error
