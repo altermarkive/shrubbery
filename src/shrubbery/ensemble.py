@@ -106,7 +106,7 @@ class Ensembler(
         ensemble_metric_ascending = not self.ensemble_metric_greater_is_better
         best = mix_combinatorial(
             x_training,
-            y_training,
+            y_training[:, COLUMN_INDEX_TARGET].ravel(),
             predictions,
             ensemble_metric_function,
             validation_stats,
