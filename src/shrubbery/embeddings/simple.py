@@ -81,9 +81,8 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                 indices = np.array(all_indices)
             logger.info(f'Running embedder {estimator.name}')
             before = time.time()
-            estimator.estimator.fit(x_training[indices])
-            embeddings = estimator.estimator.transform(
-                x_training[indices]
+            embeddings = estimator.estimator.fit_transform(
+                x_training[indices], y_training[indices]
             )
             after = time.time()
             delta = int(after - before)
@@ -97,7 +96,7 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                     estimator.dbscan_count,
                     estimator.dbscan_eps,
                     estimator.dbscan_min_samples,
-                    self.verbosity,
+                    estimator.verbosity,
                 )
         return self
 
