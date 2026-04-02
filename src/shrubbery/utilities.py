@@ -53,8 +53,6 @@ def store_model(model: Any, name: str) -> str:
     return version
 
 
-# TODO: Check if weights are correctly preserved
-# (by comparing performance before and after serialization)
 def load_model(name: str, version: str = 'latest') -> tuple[Any, str]:
     model_subdirectory = get_workspace_path(MODEL_SUBDIRECTORY)
     try:
@@ -78,6 +76,7 @@ def load_model(name: str, version: str = 'latest') -> tuple[Any, str]:
     return model, version
 
 
+# TODO: Move away from Keras
 def serialize_keras_model(model: Model) -> bytes:
     with tempfile.NamedTemporaryFile(
         suffix='.keras', delete_on_close=False
@@ -88,6 +87,7 @@ def serialize_keras_model(model: Model) -> bytes:
         return path.read_bytes()
 
 
+# TODO: Move away from Keras
 def deserialize_keras_model(model: bytes) -> Model:
     with tempfile.NamedTemporaryFile(
         suffix='.keras', delete_on_close=False
