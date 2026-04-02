@@ -2058,12 +2058,6 @@ wheels = [
 ]
 
 [[package]]
-name = "minisom"
-version = "2.3.6"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6d/9c/999bc2f1bee4cfbb6157ac03db32f5a831322479151941bc997774c405c6/minisom-2.3.6.tar.gz", hash = "sha256:1fca9cfeef62b221a89930ad3422b7a24a2bd66ae43ef97332e165f5975c09f1", size = 13140, upload-time = "2026-02-11T12:04:56.267Z" }
-
-[[package]]
 name = "mistune"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3897,7 +3891,6 @@ dependencies = [
     { name = "keras" },
     { name = "lightgbm" },
     { name = "matplotlib" },
-    { name = "minisom" },
     { name = "myfm" },
     { name = "numerapi" },
     { name = "numerblox" },
@@ -3928,7 +3921,6 @@ requires-dist = [
     { name = "keras", specifier = ">=3.11.1" },
     { name = "lightgbm", specifier = ">=4.6.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "minisom", specifier = ">=2.3.5" },
     { name = "myfm", specifier = "==0.3.2.0" },
     { name = "numerapi", specifier = ">=2.20.7" },
     { name = "numerblox", specifier = ">=1.6.1" },
