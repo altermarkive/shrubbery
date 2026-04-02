@@ -27,7 +27,7 @@ class CNNModule(nn.Module):
         self.bn = nn.BatchNorm1d(num_filters)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
-        # Calculate actual output size after convolution
+        # Calculate output size after convolution
         conv_output_size = input_dim + 2 * padding - kernel_size + 1
         self.dense = nn.Linear(num_filters * conv_output_size, dense_units)
         self.dense_bn = nn.BatchNorm1d(dense_units)
