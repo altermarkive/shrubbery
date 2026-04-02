@@ -14,7 +14,7 @@ from shrubbery.constants import (
     COLUMN_ID,
     COLUMN_INDEX_TARGET,
 )
-from shrubbery.cross_validation import (
+from shrubbery.validation import (
     NumeraiTimeSeriesSplitter,
     cross_validation_to_parallel_coordinates,
     get_best_parameters,
