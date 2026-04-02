@@ -3672,20 +3672,6 @@ wheels = [
 ]
 
 [[package]]
-name = "reservoirpy"
-version = "0.4.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "joblib" },
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/09/829026a80f10e9e01e80f9a3e0f393297ee1b3e0d9acb5f37c3f3deaf00b/reservoirpy-0.4.1.tar.gz", hash = "sha256:8ed14430fd94b8e01399fb7fd2958818932334f55e9e7c189b56223d7a79c541", size = 157624, upload-time = "2025-09-19T20:18:52.484Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/fc/18d4126d72f99097e33ec3ded2a924e2a225ae5f768feb9f4dce378182e5/reservoirpy-0.4.1-py3-none-any.whl", hash = "sha256:a92a1baecec536dc1a45640f84d401d15d6ba997826308e71775d5f82726a48b", size = 211479, upload-time = "2025-09-19T20:18:50.765Z" },
-]
-
-[[package]]
 name = "rfc3339-validator"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -4039,7 +4025,6 @@ dependencies = [
     { name = "numerblox" },
     { name = "plotly" },
     { name = "pyarrow" },
-    { name = "reservoirpy" },
     { name = "scikit-network" },
     { name = "sklearn-genetic" },
     { name = "sklearn-genetic-opt" },
@@ -4080,7 +4065,6 @@ requires-dist = [
     { name = "pdbpp", marker = "extra == 'dev'", specifier = ">=0.11.7" },
     { name = "plotly", specifier = ">=6.2.0" },
     { name = "pyarrow", specifier = ">=19.0.1" },
-    { name = "reservoirpy", specifier = ">=0.4.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
     { name = "scikit-network", specifier = ">=0.33.3" },
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
