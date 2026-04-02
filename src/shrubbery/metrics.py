@@ -24,12 +24,6 @@ from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
 
 
-def _compose_metric_name(
-    abstract_metric_name: str, sub_metric_name: str
-) -> str:
-    return f'{abstract_metric_name} {sub_metric_name}'.strip()
-
-
 def _unif(df: pd.DataFrame) -> pd.Series:
     x = (df.rank(method='first') - 0.5) / len(df)
     return pd.Series(x, index=df.index)
@@ -82,12 +76,6 @@ def _get_validation_data_grouped(
     )
 
 
-ABSTRACT_METRIC_SHARPE = 'Sharpe'
-METRIC_SHARPE_MEAN = _compose_metric_name(ABSTRACT_METRIC_SHARPE, 'Mean')
-METRIC_SHARPE_SD = _compose_metric_name(ABSTRACT_METRIC_SHARPE, 'SD')
-METRIC_SHARPE_VALUE = _compose_metric_name(ABSTRACT_METRIC_SHARPE, '')
-
-
 # Numerai-specific sharpe ratio scorer
 def per_era_sharpe(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
     validation_correlations = _calculate_validation_correlations(
@@ -97,9 +85,6 @@ def per_era_sharpe(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
     std = validation_correlations.std(ddof=0)
     sharpe = mean / std
     return sharpe
-
-
-METRIC_MAX_DRAWDOWN = 'Max Drawdown'
 
 
 def per_era_max_drawdown(
@@ -119,9 +104,6 @@ def per_era_max_drawdown(
     return max_drawdown
 
 
-METRIC_APY = 'APY'
-
-
 def per_era_max_apy(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
     validation_correlations = _calculate_validation_correlations(
         x, y_true, y_pred
@@ -134,9 +116,6 @@ def per_era_max_apy(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
         - 1
     ) * 100
     return apy
-
-
-METRIC_MAX_FEATURE_EXPOSURE = 'Max Feature Exposure'
 
 
 def max_feature_exposure(
@@ -154,9 +133,6 @@ def max_feature_exposure(
         include_groups=False,
     )
     return max_per_era.mean()
-
-
-METRIC_MSE = 'MSE'
 
 
 def numerai_metrics(
