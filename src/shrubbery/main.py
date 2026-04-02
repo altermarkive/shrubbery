@@ -20,7 +20,6 @@ from shrubbery.constants import (
     COLUMN_DATA_TYPE,
     COLUMN_DATA_TYPE_TOURNAMENT,
     COLUMN_ERA,
-    COLUMN_EXAMPLE_PREDICTIONS,
     COLUMN_ID,
     COLUMN_INDEX_TARGET,
 )
@@ -112,7 +111,6 @@ class NumeraiBestGridSearchEstimator(
             # In case multiple scores are of interest, see: https://stackoverflow.com/questions/35876508/evaluate-multiple-scores-on-sklearn-cross-val-score & https://scikit-learn.org/stable/modules/grid_search.html#composite-grid-search  # noqa: E501
             scoring=metric_to_simple_scorer(
                 self.cv_metric,
-                self.numerai_model_id,
                 (
                     self.neutralization_feature_indices
                     if self.neutralization_feature_indices is not None
@@ -212,26 +210,8 @@ class NumeraiRunner:
         live_data = read_parquet_and_unpack_feature_encoding(
             'live.parquet', read_columns, feature_cols
         )
-        logger.info('Reading example validation prediction data')
-        validation_example_preds = pd.read_parquet(
-            locate_numerai_file('validation_example_preds.parquet')
-        )
-        logger.info('Reading example tournament prediction data')
-        live_example_preds = pd.read_parquet(
-            locate_numerai_file('live_example_preds.parquet')
-        )
-        # Set the example predictions
-        training_data[COLUMN_EXAMPLE_PREDICTIONS] = np.nan
-        validation_data[COLUMN_EXAMPLE_PREDICTIONS] = validation_example_preds[
-            'prediction'
-        ]
-        live_data[COLUMN_EXAMPLE_PREDICTIONS] = live_example_preds[
-            'prediction'
-        ]
-
-        nans_per_col = live_data[feature_cols].isna().sum()
-
         # Check for nans and fill nans
+        nans_per_col = live_data[feature_cols].isna().sum()
         logger.info('Checking for nans in the tournament data')
         if nans_per_col.any():
             total_rows = live_data.shape[0]
@@ -246,7 +226,6 @@ class NumeraiRunner:
             ].fillna(0.5)
         else:
             logger.info('No nans in the features this week!')
-
         # Concatenate & preprocess data
         data = pd.concat([training_data, validation_data, live_data])
         for data_preprocessor in self.data_preprocessors:
@@ -265,7 +244,7 @@ class NumeraiRunner:
                 data[
                     [COLUMN_ERA] + feature_cols + [COLUMN_DATA_TYPE]
                 ].to_numpy(),
-                data[targets + [COLUMN_EXAMPLE_PREDICTIONS]].to_numpy(),
+                data[targets].to_numpy(),
             )
             version = store_model(self.estimator, model_name)
         else:

@@ -23,8 +23,6 @@ FILES_TO_DOWNLOAD = {
     'train.parquet': {'investigate': True},
     'validation.parquet': {'investigate': False},
     'live.parquet': {'investigate': False},
-    'validation_example_preds.parquet': {'investigate': False},
-    'live_example_preds.parquet': {'investigate': False},
     'features.json': {'investigate': False},
 }
 

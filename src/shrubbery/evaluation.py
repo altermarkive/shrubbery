@@ -12,7 +12,6 @@ import wandb
 from numpy.typing import NDArray
 
 from shrubbery.constants import (
-    COLUMN_EXAMPLE_PREDICTIONS,
     COLUMN_INDEX_TARGET,
     COLUMN_Y_PRED,
     COLUMN_Y_TRUE,
@@ -20,13 +19,9 @@ from shrubbery.constants import (
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import (
     METRIC_APY,
-    METRIC_CORR_WITH_EXAMPLE_PREDICTIONS,
-    METRIC_EXPOSURE_DISSIMILARITY_MEAN,
     METRIC_FEATURE_NEUTRAL_MEAN,
     METRIC_MAX_DRAWDOWN,
     METRIC_MAX_FEATURE_EXPOSURE,
-    METRIC_MMC_CORR_SHARPE,
-    METRIC_MMC_MEAN,
     METRIC_SHARPE_MEAN,
     METRIC_SHARPE_SD,
     METRIC_SHARPE_VALUE,
@@ -34,11 +29,8 @@ from shrubbery.metrics import (
     METRIC_TB_MEAN,
     METRIC_TB_SD,
     METRIC_TB_SHARPE,
-    corr_with_example_predictions,
-    exposure_dissimilarity_mean,
     feature_neutral_mean,
     max_feature_exposure,
-    mmc_metrics,
     per_era_max_apy,
     per_era_max_drawdown,
     per_era_sharpe,
@@ -60,20 +52,12 @@ METRIC_PREDICTION_ID = 'Prediction ID'
 ARGUMENT_X = 'x'
 ARGUMENT_Y_TRUE = COLUMN_Y_TRUE
 ARGUMENT_Y_PRED = COLUMN_Y_PRED
-ARGUMENT_EXAMPLES = COLUMN_EXAMPLE_PREDICTIONS
 
 ARGUMENTS_DEFAULT = [ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
 ARGUMENTS_WITH_X = [ARGUMENT_X, ARGUMENT_Y_TRUE, ARGUMENT_Y_PRED]
-ARGUMENTS_WITH_X_AND_EXAMPLES = [
-    ARGUMENT_X,
-    ARGUMENT_Y_TRUE,
-    ARGUMENT_Y_PRED,
-    ARGUMENT_EXAMPLES,
-]
 
 
 def _metrics(
-    numerai_model_id: str,
     neutralization_feature_indices: List[int],
     neutralization_proportion: float,
     neutralization_normalize: bool,
@@ -139,27 +123,6 @@ def _metrics(
             partial(tb_fast_score_by_date, tb=tb),
             ARGUMENTS_WITH_X,
         ),
-        MetricConfig(
-            [METRIC_MMC_MEAN, METRIC_MMC_CORR_SHARPE],
-            [True, True],
-            partial(
-                mmc_metrics,
-                neutralization_proportion=neutralization_proportion,
-            ),
-            ARGUMENTS_WITH_X_AND_EXAMPLES,
-        ),
-        MetricConfig(
-            [METRIC_CORR_WITH_EXAMPLE_PREDICTIONS],
-            [True],
-            corr_with_example_predictions,
-            ARGUMENTS_WITH_X_AND_EXAMPLES,
-        ),
-        MetricConfig(
-            [METRIC_EXPOSURE_DISSIMILARITY_MEAN],
-            [False],
-            exposure_dissimilarity_mean,
-            ARGUMENTS_WITH_X_AND_EXAMPLES,
-        ),
         # MetricConfig(
         #     [???],  # TODO: Create a function/constant for this
         #     [???],  # TODO: Create a function/constant for this
@@ -193,14 +156,12 @@ def numerai_scorer(
 
 def metric_to_ascending(
     metric: str,
-    numerai_model_id: str,
     neutralization_feature_indices: List[int],
     neutralization_proportion: float,
     neutralization_normalize: bool,
     tb: int,
 ) -> bool:
     for metric_config in _metrics(
-        numerai_model_id=numerai_model_id,
         neutralization_feature_indices=neutralization_feature_indices,
         neutralization_proportion=neutralization_proportion,
         neutralization_normalize=neutralization_normalize,
@@ -223,14 +184,12 @@ def _extract_metric_if_composite(
 
 def metric_to_simple_scorer(
     metric: str,
-    numerai_model_id: str,
     neutralization_feature_indices: List[int],
     neutralization_proportion: float,
     neutralization_normalize: bool,
     tb: int,
 ) -> Callable:
     metrics = _metrics(
-        numerai_model_id=numerai_model_id,
         neutralization_feature_indices=neutralization_feature_indices,
         neutralization_proportion=neutralization_proportion,
         neutralization_normalize=neutralization_normalize,
@@ -272,10 +231,8 @@ def validation_metrics(
     x: NDArray,
     y_true: NDArray,
     y_pred: NDArray,
-    examples: NDArray,
     validation_stats: List[Dict[str, float]],
     prediction_id: str,
-    numerai_model_id: str,
     neutralization_feature_indices: List[int],
     neutralization_proportion: float,
     neutralization_normalize: bool,
@@ -286,10 +243,8 @@ def validation_metrics(
         ARGUMENT_X: x,
         ARGUMENT_Y_TRUE: y_true,
         ARGUMENT_Y_PRED: y_pred,
-        ARGUMENT_EXAMPLES: examples,
     }
     for metric_config in _metrics(
-        numerai_model_id=numerai_model_id,
         neutralization_feature_indices=neutralization_feature_indices,
         neutralization_proportion=neutralization_proportion,
         neutralization_normalize=neutralization_normalize,
@@ -308,7 +263,4 @@ def validation_metrics(
                 evaluation[metric_name] = result[metric_name]
     validation_stats.append(evaluation)
     evaluation_table = pd.DataFrame.from_records(validation_stats)
-    evaluation_table[METRIC_PREDICTION_ID] = evaluation_table[
-        METRIC_PREDICTION_ID
-    ].apply(lambda name: f'{numerai_model_id}_{name}')
     wandb.log({TABLE_EVALUATION: wandb.Table(data=evaluation_table)})

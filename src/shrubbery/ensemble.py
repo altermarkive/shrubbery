@@ -16,7 +16,6 @@ from shrubbery.constants import (
     COLUMN_DATA_TYPE_TRAINING,
     COLUMN_DATA_TYPE_VALIDATION,
     COLUMN_INDEX_DATA_TYPE,
-    COLUMN_INDEX_EXAMPLE_PREDICTIONS,
     COLUMN_INDEX_TARGET,
 )
 from shrubbery.evaluation import metric_to_ascending, validation_metrics
@@ -96,9 +95,7 @@ class Ensembler(
         x_training = x[
             training_data_selection, :COLUMN_INDEX_DATA_TYPE
         ].astype(np.float32)
-        y_training = y[
-            training_data_selection, :COLUMN_INDEX_EXAMPLE_PREDICTIONS
-        ].astype(np.float32)
+        y_training = y[training_data_selection, :].astype(np.float32)
         for config in self.estimators:
             # Now do a full train
             logger.info(f'Training model: {config.name}')
@@ -114,9 +111,6 @@ class Ensembler(
         y_true = y[validation_data_selection, [COLUMN_INDEX_TARGET]].astype(
             np.float32
         )
-        examples = y[
-            validation_data_selection, COLUMN_INDEX_EXAMPLE_PREDICTIONS:
-        ].astype(np.float32)
         for config in self.estimators:
             logger.info(f'Predicting model: {config.name}')
             logger.info(f'Model config: {config.estimator}')
@@ -126,10 +120,8 @@ class Ensembler(
                 x_validation,
                 y_true,
                 y_predictions,
-                examples,
                 validation_stats,
                 config.name,
-                numerai_model_id=self.numerai_model_id,
                 neutralization_feature_indices=(
                     self.neutralization_feature_indices
                 ),
@@ -142,7 +134,6 @@ class Ensembler(
         ensemble_metric = self.ensemble_metric
         ensemble_metric_ascending = metric_to_ascending(
             ensemble_metric,
-            self.numerai_model_id,
             self.neutralization_feature_indices,
             self.neutralization_proportion,
             self.neutralization_normalize,
@@ -151,10 +142,8 @@ class Ensembler(
         best = mix_combinatorial(
             x_validation,
             y_true,
-            examples,
             predictions,
             validation_stats,
-            self.numerai_model_id,
             get_ensemble(self.ensemble_type),
             sort_by=ensemble_metric,
             sort_ascending=ensemble_metric_ascending,
