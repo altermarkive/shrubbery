@@ -1,7 +1,7 @@
 import argparse
 import gc
 from pathlib import Path
-from typing import Any, Callable, Namespace
+from typing import Any, Callable
 
 import hydra
 import hydra.utils
@@ -311,7 +311,7 @@ def config_content(config_path: str) -> bytes:
     return Path(config_path).read_bytes()
 
 
-def main_arguments() -> Namespace:
+def main_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Shrubbery')
     parser.add_argument(
         '--retrain', action='store_true', help='Use this flag to retrain'
