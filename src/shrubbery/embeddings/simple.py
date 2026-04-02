@@ -97,16 +97,16 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, x: NDArray) -> NDArray:
-        embeddings = []
         eras = x[:, : (COLUMN_INDEX_ERA + 1)]
+        features = x[
+            :, (COLUMN_INDEX_ERA + 1) : COLUMN_INDEX_DATA_TYPE
+        ].astype(np.float32)
+        embeddings = []
         types = x[:, COLUMN_INDEX_DATA_TYPE:]
         for estimator in self.estimators:
-            x_predicting = x[
-                :, (COLUMN_INDEX_ERA + 1) : COLUMN_INDEX_DATA_TYPE
-            ].astype(np.float32)
             embeddings.append(
                 _apply_transform_in_chunks(
-                    estimator.estimator, x_predicting, estimator.chunk_size
+                    estimator.estimator, features, estimator.chunk_size
                 )
             )
-        return np.concatenate([eras] + embeddings + [types], axis=1)
+        return np.concatenate([eras] + [features] + embeddings + [types], axis=1)
