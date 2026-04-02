@@ -79,9 +79,8 @@ def download_numerai_files():
     log_all_dataset_entries()
     logger.info('Downloading dataset files...')
     for file_name in FILES_TO_DOWNLOAD:
-        file_to_download = FILES_TO_DOWNLOAD[file_name].copy()
-        file_to_download['file_name'] = file_name
-        different = download_file_and_investigate(**file_to_download)
+        investigate = FILES_TO_DOWNLOAD[file_name]['investigate']
+        different = download_file_and_investigate(file_name, investigate)
         if different is not None and different:
             logger.warning(f'Warning - changed file content of {file_name}')
 

@@ -60,7 +60,7 @@ def adversarial_downsampling(
             pd.DataFrame(
                 np.zeros(y_split.size),
                 index=data.index,
-                columns=[COLUMN_DATA_TYPE_CONFIDENCE],
+                columns=pd.Series([COLUMN_DATA_TYPE_CONFIDENCE]),
             ),
         ],
         axis=1,

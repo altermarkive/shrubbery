@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import requests
 import wandb
+from pandas.api.typing import DataFrameGroupBy
 from sklearn.metrics import mean_squared_error
 
 from shrubbery.constants import (
@@ -43,13 +44,13 @@ def _calculate_validation_correlations(
     ).apply(
         lambda group: _unif(group[COLUMN_Y_PRED]).corr(group[COLUMN_Y_TRUE]),
         include_groups=False,
-    )  # type: ignore[index]
+    )
     return validation_correlations
 
 
 def _get_validation_data_grouped(
     x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-) -> tuple[pd.DataFrame, list[int]]:
+) -> tuple[DataFrameGroupBy, list[int]]:
     feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
     validation_data = pd.DataFrame(
         np.concatenate(

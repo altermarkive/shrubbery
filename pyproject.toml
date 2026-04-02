@@ -40,6 +40,7 @@ dev = [
     "mypy>=1.17.1",
     "pdbpp>=0.11.7", # Extension of Python debugger
     "ruff>=0.12.11",
+    "ty>=0.0.15",
     "types-requests>=2.32.4.20250809",
     "wat>=0.7.0", # Deep inspection of Python objects
 ]
