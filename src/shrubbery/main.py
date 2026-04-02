@@ -204,7 +204,7 @@ class NumeraiRunner:
         self.notes = notes
         self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
 
-    def run(self, config_content: str, config_name: str) -> None:
+    def run(self, config_content: bytes, config_name: str) -> None:
         silence_false_positive_warnings()
         update_tournament_submissions(self.numerai_model_id)
         wandb.init(dir='/tmp/wandb')
@@ -295,7 +295,9 @@ class NumeraiRunner:
         wandb.finish()
 
 
-def _save_config_file_to_wandb(config_content: str, config_name: str) -> None:
+def _save_config_file_to_wandb(
+        config_content: bytes, config_name: str
+) -> None:
     directory = get_workspace_path()
     config_path = directory / config_name
     with open(config_path, 'wb') as handle:
