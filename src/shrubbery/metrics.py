@@ -19,7 +19,6 @@ from shrubbery.constants import (
 from shrubbery.data.augmentation import FILE_VALIDATION_IDS
 from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.napi import napi
-from shrubbery.neutralization import neutralize
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
 
