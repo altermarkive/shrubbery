@@ -24,12 +24,15 @@ class SOM(BaseEstimator, TransformerMixin):
 
     def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.som_ is not None
-        return _som_embed(self.som_, x)
+        return _som_embed(self.som_, x)  # ty: ignore[invalid-argument-type]
 
 
 def _som_embed(som: SOM, x: np.ndarray) -> np.ndarray:
     xy = np.array(
-        [som.winner(sample) for sample in tqdm(x, desc='Embedding som')]
+        [
+            som.winner(sample)  # ty: ignore[unresolved-attribute]
+            for sample in tqdm(x, desc='Embedding som')
+        ]
     )
     logger.info(f'SOM XY: {xy}')
     logger.info(f'SOM XY shape: {xy.shape}')

@@ -39,7 +39,7 @@ class NumeraiScorer:
         return ascending * self.metric(x, y_true, y_pred)
 
     def __str__(self) -> str:
-        return self.__name__
+        return str(self.__name__)
 
 
 def numerai_scorer(
