@@ -1,43 +1,17 @@
-import math
-import random
 import time
-from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
-from tqdm import tqdm
 
 from shrubbery.constants import COLUMN_INDEX_ERA
 from shrubbery.observability import logger
-
-
-def _apply_transform_in_chunks(
-    estimator: Any, array: np.ndarray, chunk_size: int
-) -> np.ndarray:
-    if chunk_size <= 0:
-        return estimator.transform(array)
-    else:
-        transformed = []
-        for i in tqdm(range(math.ceil(array.shape[0] / chunk_size))):
-            begin = i * chunk_size
-            end = begin + chunk_size
-            transformed.append(estimator.transform(array[begin:end]))
-        return np.concatenate(transformed, axis=0)
-
-
-@dataclass
-class EmbedderConfig:
-    name: str
-    estimator: Any
-    portion: float = 1.0
-    chunk_size: int = -1
+from shrubbery.utilities import model_to_string
 
 
 class GenericEmbedder(BaseEstimator, TransformerMixin):
     def __init__(
         self,
-        estimators: list[EmbedderConfig],
+        estimators: list,
         target_column_index: int,
     ) -> None:
         self.estimators = estimators
@@ -48,19 +22,14 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         y_training = y[:, self.target_column_index].astype(np.float32)
         for estimator in self.estimators:
             all_indices = list(range(x_training.shape[0]))
-            if 0 < estimator.portion < 1:
-                pick = int(x_training.shape[0] * estimator.portion)
-                indices = np.array(random.sample(all_indices, pick))
-            else:
-                indices = np.array(all_indices)
-            logger.info(f'Running embedder {estimator.name}')
+            indices = np.array(all_indices)
+            embedder_string = model_to_string(estimator)
+            logger.info(f'Running embedder training {embedder_string}')
             before = time.time()
-            estimator.estimator.fit_transform(
-                x_training[indices], y_training[indices]
-            )
+            estimator.fit_transform(x_training[indices], y_training[indices])
             after = time.time()
             delta = int(after - before)
-            logger.info(f'Completed embedder {estimator.name} in {delta}s')
+            logger.info(f'Completed embedder training in {delta} seconds')
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
@@ -68,9 +37,10 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         features = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
         embeddings = []
         for estimator in self.estimators:
-            embeddings.append(
-                _apply_transform_in_chunks(
-                    estimator.estimator, features, estimator.chunk_size
-                )
-            )
+            embedder_string = model_to_string(estimator)
+            logger.info(f'Running embedder transformation {embedder_string}')
+            embedded = estimator.transform(features)
+            if embedded.dtype == np.int64:
+                embedded = embedded.astype(np.float32)
+            embeddings.append(embedded)
         return np.concatenate([eras] + [features] + embeddings, axis=1)
