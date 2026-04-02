@@ -214,40 +214,44 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         return result
 
 
-def _initialize_gan_weights(module: nn.Module) -> None:
-    """Initialize weights for GAN networks using variance scaling."""
-    for m in module.modules():
-        if isinstance(m, nn.Linear):
-            fan_in = m.weight.size(1)
+def variance_scaling_initializer_with_fan_in(module: nn.Module) -> None:
+    """Initialize weights using variance scaling (with fan-in and factor of 1.0)."""
+    for submodule in module.modules():
+        if isinstance(submodule, nn.Linear):
+            fan_in = submodule.weight.size(1)
             std = (1.0 / fan_in) ** 0.5
             init.trunc_normal_(
-                m.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
+                submodule.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
             )
-            if m.bias is not None:
-                init.zeros_(m.bias)
+            if submodule.bias is not None:
+                init.zeros_(submodule.bias)
 
 
 class DiscriminatorNetwork(nn.Module):
     def __init__(self, feature_count: int, layer_units: list[int]) -> None:
         super().__init__()
-        self.feature_count = feature_count
-        self.layer_units = layer_units
-        # Build discriminator layers
         all_layer_units = layer_units + [1]  # Adding logits layer
-        layers = []
+        discriminator_layers: list[nn.Module] = []
         previous_units = feature_count
         for i, units in enumerate(all_layer_units):
-            layers.append(nn.Linear(previous_units, units))
-            layers.append(nn.BatchNorm1d(units))
+            discriminator_layers.append(nn.Linear(previous_units, units))
+            # Placing normalization before activation may:
+            # * stabilize training
+            # * improve activation performance (works better normalized inputs)
+            # * convergence faster and get better results
+            discriminator_layers.append(nn.BatchNorm1d(units))
             if i < len(all_layer_units) - 1:
-                layers.append(nn.LeakyReLU(negative_slope=0.2))
+                # Using ReLU (instead of sigmoid) on hidden layers may help
+                # with faster and more efficient training. LeakyReLU addresses
+                # the issue of "dying ReLUs" and may help maintaining non-zero
+                # gradients and improve learning dynamics.
+                discriminator_layers.append(nn.LeakyReLU(negative_slope=0.2))
             previous_units = units
-        self.model = nn.Sequential(*layers)
-        # Initialize weights
-        _initialize_gan_weights(self)
+        self.discriminator = nn.Sequential(*discriminator_layers)
+        variance_scaling_initializer_with_fan_in(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
+        return self.discriminator(x)
 
 
 class GeneratorNetwork(nn.Module):
@@ -255,27 +259,31 @@ class GeneratorNetwork(nn.Module):
         self, latent_dim: int, layer_units: list[int], feature_count: int
     ) -> None:
         super().__init__()
-        self.latent_dim = latent_dim
-        self.layer_units = layer_units
-        self.feature_count = feature_count
-        # Build generator layers
         all_layer_units = layer_units + [feature_count]
-        layers = []
+        generator_layers: list[nn.Module] = []
         previous_units = latent_dim
         for i, units in enumerate(all_layer_units):
-            layers.append(nn.Linear(previous_units, units))
-            layers.append(nn.BatchNorm1d(units))
-            if i < len(all_layer_units) - 1:
-                layers.append(nn.LeakyReLU(negative_slope=0.2))
-            else:
-                layers.append(nn.Sigmoid())
+            generator_layers.append(nn.Linear(previous_units, units))
+            # Placing normalization before activation may:
+            # * stabilize training
+            # * improve activation performance (works better normalized inputs)
+            # * convergence faster and get better results
+            generator_layers.append(nn.BatchNorm1d(units))
+            # Using ReLU (instead of sigmoid) on hidden layers may help
+            # with faster and more efficient training. LeakyReLU addresses
+            # the issue of "dying ReLUs" and may help maintaining non-zero
+            # gradients and improve learning dynamics.
+            generator_layers.append(
+                nn.LeakyReLU(negative_slope=0.2)
+                if i < len(all_layer_units) - 1
+                else nn.Sigmoid()
+            )
             previous_units = units
-        self.model = nn.Sequential(*layers)
-        # Initialize weights
-        _initialize_gan_weights(self)
+        self.generator = nn.Sequential(*generator_layers)
+        variance_scaling_initializer_with_fan_in(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
+        return self.generator(x)
 
 
 class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
@@ -299,21 +307,24 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         self.learning_rate = learning_rate
         self.device = device
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GenerativeAdversarialNetworkEmbedder':
-        # Create networks
+    def fit(
+        self, x: np.ndarray, y: np.ndarray
+    ) -> 'GenerativeAdversarialNetworkEmbedder':
+        # GAN
         feature_count = x.shape[1]
         discriminator = DiscriminatorNetwork(
             feature_count, self.discriminator_layer_units
         ).to(self.device)
-        generator = GeneratorNetwork(
-            self.latent_dim, self.generator_layer_units, feature_count
-        ).to(self.device)
-        # Optimizers
         d_optimizer = torch.optim.Adam(
             discriminator.parameters(),
             lr=self.learning_rate,
             weight_decay=1e-3,
         )
+        generator = GeneratorNetwork(
+            self.latent_dim,
+            self.generator_layer_units,
+            feature_count,
+        ).to(self.device)
         g_optimizer = torch.optim.Adam(
             generator.parameters(),
             lr=self.learning_rate,
@@ -329,47 +340,41 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
             discriminator.train()
             generator.train()
             for x_batch, y_batch in loader:
-                batch_size_actual = x_batch.size(0)
+                batch_size = x_batch.size(0)
                 # Train discriminator
                 d_optimizer.zero_grad()
-                # Real samples
-                real_labels = torch.ones(batch_size_actual, 1).to(self.device)
+                real_labels = torch.ones(batch_size, 1).to(self.device)
                 real_outputs = discriminator(x_batch)
                 d_loss_real = criterion(real_outputs, real_labels)
-                # Fake samples
-                g_noise = torch.randn(batch_size_actual, self.latent_dim).to(
+                g_noise = torch.randn(batch_size, self.latent_dim).to(
                     self.device
                 )
-                fake_samples = generator(g_noise)
-                fake_labels = torch.zeros(batch_size_actual, 1).to(self.device)
-                fake_outputs = discriminator(fake_samples.detach())
+                syntetic_features = generator(g_noise)
+                fake_labels = torch.zeros(batch_size, 1).to(self.device)
+                fake_outputs = discriminator(syntetic_features.detach())
                 d_loss_fake = criterion(fake_outputs, fake_labels)
-                # Combined discriminator loss
                 d_loss = d_loss_real + d_loss_fake
                 d_loss.backward()
                 d_optimizer.step()
                 # Train generator
                 g_optimizer.zero_grad()
-                # Generate samples and try to fool discriminator
-                g_noise = torch.randn(2 * batch_size_actual, self.latent_dim).to(
+                d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
                     self.device
                 )
-                fake_samples = generator(g_noise)
+                fake_samples = generator(d_noise)
                 fake_outputs = discriminator(fake_samples)
-                # Generator wants discriminator to think these are real
-                g_labels = torch.ones(2 * batch_size_actual, 1).to(self.device)
-                g_loss = criterion(fake_outputs, g_labels)
+                y_mislabled = torch.ones(2 * batch_size, 1).to(self.device)
+                g_loss = criterion(fake_outputs, y_mislabled)
                 g_loss.backward()
                 g_optimizer.step()
             progress.set_description(
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
             )
-        # Extract embedder from discriminator (remove last 2 layers to exclude final logit output)
-        # Removes: final Linear(to 1), final BatchNorm
+        # Extract embedder from discriminator (remove last 2 layers, earlier ones have 3)
+        # Removes: final Linear & BatchNorm
         # Keeps: all layers up to and including the last hidden LeakyReLU
-        # This matches TF/Keras behavior where embeddings are taken after activation
-        embedder_layers = list(discriminator.model.children())[:-2]
+        embedder_layers = list(discriminator.discriminator.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
         # Serialize the embedder
         self.serialized_model_ = io.BytesIO()
