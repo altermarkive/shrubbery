@@ -27,7 +27,7 @@ class NumeraiMetaEstimator(
         neutralization_feature_indices: Sequence[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
-        **kwargs: Dict,
+        **kwargs: dict,
     ) -> None:
         self.estimator = estimator
         self.drop_era_column = drop_era_column
@@ -108,7 +108,7 @@ class PersistentRegressor(
         estimator: Any,
         model_name: str,
         model_version: str = 'latest',
-        **kwargs: Dict,
+        **kwargs: dict,
     ) -> None:
         self.model_name = model_name
         self.model_version = model_version

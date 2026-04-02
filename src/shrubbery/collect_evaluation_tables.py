@@ -10,7 +10,7 @@ from shrubbery.evaluation import METRIC_PREDICTION_ID, TABLE_EVALUATION
 from shrubbery.tournament import get_performances, get_projects
 
 
-def collect_from_project(project: str) -> list[Dict]:
+def collect_from_project(project: str) -> list[dict]:
     api = wandb.Api()
     runs = api.runs(project)
     data = []

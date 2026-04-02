@@ -53,7 +53,10 @@ def _plot_data(
 
 
 def _plot_reference(
-    name: str, embeddings: np.ndarray, targets: pd.DataFrame, training_count: int
+    name: str,
+    embeddings: np.ndarray,
+    targets: pd.DataFrame,
+    training_count: int,
 ) -> None:
     _plot_data(
         'reference',

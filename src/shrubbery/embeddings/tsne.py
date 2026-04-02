@@ -1,5 +1,4 @@
-import math
-
+import numpy as np
 from openTSNE import TSNE
 from sklearn.base import BaseEstimator, TransformerMixin
 

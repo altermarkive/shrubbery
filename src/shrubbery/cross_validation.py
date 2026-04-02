@@ -22,14 +22,16 @@ class NumeraiTimeSeriesSplitter(BaseCrossValidator):
         self._cv = cv
         self._embargo = embargo
 
-    def get_n_splits(self, x: np.ndarray, y: np.ndarray, groups: Any = None) -> int:
+    def get_n_splits(
+        self, x: np.ndarray, y: np.ndarray, groups: Any = None
+    ) -> int:
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-get_n_splits
         return self._cv
 
     def split(
         self, x: np.ndarray, y: np.ndarray, groups: Any = None
-    ) -> Generator[Tuple[np.ndarray[np.bool_], np.ndarray[np.bool_]], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray], None, None]:
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-split
         assert x is not None, 'Training vector was not provided'
@@ -98,7 +100,7 @@ class NumeraiTimeSeriesSplitter(BaseCrossValidator):
 
 
 def reformat_cross_validation_result(
-    cross_validation_result: Dict, model_name: str
+    cross_validation_result: dict, model_name: str
 ) -> list[float]:
     results = sorted(
         dict_of_lists_to_list_of_dicts(cross_validation_result),
@@ -111,7 +113,7 @@ def reformat_cross_validation_result(
 
 
 def get_best_parameters(
-    results: List, parameter: str, top_k: int
+    results: list, parameter: str, top_k: int
 ) -> list[str]:
     best_parameters = [item['params'][parameter] for item in results[:top_k]]
     logger.info(
@@ -121,7 +123,7 @@ def get_best_parameters(
 
 
 def cross_validation_to_parallel_coordinates(
-    cross_validation_result: Dict, model_name: str
+    cross_validation_result: dict, model_name: str
 ) -> None:
     result = pd.DataFrame(cross_validation_result)
     columns = [

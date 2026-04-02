@@ -55,7 +55,7 @@ class NumeraiBestGridSearchEstimator(
         downsample_full_train: int,
         targets: list[int | str],
         cv: int,
-        cv_param_grid: Dict,
+        cv_param_grid: dict,
         cv_metric: str,
         embargo: int,
         neutralization_feature_indices: list[int] | None,
@@ -127,7 +127,7 @@ class NumeraiBestGridSearchEstimator(
         self.best_target = get_best_parameters(
             cross_validation_result, 'target', top_k=1
         )[0]
-        best_model_parameters: Dict = {
+        best_model_parameters: dict = {
             parameter: get_best_parameters(
                 cross_validation_result, parameter, top_k=1
             )[0]

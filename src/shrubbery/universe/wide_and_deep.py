@@ -9,6 +9,7 @@ from enum import Enum
 
 os.environ['KERAS_BACKEND'] = 'torch'
 
+import numpy as np  # noqa: E402
 from keras import Model  # noqa: E402
 from keras.layers import (  # noqa: E402
     BatchNormalization,
