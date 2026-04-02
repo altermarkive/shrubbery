@@ -193,7 +193,7 @@ class NumeraiRunner:
         numerai_model_id: str,
         version: str,
         notes: str,
-        adversarial_downsampling_ratio: float | None,
+        adversarial_downsampling_ratio: float | None = None,
     ) -> None:
         self.feature_set_name = feature_set_name
         self.retrain = retrain
