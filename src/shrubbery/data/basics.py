@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import wandb
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from shrubbery.constants import (
@@ -15,7 +14,7 @@ class PlotBasicDataInformation(BaseEstimator, TransformerMixin):
     def __init__(self) -> None:
         return
 
-    def fit(self, x: NDArray, y: NDArray) -> 'PlotBasicDataInformation':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'PlotBasicDataInformation':
         not_nan_target_data_selection = ~np.isnan(y[:, COLUMN_INDEX_TARGET])
         selection = not_nan_target_data_selection
         x = x[selection, (COLUMN_INDEX_ERA + 1) :]
@@ -25,11 +24,11 @@ class PlotBasicDataInformation(BaseEstimator, TransformerMixin):
         _plot_distribution_scatter_matrix('Feature Scatter Matrix', x, y)
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         return x
 
 
-def _plot_correlation_heatmap(title: str, x: NDArray) -> None:
+def _plot_correlation_heatmap(title: str, x: np.ndarray) -> None:
     features = pd.DataFrame(x)
     correlation_matrix = features.corr()
     fig = px.imshow(correlation_matrix, color_continuous_scale='RdBu_r')
@@ -38,14 +37,14 @@ def _plot_correlation_heatmap(title: str, x: NDArray) -> None:
     wandb.log({title: fig})
 
 
-def _plot_distribution_violins(title: str, x: NDArray) -> None:
+def _plot_distribution_violins(title: str, x: np.ndarray) -> None:
     features = pd.DataFrame(x).sample(n=10000)
     fig = px.violin(features, box=True)
     wandb.log({title: fig})
 
 
 def _plot_distribution_scatter_matrix(
-    title: str, x: NDArray, y: NDArray
+    title: str, x: np.ndarray, y: np.ndarray
 ) -> None:
     features = pd.DataFrame(np.concatenate([x, y], axis=1)).sample(n=1000)
     fig = px.scatter_matrix(

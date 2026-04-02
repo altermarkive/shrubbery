@@ -4,7 +4,6 @@ from typing import Dict, Sequence, Tuple
 import numpy as np
 import pandas as pd
 import requests
-from numpy.typing import NDArray
 
 from shrubbery.constants import (
     COLUMN_ERA,
@@ -25,7 +24,7 @@ def _unif(df: pd.DataFrame) -> pd.Series:
 
 
 def _calculate_validation_correlations(
-    x: NDArray, y_true: NDArray, y_pred: NDArray
+    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> pd.DataFrame:
     validation_data = pd.DataFrame(
         np.concatenate(
@@ -47,7 +46,7 @@ def _calculate_validation_correlations(
 
 
 def _get_validation_data_grouped(
-    x: NDArray, y_true: NDArray, y_pred: NDArray
+    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> Tuple[pd.DataFrame, Sequence[int]]:
     feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
     validation_data = pd.DataFrame(
@@ -72,7 +71,7 @@ def _get_validation_data_grouped(
 
 
 # Numerai-specific sharpe ratio scorer
-def per_era_sharpe(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
+def per_era_sharpe(x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray) -> float:
     validation_correlations = _calculate_validation_correlations(
         x, y_true, y_pred
     )
@@ -83,7 +82,7 @@ def per_era_sharpe(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
 
 
 def per_era_max_drawdown(
-    x: NDArray, y_true: NDArray, y_pred: NDArray
+    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
     validation_correlations = _calculate_validation_correlations(
         x, y_true, y_pred
@@ -99,7 +98,7 @@ def per_era_max_drawdown(
     return max_drawdown
 
 
-def per_era_max_apy(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
+def per_era_max_apy(x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray) -> float:
     validation_correlations = _calculate_validation_correlations(
         x, y_true, y_pred
     )
@@ -114,7 +113,7 @@ def per_era_max_apy(x: NDArray, y_true: NDArray, y_pred: NDArray) -> float:
 
 
 def max_feature_exposure(
-    x: NDArray, y_true: NDArray, y_pred: NDArray
+    x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
 ) -> float:
     # Check the feature exposure of your validation predictions
     validation_data_grouped, feature_indices = _get_validation_data_grouped(
@@ -131,7 +130,7 @@ def max_feature_exposure(
 
 
 def numerai_metrics(
-    y_true: NDArray, y_pred: NDArray, numerai_model_id: str
+    y_true: np.ndarray, y_pred: np.ndarray, numerai_model_id: str
 ) -> Dict[str, float]:
     prediction_data = pd.read_csv(
         locate_numerai_file('DEPRECATED'), index_col=COLUMN_ID

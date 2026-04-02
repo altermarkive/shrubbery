@@ -1,6 +1,5 @@
 from typing import Any, Dict, Iterable, List, Optional, Union
 
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from tpot import TPOTRegressor
 
@@ -69,7 +68,7 @@ class TPOTRegressorWrapper(
         self.generations = generations
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> 'TPOTRegressorWrapper':
         estimator = TPOTRegressor(
             search_space=self.search_space,
@@ -105,6 +104,6 @@ class TPOTRegressorWrapper(
         self.serialized_model_ = estimator.fitted_pipeline_
         return self.serialized_model_
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_model_ is not None
         return self.serialized_model_.predict(x)

@@ -6,7 +6,6 @@ import pandas as pd
 
 # from sklearn.metrics import mean_squared_error
 import wandb
-from numpy.typing import NDArray
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
 from shrubbery.meta_estimator import NumeraiMetaEstimator
@@ -71,8 +70,8 @@ METRICS: List[MetricConfig] = [
 # - https://github.com/scikit-learn/scikit-learn/blob/8c9c1f27b/sklearn/metrics/_scorer.py#L604  # noqa: E501
 def numerai_scorer(
     estimator: NumeraiMetaEstimator,
-    x: NDArray,
-    y: NDArray,
+    x: np.ndarray,
+    y: np.ndarray,
     metric: Callable,
     **kwargs: Dict[str, Any],
 ) -> float:
@@ -120,9 +119,9 @@ TABLE_EVALUATION = 'Evaluation Table'
 
 
 def validation_metrics(
-    x: NDArray,
-    y_true: NDArray,
-    y_pred: NDArray,
+    x: np.ndarray,
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
     validation_stats: List[Dict[str, float]],
     prediction_id: str,
 ) -> None:

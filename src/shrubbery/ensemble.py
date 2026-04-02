@@ -6,7 +6,6 @@ from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 import pandas as pd
 import wandb
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
@@ -23,7 +22,7 @@ class EnsembleType(str, Enum):
 
 def get_ensemble(
     ensemble_type: EnsembleType,
-) -> Callable[[NDArray], NDArray]:
+) -> Callable[[np.ndarray], np.ndarray]:
     if ensemble_type == EnsembleType.PRODUCT_AND_ROOT:
         return ensemble_product_and_root
     elif ensemble_type == EnsembleType.SUM_AND_RANK:
@@ -33,11 +32,11 @@ def get_ensemble(
 
 
 # Inspired by: https://github.com/jimfleming/numerai/blob/master/ensemble.py#L22  # noqa: E501
-def ensemble_product_and_root(y_preds: NDArray) -> NDArray:
+def ensemble_product_and_root(y_preds: np.ndarray) -> np.ndarray:
     return np.power(np.prod(y_preds, axis=1), 1.0 / y_preds.shape[1])
 
 
-def ensemble_sum_and_rank(y_preds: NDArray) -> NDArray:
+def ensemble_sum_and_rank(y_preds: np.ndarray) -> np.ndarray:
     return pd.DataFrame(y_preds).sum(axis=1).rank(pct=True).to_numpy()
 
 
@@ -76,7 +75,7 @@ class Ensembler(
         self.estimator_names_best_ = [config.name for config in estimators]
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> 'Ensembler':
         x_training = x
         y_training = y
@@ -87,7 +86,7 @@ class Ensembler(
             # Garbage collection gets rid of unused data and frees up memory
             gc.collect()
         # Keep track of prediction columns and stats
-        predictions: Dict[str, NDArray] = {}
+        predictions: Dict[str, np.ndarray] = {}
         validation_stats: List[Dict[str, float]] = []
         for config in self.estimators:
             logger.info(f'Predicting ensemble model: {config.name}')
@@ -127,8 +126,8 @@ class Ensembler(
                 wandb.run.summary.update({'best_model': ' '.join(best)})
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
-        predictions: Dict[str, NDArray] = {}
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        predictions: Dict[str, np.ndarray] = {}
         for config in self.estimators:
             if config.name in self.estimator_names_best_:
                 logger.info(f'Predicting ensemble model: {config.name}')

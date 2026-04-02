@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Any, List
 
 import numpy as np
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, TransformerMixin
 from tqdm import tqdm
 
@@ -15,8 +14,8 @@ from shrubbery.observability import logger
 
 
 def _apply_transform_in_chunks(
-    estimator: Any, array: NDArray, chunk_size: int
-) -> NDArray:
+    estimator: Any, array: np.ndarray, chunk_size: int
+) -> np.ndarray:
     if chunk_size <= 0:
         return estimator.transform(array)
     else:
@@ -49,7 +48,7 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         self.estimators = estimators
         self.target_column_index = target_column_index
 
-    def fit(self, x: NDArray, y: NDArray) -> 'GenericEmbedder':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'GenericEmbedder':
         x_training = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
         y_training = y[:, self.target_column_index].astype(np.float32)
         training_count = x_training.shape[0]
@@ -81,7 +80,7 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
                 )
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         eras = x[:, : (COLUMN_INDEX_ERA + 1)]
         features = x[:, (COLUMN_INDEX_ERA + 1) :].astype(np.float32)
         embeddings = []
@@ -101,10 +100,10 @@ class PersistableEmbedder(BaseEstimator, TransformerMixin):
     ) -> None:
         self.estimator = estimator
 
-    def fit(self, x: NDArray, y: NDArray) -> 'PersistableEmbedder':
+    def fit(self, x: np.ndarray, y: np.ndarray) -> 'PersistableEmbedder':
         self.embedder_ = self.estimator.fit(x)
         return self
 
-    def transform(self, x: NDArray) -> NDArray:
+    def transform(self, x: np.ndarray) -> np.ndarray:
         assert self.embedder_ is not None
         return self.embedder_.transform(x)

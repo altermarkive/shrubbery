@@ -2,7 +2,6 @@ from typing import Any, Dict, Optional, Sequence
 
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
 from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
@@ -38,7 +37,7 @@ class NumeraiMetaEstimator(
         self.neutralization_normalize = neutralization_normalize
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> 'NumeraiMetaEstimator':
         logger.info(f'Fitting {self}')
         logger.info(f'Shape of the data to train on: {x.shape} {y.shape}')
@@ -62,7 +61,7 @@ class NumeraiMetaEstimator(
         self.fitted_ = True
         return self
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         logger.info(f'Predicting {self}')
         feature_indices = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
         predictions = self.estimator.predict(
@@ -128,6 +127,6 @@ class PersistentRegressor(
         self.fitted_ = True
         return self
 
-    def predict(self, x: Any) -> NDArray:
+    def predict(self, x: Any) -> np.ndarray:
         predictions = self.estimator.predict(x)
         return predictions

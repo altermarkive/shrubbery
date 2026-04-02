@@ -2,7 +2,6 @@ from typing import Callable, Dict, List, Optional, Set
 
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
 
 from shrubbery.evaluation import METRIC_PREDICTION_ID, validation_metrics
 from shrubbery.observability import logger
@@ -41,10 +40,10 @@ def top_mix(lut: Dict, ascending: bool) -> Optional[str]:
 
 
 def mix_predictions(
-    predictions: Dict[str, NDArray],
+    predictions: Dict[str, np.ndarray],
     pred_cols: List[str],
-    ensemble: Callable[[NDArray], NDArray],
-) -> NDArray:
+    ensemble: Callable[[np.ndarray], np.ndarray],
+) -> np.ndarray:
     return ensemble(
         np.concatenate(
             [predictions[pred_col].reshape(-1, 1) for pred_col in pred_cols],
@@ -54,12 +53,12 @@ def mix_predictions(
 
 
 def mix_all(
-    x: NDArray,
-    y_true: NDArray,
-    predictions: Dict[str, NDArray],
+    x: np.ndarray,
+    y_true: np.ndarray,
+    predictions: Dict[str, np.ndarray],
     validation_stats: List[Dict[str, float]],
     pred_cols: List[str],
-    ensemble: Callable[[NDArray], NDArray],
+    ensemble: Callable[[np.ndarray], np.ndarray],
 ) -> None:
     predictions_name = _encode(set(pred_cols))
     y_prediction = mix_predictions(predictions, pred_cols, ensemble)
@@ -74,11 +73,11 @@ def mix_all(
 
 
 def mix_combinatorial(
-    x: NDArray,
-    y_true: NDArray,
-    predictions: Dict[str, NDArray],
+    x: np.ndarray,
+    y_true: np.ndarray,
+    predictions: Dict[str, np.ndarray],
     validation_stats: List[Dict[str, float]],
-    ensemble: Callable[[NDArray], NDArray],
+    ensemble: Callable[[np.ndarray], np.ndarray],
     sort_by: str,
     sort_ascending: bool,
     cap: Optional[int],

@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as graph_objects
 import wandb
-from numpy.typing import NDArray
 from sklearn.model_selection import BaseCrossValidator
 
 from shrubbery.constants import COLUMN_INDEX_ERA
@@ -23,14 +22,14 @@ class NumeraiTimeSeriesSplitter(BaseCrossValidator):
         self._cv = cv
         self._embargo = embargo
 
-    def get_n_splits(self, x: NDArray, y: NDArray, groups: Any = None) -> int:
+    def get_n_splits(self, x: np.ndarray, y: np.ndarray, groups: Any = None) -> int:
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-get_n_splits
         return self._cv
 
     def split(
-        self, x: NDArray, y: NDArray, groups: Any = None
-    ) -> Generator[Tuple[NDArray[np.bool_], NDArray[np.bool_]], None, None]:
+        self, x: np.ndarray, y: np.ndarray, groups: Any = None
+    ) -> Generator[Tuple[np.ndarray[np.bool_], np.ndarray[np.bool_]], None, None]:
         # See also:
         # - https://scikit-learn.org/stable/glossary.html#term-split
         assert x is not None, 'Training vector was not provided'

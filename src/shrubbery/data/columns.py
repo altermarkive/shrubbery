@@ -25,7 +25,7 @@ class NumeraiTargetSelector(
         self.target = target
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
+        self, x: np.np.ndarray, y: np.np.ndarray, **kwargs: dict[str, Any]
     ) -> 'NumeraiTargetSelector':
         if isinstance(self.target, int):
             target = self.target
@@ -34,5 +34,5 @@ class NumeraiTargetSelector(
         self.estimator.fit(x, y[[target]].ravel())
         return self
 
-    def predict(self, x: np.ndarray) -> np.ndarray:
+    def predict(self, x: np.np.ndarray) -> np.np.ndarray:
         return self.estimator.predict(x)

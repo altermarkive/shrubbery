@@ -6,7 +6,6 @@ import hydra.utils
 import numpy as np
 import pandas as pd
 import wandb
-from numpy.typing import NDArray
 from omegaconf import DictConfig, OmegaConf
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.model_selection import GridSearchCV
@@ -88,7 +87,7 @@ class NumeraiBestGridSearchEstimator(
         self.tb = tb
 
     def fit(
-        self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
     ) -> NumeraiMetaEstimator:
         logger.info(f'Shape of training data - x:{x.shape} y:{y.shape}')
         targets = [
@@ -143,7 +142,7 @@ class NumeraiBestGridSearchEstimator(
         self.fitted_cv_results_ = grid_search_cv.cv_results_
         return self.estimator
 
-    def predict(self, x: NDArray) -> NDArray:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x)
 
 
