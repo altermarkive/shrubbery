@@ -28,7 +28,6 @@ dependencies = [
     "numerapi>=2.20.7",
     "numerblox>=1.6.1",
     "plotly>=6.2.0",
-    "pyarrow>=19.0.1",
     "scikit-network>=0.33.3",
     "sklearn-genetic>=0.6.0",
     "sklearn-genetic-opt>=0.12.0",
