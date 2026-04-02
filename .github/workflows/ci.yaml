@@ -35,6 +35,7 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
       - name: Free
         run: |
+          docker rmi $(docker images -aq) || true
           docker system prune -af --volumes || true
       - name: Linting
         run: docker run --rm -v ${{ github.workspace }}:/app -w /app --entrypoint /bin/sh ghcr.io/${{ github.repository_owner }}/shrubbery:latest -c "isort --check --diff src && black --check --diff src && flake8 src && mypy src"
