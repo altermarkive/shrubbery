@@ -54,6 +54,7 @@ class NumeraiBestGridSearchEstimator(
         downsample_cross_validation: int,
         downsample_full_train: int,
         targets: list[int | str],
+        adversarial_downsampling_ratio: float | None,
         cv: int,
         cv_param_grid: dict,
         cv_metric: str,
@@ -61,7 +62,6 @@ class NumeraiBestGridSearchEstimator(
         neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
-        tb: int,
     ) -> None:
         self.estimator = NumeraiMetaEstimator(
             estimator=estimator,
@@ -77,6 +77,7 @@ class NumeraiBestGridSearchEstimator(
         self.downsample_cross_validation = downsample_cross_validation
         self.downsample_full_train = downsample_full_train
         self.targets = targets
+        self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
         self.cv = cv
         self.cv_param_grid = cv_param_grid
         self.cv_metric = cv_metric
@@ -84,7 +85,6 @@ class NumeraiBestGridSearchEstimator(
         self.neutralization_feature_indices = neutralization_feature_indices
         self.neutralization_proportion = neutralization_proportion
         self.neutralization_normalize = neutralization_normalize
-        self.tb = tb
 
     def fit(
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
