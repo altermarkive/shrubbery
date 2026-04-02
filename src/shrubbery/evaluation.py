@@ -91,14 +91,6 @@ def metric_to_ascending(metric: str) -> bool:
     raise NotImplementedError(f'Metric {metric} not found')
 
 
-def _extract_metric_if_composite(
-    metric: str, result: float | dict[str, float]
-) -> float:
-    if isinstance(result, dict):
-        return result[metric]
-    return result
-
-
 def metric_to_simple_scorer(metric: str) -> Callable:
     for metric_config in METRICS:
         if metric == metric_config.metric_name:
@@ -106,10 +98,7 @@ def metric_to_simple_scorer(metric: str) -> Callable:
             scorer = partial(
                 numerai_scorer,
                 metric=lambda x, y_true, y_pred: ascending
-                * _extract_metric_if_composite(
-                    metric,
-                    metric_config.metric_function(x, y_true, y_pred),
-                ),
+                * metric_config.metric_function(x, y_true, y_pred),
             )
             scorer.__name__ = metric  # type: ignore[attr-defined]
             return scorer
