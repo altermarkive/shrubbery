@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+import random
 import time
 from dataclasses import dataclass
 from typing import Any, Dict, List
@@ -22,11 +23,6 @@ from shrubbery.constants import (
 )
 from shrubbery.embeddings.diagnostics import plot_diagnostics
 from shrubbery.observability import logger
-
-
-def _get_portion(count: int, portion: float) -> NDArray:
-    idx = np.random.choice(count, int(count * portion))
-    return idx
 
 
 def _apply_transform_in_chunks(
@@ -77,14 +73,17 @@ class GenericEmbedder(BaseEstimator, TransformerMixin):
         ].astype(np.float32)
         training_count = x_training.shape[0]
         for estimator in self.estimators:
+            all_indices = list(range(x_training.shape[0]))
             if 0 < estimator.portion < 1:
-                indices = _get_portion(x.shape[0], self.portion)
+                pick = int(x_training.shape[0] * estimator.portion)
+                indices = np.array(random.sample(all_indices, pick))
             else:
-                indices = np.array(range(x.shape[0]))
+                indices = np.array(all_indices)
             logger.info(f'Running embedder {estimator.name}')
             before = time.time()
-            embeddings = estimator.estimator.fit_transform(
-                x_training[indices], y_training[indices]
+            estimator.estimator.fit(x_training[indices])
+            embeddings = estimator.estimator.transform(
+                x_training[indices]
             )
             after = time.time()
             delta = int(after - before)
