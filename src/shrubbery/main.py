@@ -233,7 +233,7 @@ class NumeraiRunner:
             'live.parquet', read_columns, feature_cols
         )
         override_numerai_era(training_eras + validation_eras, live_data)
-        if self.adversarial_downsampling_ratio is not None:
+        if self.retrain and self.adversarial_downsampling_ratio is not None:
             _, training_data, _ = adversarial_downsampling(
                 feature_cols,
                 training_data,
