@@ -27,6 +27,10 @@ from sklearn.base import BaseEstimator, TransformerMixin  # noqa: E402
 from torch.utils.data import DataLoader, TensorDataset  # noqa: E402
 from tqdm import tqdm  # noqa: E402
 
+from shrubbery.adapter import (  # noqa: E402
+    variance_scaling_initializer_with_fan_in,
+)
+
 
 class Autoencoder(BaseEstimator, TransformerMixin):
     def __init__(
@@ -135,18 +139,7 @@ class AutoencoderNetwork(nn.Module):
         self.encoder = nn.Sequential(*encoder_layers)
         self.decoder = nn.Sequential(*decoder_layers)
         # Initialize weights
-        self._initialize_weights()
-
-    def _initialize_weights(self) -> None:
-        for module in self.modules():
-            if isinstance(module, nn.Linear):
-                fan_in = module.weight.size(1)
-                std = (1.0 / fan_in) ** 0.5
-                init.trunc_normal_(
-                    module.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
-                )
-                if module.bias is not None:
-                    init.zeros_(module.bias)
+        variance_scaling_initializer_with_fan_in(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         encoded = self.encoder(x)
