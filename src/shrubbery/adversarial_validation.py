@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
@@ -31,12 +29,12 @@ VALIDATION_DATA = 1
 # Adversarial validation was made era-aware by applying the concept
 # within eras rather than to individual samples.
 def adversarial_downsampling(
-    feature_cols: List[str],
+    feature_cols: list[str],
     training_data: pd.DataFrame,
     validation_data: pd.DataFrame,
     live_data: pd.DataFrame,
     downsampling_ratio: float,
-) -> Tuple[List[str], pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[list[str], pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     if not (0.0 < downsampling_ratio < 1.0):
         return feature_cols, training_data, validation_data, live_data
 

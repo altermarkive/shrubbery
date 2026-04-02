@@ -1,7 +1,7 @@
 import gc
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
@@ -51,13 +51,13 @@ class Ensembler(
 ):
     def __init__(
         self,
-        estimators: List[EstimatorConfig],
+        estimators: list[EstimatorConfig],
         numerai_model_id: str,
         training_metric: str,
         ensemble_metric: str,
         ensemble_type: EnsembleType,
-        mix_combinatorial_cap: Optional[int],
-        neutralization_feature_indices: List[int],
+        mix_combinatorial_cap: int | None,
+        neutralization_feature_indices: list[int],
         neutralization_proportion: float,
         neutralization_normalize: bool,
         tb: int,
@@ -75,7 +75,7 @@ class Ensembler(
         self.estimator_names_best_ = [config.name for config in estimators]
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'Ensembler':
         x_training = x
         y_training = y
@@ -86,8 +86,8 @@ class Ensembler(
             # Garbage collection gets rid of unused data and frees up memory
             gc.collect()
         # Keep track of prediction columns and stats
-        predictions: Dict[str, np.ndarray] = {}
-        validation_stats: List[Dict[str, float]] = []
+        predictions: dict[str, np.ndarray] = {}
+        validation_stats: list[dict[str, float]] = []
         for config in self.estimators:
             logger.info(f'Predicting ensemble model: {config.name}')
             logger.info(f'Ensemble model config: {config.estimator}')
@@ -127,7 +127,7 @@ class Ensembler(
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        predictions: Dict[str, np.ndarray] = {}
+        predictions: dict[str, np.ndarray] = {}
         for config in self.estimators:
             if config.name in self.estimator_names_best_:
                 logger.info(f'Predicting ensemble model: {config.name}')

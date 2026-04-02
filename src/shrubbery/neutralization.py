@@ -1,4 +1,4 @@
-from typing import Any, Dict, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -82,7 +82,7 @@ class NumeraiNeutralization(
         self.neutralization_normalize = neutralization_normalize
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'NumeraiNeutralization':
         riskiest_features = get_biggest_change_features(
             x,

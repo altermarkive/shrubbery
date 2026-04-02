@@ -1,9 +1,8 @@
 import os
 from pathlib import Path
-from typing import Optional
 
 
-def get_workspace_path(subdirectory: Optional[str] = None) -> Path:
+def get_workspace_path(subdirectory: str | None = None) -> Path:
     workspace_path = Path(os.environ.get('SHRUBBERY_WORKSPACE', './workspace'))
     if subdirectory is not None:
         workspace_path = workspace_path / subdirectory

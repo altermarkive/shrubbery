@@ -1,6 +1,5 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/classifier/model.py  # noqa: E501
 import os
-from typing import List
 
 os.environ['KERAS_BACKEND'] = 'torch'
 
@@ -29,7 +28,7 @@ class NeuralNetwork(BaseEstimator, RegressorMixin):
         self,
         batch_size: int,
         epochs: int,
-        layer_units: List[int],
+        layer_units: list[int],
     ) -> None:
         self.batch_size = batch_size
         self.epochs = epochs

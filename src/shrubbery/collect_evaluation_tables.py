@@ -1,6 +1,5 @@
 import json
 import sys
-from typing import Dict, List
 
 import pandas as pd
 import wandb
@@ -11,7 +10,7 @@ from shrubbery.evaluation import METRIC_PREDICTION_ID, TABLE_EVALUATION
 from shrubbery.tournament import get_performances, get_projects
 
 
-def collect_from_project(project: str) -> List[Dict]:
+def collect_from_project(project: str) -> list[Dict]:
     api = wandb.Api()
     runs = api.runs(project)
     data = []
@@ -35,7 +34,7 @@ def collect_from_project(project: str) -> List[Dict]:
     return data
 
 
-def collect_from_projects(projects: List[str]) -> pd.DataFrame:
+def collect_from_projects(projects: list[str]) -> pd.DataFrame:
     data = []
     for project in projects:
         part = collect_from_project(project)

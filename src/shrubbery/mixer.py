@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Optional, Set
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -7,11 +7,11 @@ from shrubbery.evaluation import METRIC_PREDICTION_ID, validation_metrics
 from shrubbery.observability import logger
 
 
-def _encode(decoded: Set[str]) -> str:
+def _encode(decoded: set[str]) -> str:
     return '_'.join(sorted(list(decoded)))
 
 
-def _decode(encoded: str) -> Set[str]:
+def _decode(encoded: str) -> set[str]:
     return set(encoded.split('_'))
 
 
@@ -19,7 +19,7 @@ def _sort_reports(lut: Dict, ascending: bool) -> List:
     return sorted(lut.items(), key=lambda item: item[1], reverse=not ascending)
 
 
-def next_mix(lut: Dict, ascending: bool) -> Optional[str]:
+def next_mix(lut: Dict, ascending: bool) -> str | None:
     reports = _sort_reports(lut, ascending)
     length = len(reports)
     if length < 2:
@@ -34,14 +34,14 @@ def next_mix(lut: Dict, ascending: bool) -> Optional[str]:
     return None
 
 
-def top_mix(lut: Dict, ascending: bool) -> Optional[str]:
+def top_mix(lut: Dict, ascending: bool) -> str | None:
     reports = _sort_reports(lut, ascending)
     return reports[0][0] if reports else None
 
 
 def mix_predictions(
-    predictions: Dict[str, np.ndarray],
-    pred_cols: List[str],
+    predictions: dict[str, np.ndarray],
+    pred_cols: list[str],
     ensemble: Callable[[np.ndarray], np.ndarray],
 ) -> np.ndarray:
     return ensemble(
@@ -55,9 +55,9 @@ def mix_predictions(
 def mix_all(
     x: np.ndarray,
     y_true: np.ndarray,
-    predictions: Dict[str, np.ndarray],
-    validation_stats: List[Dict[str, float]],
-    pred_cols: List[str],
+    predictions: dict[str, np.ndarray],
+    validation_stats: list[dict[str, float]],
+    pred_cols: list[str],
     ensemble: Callable[[np.ndarray], np.ndarray],
 ) -> None:
     predictions_name = _encode(set(pred_cols))
@@ -75,17 +75,17 @@ def mix_all(
 def mix_combinatorial(
     x: np.ndarray,
     y_true: np.ndarray,
-    predictions: Dict[str, np.ndarray],
-    validation_stats: List[Dict[str, float]],
+    predictions: dict[str, np.ndarray],
+    validation_stats: list[dict[str, float]],
     ensemble: Callable[[np.ndarray], np.ndarray],
     sort_by: str,
     sort_ascending: bool,
-    cap: Optional[int],
-    neutralization_feature_indices: List[int],
+    cap: int | None,
+    neutralization_feature_indices: list[int],
     neutralization_proportion: float,
     neutralization_normalize: bool,
     tb: int,
-) -> Optional[List[str]]:
+) -> list[str] | None:
     lut = {
         item[METRIC_PREDICTION_ID]: item[sort_by]
         for item in validation_stats

@@ -1,5 +1,5 @@
 import operator
-from typing import Any, Dict, Generator, List, Tuple
+from typing import Any, Generator
 
 import numpy as np
 import pandas as pd
@@ -99,7 +99,7 @@ class NumeraiTimeSeriesSplitter(BaseCrossValidator):
 
 def reformat_cross_validation_result(
     cross_validation_result: Dict, model_name: str
-) -> List[float]:
+) -> list[float]:
     results = sorted(
         dict_of_lists_to_list_of_dicts(cross_validation_result),
         key=operator.itemgetter('rank_test_score'),
@@ -112,7 +112,7 @@ def reformat_cross_validation_result(
 
 def get_best_parameters(
     results: List, parameter: str, top_k: int
-) -> List[str]:
+) -> list[str]:
     best_parameters = [item['params'][parameter] for item in results[:top_k]]
     logger.info(
         f'Best cross-validation values for "{parameter}": {best_parameters}'

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable
 
 import pandas as pd
 
@@ -27,7 +27,7 @@ class MetricConfig:
 METRIC_PREDICTION_ID = 'Prediction ID'
 
 
-METRICS: List[MetricConfig] = [
+METRICS: list[MetricConfig] = [
     MetricConfig(
         'Sharpe',
         True,
@@ -73,7 +73,7 @@ def numerai_scorer(
     x: np.ndarray,
     y: np.ndarray,
     metric: Callable,
-    **kwargs: Dict[str, Any],
+    **kwargs: dict[str, Any],
 ) -> float:
     y_true = y
     if y.ndim > 1 and 1 not in y.shape:
@@ -91,7 +91,7 @@ def metric_to_ascending(metric: str) -> bool:
 
 
 def _extract_metric_if_composite(
-    metric: str, result: Union[float, Dict[str, float]]
+    metric: str, result: float | dict[str, float]
 ) -> float:
     if isinstance(result, dict):
         return result[metric]
@@ -122,10 +122,10 @@ def validation_metrics(
     x: np.ndarray,
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    validation_stats: List[Dict[str, float]],
+    validation_stats: list[dict[str, float]],
     prediction_id: str,
 ) -> None:
-    evaluation: Dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
+    evaluation: dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
     for metric_config in METRICS:
         result = metric_config.metric_function(x, y_true, y_pred)
         evaluation[metric_config.metric_name] = result
