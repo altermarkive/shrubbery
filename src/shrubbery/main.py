@@ -1,5 +1,5 @@
 import gc
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import hydra
 import hydra.utils
@@ -58,7 +58,7 @@ class NumeraiBestGridSearchEstimator(
         cv_param_grid: Dict,
         cv_metric: str,
         embargo: int,
-        neutralization_feature_indices: Optional[List[int]],
+        neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
         tb: int,
@@ -87,7 +87,7 @@ class NumeraiBestGridSearchEstimator(
         self.tb = tb
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> NumeraiMetaEstimator:
         logger.info(f'Shape of training data - x:{x.shape} y:{y.shape}')
         targets = [

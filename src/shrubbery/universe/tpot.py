@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any
 
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from tpot import TPOTRegressor
@@ -12,14 +12,14 @@ class TPOTRegressorWrapper(
     def __init__(
         self,
         search_space: str = 'linear',
-        scorers: List[str] = ['neg_mean_squared_error'],
-        scorers_weights: List[int] = [1],
-        cv: Union[int, Iterable, Any] = 10,
+        scorers: list[str] = ['neg_mean_squared_error'],
+        scorers_weights: list[int] = [1],
+        cv: Any = 10,
         other_objective_functions: List = [],
         other_objective_functions_weights: List = [],
-        objective_function_names: Optional[List] = None,
+        objective_function_names: List | None = None,
         bigger_is_better: bool = True,
-        categorical_features: Optional[List] = None,
+        categorical_features: List | None = None,
         memory: Any = None,
         preprocessing: Any = False,
         max_time_mins: float = 60.0,
@@ -27,16 +27,16 @@ class TPOTRegressorWrapper(
         n_jobs: int = 1,
         validation_strategy: str = 'none',
         validation_fraction: float = 0.2,
-        early_stop: Optional[int] = None,
+        early_stop: int | None = None,
         warm_start: bool = False,
-        periodic_checkpoint_folder: Optional[str] = None,
+        periodic_checkpoint_folder: str | None = None,
         verbose: int = 2,
-        memory_limit: Optional[str] = None,
+        memory_limit: str | None = None,
         client: Any = None,
-        random_state: Optional[int] = None,
-        allow_inner_regressors: Optional[bool] = None,
+        random_state: int | None = None,
+        allow_inner_regressors: bool | None = None,
         population_size: int = 50,
-        generations: Optional[int] = None,
+        generations: int | None = None,
     ) -> None:
         self.search_space = search_space
         self.scorers = scorers
@@ -68,7 +68,7 @@ class TPOTRegressorWrapper(
         self.generations = generations
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'TPOTRegressorWrapper':
         estimator = TPOTRegressor(
             search_space=self.search_space,

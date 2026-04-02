@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -24,7 +24,7 @@ class NumeraiMetaEstimator(
         estimator: Any,
         drop_era_column: bool,
         target: int,
-        neutralization_feature_indices: Optional[Sequence[int]],
+        neutralization_feature_indices: Sequence[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
         **kwargs: Dict,
@@ -37,7 +37,7 @@ class NumeraiMetaEstimator(
         self.neutralization_normalize = neutralization_normalize
 
     def fit(
-        self, x: np.ndarray, y: np.ndarray, **kwargs: Dict[str, Any]
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'NumeraiMetaEstimator':
         logger.info(f'Fitting {self}')
         logger.info(f'Shape of the data to train on: {x.shape} {y.shape}')
@@ -120,7 +120,7 @@ class PersistentRegressor(
         super().__init__(**kwargs)
 
     def fit(
-        self, x: Any, y: Any, **kwargs: Dict[str, Any]
+        self, x: Any, y: Any, **kwargs: dict[str, Any]
     ) -> 'PersistentRegressor':
         super().fit(x, y)
         self.model_version = store_model(self.estimator, self.model_name)

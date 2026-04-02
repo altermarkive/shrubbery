@@ -1,6 +1,5 @@
 import os
 import time
-from typing import List
 
 from numerapi import NumerAPI
 
@@ -19,7 +18,7 @@ def numerai_api() -> NumerAPI:
             time.sleep(10)
 
 
-def numerai_models() -> List[str]:
+def numerai_models() -> list[str]:
     return list(napi.get_models().keys())
 
 
