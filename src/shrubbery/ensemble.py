@@ -12,7 +12,7 @@ from shrubbery.constants import COLUMN_INDEX_TARGET
 from shrubbery.evaluation import METRIC_PREDICTION_VALUE, validation_metrics
 from shrubbery.mixer import mix_combinatorial, mix_predictions
 from shrubbery.observability import logger
-from shrubbery.utilities import PrintableModelMixin
+from shrubbery.utilities import PrintableModelMixin, model_to_string
 
 
 class EnsembleType(str, Enum):
@@ -87,7 +87,9 @@ class Ensembler(
         validation_stats: list[dict[str, float]] = []
         for config in self.estimators:
             logger.info(f'Predicting ensemble model: {config.name}')
-            logger.info(f'Ensemble model config: {config.estimator}')
+            logger.info(
+                f'Ensemble model config: {model_to_string(config.estimator)}'
+            )
             y_predictions = config.estimator.predict(x_training)
             predictions[config.name] = y_predictions
             validation_metrics(
@@ -126,7 +128,9 @@ class Ensembler(
         for config in self.estimators:
             if config.name in self.estimator_names_best_:
                 logger.info(f'Predicting ensemble model: {config.name}')
-                logger.info(f'Ensemble model config: {config.estimator}')
+                logger.info(
+                    f'Ensemble model config: {model_to_string(config.estimator)}'
+                )
                 predictions[config.name] = config.estimator.predict(
                     x.astype(np.float32)
                 )

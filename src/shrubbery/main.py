@@ -1,4 +1,5 @@
 import gc
+import warnings
 from typing import Any, Callable
 
 import hydra
@@ -95,9 +96,6 @@ class NumeraiBestGridSearchEstimator(
         ]
         y = y[:, targets]
 
-        # Do cross val to get out of sample training preds
-        # Get out of sample training preds via embargoed
-        # time series cross validation
         logger.info('Entering time series cross validation loop')
         grid_search_cv = GridSearchCV(
             self.estimator,
@@ -106,7 +104,6 @@ class NumeraiBestGridSearchEstimator(
                 cv=self.cv,
                 embargo=self.embargo,
             ),
-            # In case multiple scores are of interest, see: https://stackoverflow.com/questions/35876508/evaluate-multiple-scores-on-sklearn-cross-val-score & https://scikit-learn.org/stable/modules/grid_search.html#composite-grid-search  # noqa: E501
             scoring=self.cv_scoring,
             refit=False,
         )
@@ -143,6 +140,52 @@ class NumeraiBestGridSearchEstimator(
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.estimator.predict(x)
+
+
+class WandbGridSearchCV(GridSearchCV):
+    def __init__(
+        self,
+        model_name: str,
+        estimator: Any,
+        param_grid: dict,
+        scoring: Callable,
+        n_jobs: int | None = None,
+        refit: bool = True,
+        cv: Any = None,
+        verbose: int = 0,
+        pre_dispatch: int | str = '2*n_jobs',
+        error_score: float = np.nan,
+        return_train_score: bool = False,
+    ) -> None:
+        self.model_name = model_name
+        self.estimator = estimator
+        self.param_grid = param_grid
+        self.scoring = scoring
+        self.n_jobs = n_jobs
+        self.refit = refit
+        self.cv = cv
+        self.verbose = verbose
+        self.pre_dispatch = pre_dispatch
+        self.error_score = error_score
+        self.return_train_score = return_train_score
+
+    def fit(
+        self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
+    ) -> 'WandbGridSearchCV':
+        logger.info('Entering time series cross validation loop')
+        logger.info(f'Shape of training data - x:{x.shape} y:{y.shape}')
+        super().fit(x, y)
+        cv_results = self.cv_results_
+        cross_validation_to_parallel_coordinates(cv_results, self.model_name)
+        cross_validation_result = reformat_cross_validation_result(
+            cv_results, self.model_name
+        )
+        for parameter in self.param_grid.keys():
+            get_best_parameters(cross_validation_result, parameter, top_k=1)
+        return self.best_estimator_
+
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        return self.best_estimator_.predict(x)
 
 
 class NumeraiRunner:
@@ -274,7 +317,12 @@ def main(config: DictConfig) -> None:
     update_tournament_submissions(runner.numerai_model_id)
     wandb.init(tags=tags)
     _save_config_file_to_wandb(config)
-    runner.run()
+    with warnings.catch_warnings():
+        # XGBoost will handle CPU to GPU transfer of data
+        warnings.filterwarnings(
+            'ignore', message='Falling back to prediction using DMatrix'
+        )
+        runner.run()
     wandb.finish()
 
 
