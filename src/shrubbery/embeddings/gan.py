@@ -214,6 +214,19 @@ class GANEmbedder(BaseEstimator, TransformerMixin):
         return result
 
 
+def _initialize_gan_weights(module: nn.Module) -> None:
+    """Initialize weights for GAN networks using variance scaling."""
+    for m in module.modules():
+        if isinstance(m, nn.Linear):
+            fan_in = m.weight.size(1)
+            std = (1.0 / fan_in) ** 0.5
+            init.trunc_normal_(
+                m.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
+            )
+            if m.bias is not None:
+                init.zeros_(m.bias)
+
+
 class DiscriminatorNetwork(nn.Module):
     def __init__(self, feature_count: int, layer_units: list[int]) -> None:
         super().__init__()
@@ -231,18 +244,7 @@ class DiscriminatorNetwork(nn.Module):
             previous_units = units
         self.model = nn.Sequential(*layers)
         # Initialize weights
-        self._initialize_weights()
-
-    def _initialize_weights(self) -> None:
-        for module in self.modules():
-            if isinstance(module, nn.Linear):
-                fan_in = module.weight.size(1)
-                std = (1.0 / fan_in) ** 0.5
-                init.trunc_normal_(
-                    module.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
-                )
-                if module.bias is not None:
-                    init.zeros_(module.bias)
+        _initialize_gan_weights(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
@@ -270,18 +272,7 @@ class GeneratorNetwork(nn.Module):
             previous_units = units
         self.model = nn.Sequential(*layers)
         # Initialize weights
-        self._initialize_weights()
-
-    def _initialize_weights(self) -> None:
-        for module in self.modules():
-            if isinstance(module, nn.Linear):
-                fan_in = module.weight.size(1)
-                std = (1.0 / fan_in) ** 0.5
-                init.trunc_normal_(
-                    module.weight, mean=0.0, std=std, a=-2 * std, b=2 * std
-                )
-                if module.bias is not None:
-                    init.zeros_(module.bias)
+        _initialize_gan_weights(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
