@@ -37,7 +37,9 @@ dev = [
     "flake8>=7.3.0",
     "isort>=6.0.1",
     "mypy>=1.17.1",
+    "pdbpp>=0.11.7", # Extension of Python debugger
     "types-requests>=2.32.4.20250809",
+    "wat>=0.7.0", # Deep inspection of Python objects
 ]
 
 [tool.uv.sources]
