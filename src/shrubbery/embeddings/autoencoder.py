@@ -6,6 +6,7 @@ os.environ['KERAS_BACKEND'] = 'torch'
 import keras.ops  # noqa: E402
 import keras.random  # noqa: E402
 import keras.regularizers  # noqa: E402
+import numpy as np  # noqa: E402
 from keras.initializers import VarianceScaling  # noqa: E402
 from keras.layers import (
     Activation,

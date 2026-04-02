@@ -15,11 +15,11 @@ def _decode(encoded: str) -> set[str]:
     return set(encoded.split('_'))
 
 
-def _sort_reports(lut: Dict, ascending: bool) -> List:
+def _sort_reports(lut: dict, ascending: bool) -> list:
     return sorted(lut.items(), key=lambda item: item[1], reverse=not ascending)
 
 
-def next_mix(lut: Dict, ascending: bool) -> str | None:
+def next_mix(lut: dict, ascending: bool) -> str | None:
     reports = _sort_reports(lut, ascending)
     length = len(reports)
     if length < 2:
@@ -34,7 +34,7 @@ def next_mix(lut: Dict, ascending: bool) -> str | None:
     return None
 
 
-def top_mix(lut: Dict, ascending: bool) -> str | None:
+def top_mix(lut: dict, ascending: bool) -> str | None:
     reports = _sort_reports(lut, ascending)
     return reports[0][0] if reports else None
 

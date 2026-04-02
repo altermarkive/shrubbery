@@ -59,7 +59,7 @@ def store_model(model: Any, name: str) -> str:
 
 # TODO: Check if weights are correctly preserved
 # (by comparing performance before and after serialization)
-def load_model(name: str, version: str = 'latest') -> Tuple[Any, str]:
+def load_model(name: str, version: str = 'latest') -> tuple[Any, str]:
     model_subdirectory = get_workspace_path(MODEL_SUBDIRECTORY)
     try:
         artifact = wandb.use_artifact(f'{name}:{version}', type='model')
@@ -112,7 +112,7 @@ def pare_down_number_of_eras_in_training_data(
     return training_data
 
 
-def dict_of_lists_to_list_of_dicts(dict_of_lists: Dict) -> List:
+def dict_of_lists_to_list_of_dicts(dict_of_lists: dict) -> list:
     return [
         dict(zip(dict_of_lists, list(item)))
         for item in zip(*dict_of_lists.values())

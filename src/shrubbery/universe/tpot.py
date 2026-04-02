@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from tpot import TPOTRegressor
 
@@ -15,11 +16,11 @@ class TPOTRegressorWrapper(
         scorers: list[str] = ['neg_mean_squared_error'],
         scorers_weights: list[int] = [1],
         cv: Any = 10,
-        other_objective_functions: List = [],
-        other_objective_functions_weights: List = [],
-        objective_function_names: List | None = None,
+        other_objective_functions: list = [],
+        other_objective_functions_weights: list = [],
+        objective_function_names: list | None = None,
         bigger_is_better: bool = True,
-        categorical_features: List | None = None,
+        categorical_features: list | None = None,
         memory: Any = None,
         preprocessing: Any = False,
         max_time_mins: float = 60.0,
