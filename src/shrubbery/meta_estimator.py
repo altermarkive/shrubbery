@@ -60,6 +60,8 @@ class NumeraiMetaEstimator(
             )
             self.neutralization_feature_indices = riskiest_features
             logger.info(f'Riskiest features (indices): {riskiest_features}')
+        elif len(self.neutralization_feature_indices) == 0:
+            self.neutralization_feature_indices = None
         self.fitted_ = True
         return self
 
