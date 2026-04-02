@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import requests
+import scipy
 import wandb
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.metrics import mean_squared_error
@@ -159,6 +160,27 @@ class MaxFeatureExposure:
             include_groups=False,
         )
         return max_per_era.mean()
+
+
+# Feature Neutral Correlation
+# https://docs.numer.ai/numerai-tournament/scoring/feature-neutral-correlation
+# greater_is_better: True
+class FeatureNeutralCorrelation:
+    __name__ = 'FNC'
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        x = x[:, COLUMN_INDEX_ERA + 1 :]
+        sub = (scipy.stats.rankdata(y_pred, method='ordinal') - 0.5) / len(
+            y_pred
+        )
+        sub -= x.dot(np.linalg.pinv(x, rcond=1e-6).dot(sub))
+        sub /= sub.std(ddof=0)
+        fnc = np.corrcoef(scipy.stats.rankdata(sub, method='ordinal'), y_true)[
+            0, 1
+        ]
+        return fnc
 
 
 # TODO: Unused due to OOM - check if it happens after reboot
