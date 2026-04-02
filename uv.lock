@@ -1357,7 +1357,7 @@ name = "nvidia-cudnn-cu13"
 version = "9.13.0.50"
 source = { registry = "https://pypi.nvidia.com/" }
 dependencies = [
-    { name = "nvidia-cublas" },
+    { name = "nvidia-cublas", marker = "sys_platform == 'linux'" },
 ]
 wheels = [
     { url = "https://pypi.nvidia.com/nvidia-cudnn-cu13/nvidia_cudnn_cu13-9.13.0.50-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:33f0aa0b64230101b348648fd0693342188071d3f8a137c0cf50051c24b3584b" },
@@ -1895,6 +1895,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pykan"
+version = "0.2.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9b/dc/8f15815b9ffe8d388ff48aa1aa5b700d17d75f19c4d00f78db013d82ad41/pykan-0.2.8.tar.gz", hash = "sha256:b530b96a9f0584db0a3a80b0425b479613eadce966de96bce8b787b60a8abc73", size = 80870, upload-time = "2024-11-14T21:40:24.119Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/e2/c0103e253776b2ec01232cceb9f96fe4ff1b1f69150a0f5220f2cca78a93/pykan-0.2.8-py3-none-any.whl", hash = "sha256:31261e40973053ab87cff19713f5d9e1f451f4f9ab183ce56edf2a4a44127213", size = 78055, upload-time = "2024-11-14T21:40:22.659Z" },
+]
+
+[[package]]
 name = "pylibcudf-cu13"
 version = "25.10.0"
 source = { registry = "https://pypi.nvidia.com/" }
@@ -2231,6 +2240,7 @@ dependencies = [
     { name = "opentsne" },
     { name = "plotly" },
     { name = "pyarrow" },
+    { name = "pykan" },
     { name = "tabulate" },
     { name = "torch" },
     { name = "tpot" },
@@ -2262,6 +2272,7 @@ requires-dist = [
     { name = "pdbpp", marker = "extra == 'dev'", specifier = ">=0.11.7" },
     { name = "plotly", specifier = ">=6.2.0" },
     { name = "pyarrow", specifier = ">=19.0.1" },
+    { name = "pykan", specifier = ">=0.2.8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.11" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
