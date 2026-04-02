@@ -14,7 +14,7 @@ from shrubbery.utilities import PrintableModelMixin
 def neutralize(
     x: np.ndarray,
     y: np.ndarray,
-    neutralizers: Sequence[int],
+    neutralizers: list[int],
     proportion: float,
     normalize: bool,
 ) -> np.ndarray:

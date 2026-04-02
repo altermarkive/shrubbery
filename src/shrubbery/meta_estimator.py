@@ -24,7 +24,7 @@ class NumeraiMetaEstimator(
         estimator: Any,
         drop_era_column: bool,
         target: int,
-        neutralization_feature_indices: Sequence[int] | None,
+        neutralization_feature_indices: list[int] | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
         **kwargs: dict,
