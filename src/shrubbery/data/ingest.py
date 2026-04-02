@@ -1,14 +1,13 @@
 import hashlib
 import json
 import math
-import random
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pyarrow.parquet
 
-from shrubbery.constants import COLUMN_ERA, COLUMN_TARGET
+from shrubbery.constants import COLUMN_ERA
 from shrubbery.data.augmentation import numeric_eras
 from shrubbery.napi import napi
 from shrubbery.observability import logger
@@ -132,7 +131,7 @@ def read_parquet_and_unpack(
     return data, eras
 
 
-def _get_available_training_targets() -> list[str]:
+def get_training_targets() -> list[str]:
     train_parquet_file_path = locate_numerai_file('train.parquet')
     schema = pyarrow.parquet.read_schema(
         train_parquet_file_path, memory_map=True
@@ -157,24 +156,11 @@ def _get_available_training_targets() -> list[str]:
                 f'Dropped {target} after checking for infinity & NaN'
             )
     finite_targets = sorted(finite_targets)
-    logger.info(f'Available targets - {finite_targets}')
-    return finite_targets
-
-
-def get_training_targets(k: int) -> list[str]:
-    training_targets = _get_available_training_targets()
     target_names = locate_numerai_file('target_names.json')
     with target_names.open('w') as handle:
-        json.dump(training_targets, handle, indent=4)
-    other_training_targets = set(training_targets) - set(
-        ['target', COLUMN_TARGET]
-    )
-    targets = [COLUMN_TARGET]
-    if k > 0:
-        # TODO: Randomly picking a handful of targets - this can be improved
-        targets += sorted(random.sample(list(other_training_targets), k))
-    logger.info(f'Selected targets - {targets}')
-    return targets
+        json.dump(finite_targets, handle, indent=4)
+    logger.info(f'Targets - {finite_targets}')
+    return finite_targets
 
 
 def lookup_target_index(target_name: str) -> int:

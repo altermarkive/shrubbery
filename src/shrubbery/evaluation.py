@@ -52,6 +52,7 @@ METRICS: List[MetricConfig] = [
     #     False,
     #     lambda _, y_true, y_pred: mean_squared_error(y_true, y_pred)
     # ),
+    # Max Feature Exposure causes: RuntimeWarning: invalid value encountered in divide
     MetricConfig(
         'Max Feature Exposure',
         False,

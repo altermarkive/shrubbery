@@ -12,10 +12,7 @@ import wandb
 from numpy.typing import NDArray
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
-from shrubbery.constants import (
-    COLUMN_DATA_TYPE_TRAINING,
-    COLUMN_INDEX_DATA_TYPE,
-)
+from shrubbery.constants import COLUMN_INDEX_TARGET
 from shrubbery.evaluation import metric_to_ascending, validation_metrics
 from shrubbery.mixer import mix_combinatorial, mix_predictions
 from shrubbery.observability import logger
@@ -84,16 +81,11 @@ class Ensembler(
     def fit(
         self, x: NDArray, y: NDArray, **kwargs: Dict[str, Any]
     ) -> 'Ensembler':
-        training_data_selection = (
-            x[:, COLUMN_INDEX_DATA_TYPE] == COLUMN_DATA_TYPE_TRAINING
-        )
-        x_training = x[
-            training_data_selection, :COLUMN_INDEX_DATA_TYPE
-        ].astype(np.float32)
-        y_training = y[training_data_selection, :].astype(np.float32)
+        x_training = x
+        y_training = y
         for config in self.estimators:
             # Now do a full train
-            logger.info(f'Training model: {config.name}')
+            logger.info(f'Training ensemble model: {config.name}')
             config.estimator = config.estimator.fit(x_training, y_training)
             # Garbage collection gets rid of unused data and frees up memory
             gc.collect()
@@ -101,13 +93,13 @@ class Ensembler(
         predictions: Dict[str, NDArray] = {}
         validation_stats: List[Dict[str, float]] = []
         for config in self.estimators:
-            logger.info(f'Predicting model: {config.name}')
-            logger.info(f'Model config: {config.estimator}')
+            logger.info(f'Predicting ensemble model: {config.name}')
+            logger.info(f'Ensemble model config: {config.estimator}')
             y_predictions = config.estimator.predict(x_training)
             predictions[config.name] = y_predictions
             validation_metrics(
                 x_training,
-                y_training,
+                y_training[:, COLUMN_INDEX_TARGET].ravel(),
                 y_predictions,
                 validation_stats,
                 config.name,
@@ -142,10 +134,10 @@ class Ensembler(
         predictions: Dict[str, NDArray] = {}
         for config in self.estimators:
             if config.name in self.estimator_names_best_:
-                logger.info(f'Predicting model: {config.name}')
-                logger.info(f'Model config: {config.estimator}')
+                logger.info(f'Predicting ensemble model: {config.name}')
+                logger.info(f'Ensemble model config: {config.estimator}')
                 predictions[config.name] = config.estimator.predict(
-                    x[:, :COLUMN_INDEX_DATA_TYPE].astype(np.float32)
+                    x.astype(np.float32)
                 )
         logger.info('Creating ensemble for tournament')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
