@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/classifier/model.py  # noqa: E501
 import os
 from typing import List

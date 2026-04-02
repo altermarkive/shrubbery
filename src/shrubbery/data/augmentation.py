@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import warnings
 from typing import Sequence
 

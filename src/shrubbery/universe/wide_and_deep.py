@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Code inspired by inspired by: https://github.com/Jeremy123W/Numerai
 # Improved with help of: https://keras.io/examples/structured_data/wide_deep_cross_networks/  # noqa: E501
 # As an alternative to the from-scratch approach one can also use:

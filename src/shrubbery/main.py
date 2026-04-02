@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import gc
 from typing import Any, Dict, List, Optional
 
