@@ -37,21 +37,17 @@ def save_prediction(df: pd.DataFrame, name: str) -> Path:
     return prediction_path
 
 
-# TODO: Check if weights are correctly preserved
-# (by comparing performance before and after serialization)
 def store_model(model: Any, name: str) -> str:
     model_subdirectory = get_workspace_path(MODEL_SUBDIRECTORY)
     model_file = model_subdirectory / f'{name}.pkl.zip'
     pd.to_pickle(model, model_file, compression={'method': 'zip'})
-    model_artifact = wandb.Artifact(f'{name}', type='model')
+    model_artifact = wandb.Artifact(name, type='model')
     model_artifact.add_file(str(model_file))
     version: str = 'latest'
     run = wandb.run
     if run is not None:
-        model_artifact = run.log_artifact(
-            model_artifact, aliases=[version]
-        ).wait()
-        run.link_artifact(model_artifact, f'model-registry/{name}')
+        model_artifact = run.log_artifact(model_artifact, aliases=[version])
+        model_artifact.wait()
         version = model_artifact.version
     logger.info(f'Stored model: {model_to_string(model)}')
     return version
