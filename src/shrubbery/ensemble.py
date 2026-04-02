@@ -53,14 +53,12 @@ class Ensembler(
         self,
         estimators: list[EstimatorConfig],
         numerai_model_id: str,
-        training_metric: str,
         ensemble_metric: str,
         ensemble_type: EnsembleType,
         mix_combinatorial_cap: int | None,
     ) -> None:
         self.estimators = estimators
         self.numerai_model_id = numerai_model_id
-        self.training_metric = training_metric
         self.ensemble_metric = ensemble_metric
         self.ensemble_type = ensemble_type
         self.mix_combinatorial_cap = mix_combinatorial_cap
