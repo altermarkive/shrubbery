@@ -4044,7 +4044,6 @@ dependencies = [
     { name = "sklearn-genetic" },
     { name = "sklearn-genetic-opt" },
     { name = "skorch" },
-    { name = "snntorch" },
     { name = "tabulate" },
     { name = "torch" },
     { name = "tpot" },
@@ -4087,7 +4086,6 @@ requires-dist = [
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
     { name = "sklearn-genetic-opt", specifier = ">=0.12.0" },
     { name = "skorch", specifier = ">=1.3.0" },
-    { name = "snntorch", specifier = ">=0.9.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "tpot", specifier = ">=1.1.0" },
@@ -4177,15 +4175,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372, upload-time = "2024-02-25T23:20:04.057Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235, upload-time = "2024-02-25T23:20:01.196Z" },
-]
-
-[[package]]
-name = "snntorch"
-version = "0.9.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/53/a7/ce6eec2007d505612bc2bfc297d05daf9e507748d7d4a2406cae0d2a5e32/snntorch-0.9.4.tar.gz", hash = "sha256:eaa0dd46675c471bf0b616068ee777564377bcb46b2104840a4ff4332de01909", size = 95103, upload-time = "2025-02-16T21:26:01.332Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/a6/c9ca7a9a335a302694f0a86d5235fcba797283f94d5cd835e1dc8efdc905/snntorch-0.9.4-py2.py3-none-any.whl", hash = "sha256:34805e8d9d3d50fa8d28eb8ee715d9196a4db115cefe497e026b3ce1b7884388", size = 125619, upload-time = "2025-02-16T21:25:59.057Z" },
 ]
 
 [[package]]
