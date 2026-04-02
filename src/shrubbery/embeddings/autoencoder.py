@@ -76,6 +76,7 @@ class Autoencoder(BaseEstimator, TransformerMixin):
             for i, x_stddev_i in enumerate(x_stddev):
                 x[:, i] += (
                     keras.random.normal((x_shape[0],), stddev=x_stddev_i * 0.1)
+                    .cpu()
                     .numpy()
                     .ravel()
                 )
