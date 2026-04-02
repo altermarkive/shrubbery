@@ -1,5 +1,4 @@
 import gc
-import warnings
 from typing import Any, Callable
 
 import hydra
@@ -35,7 +34,7 @@ from shrubbery.data.ingest import (
 from shrubbery.meta_estimator import NumeraiMetaEstimator
 from shrubbery.metrics import submit_diagnostic_predictions
 from shrubbery.napi import napi
-from shrubbery.observability import logger
+from shrubbery.observability import logger, silence_false_positive_warnings
 from shrubbery.tournament import (
     submit_tournament_predictions,
     update_tournament_submissions,
@@ -206,6 +205,7 @@ class NumeraiRunner:
         self.adversarial_downsampling_ratio = adversarial_downsampling_ratio
 
     def run(self) -> None:
+        silence_false_positive_warnings()
         if wandb.run is not None:
             tags = list(wandb.run.tags) if wandb.run.tags else []
             wandb.run.tags = tuple(
@@ -313,15 +313,6 @@ def main(config: DictConfig) -> None:
         pass
     runner: NumeraiRunner = hydra.utils.instantiate(config, _convert_='all')
     update_tournament_submissions(runner.numerai_model_id)
-    for message in [
-        # XGBoost will handle CPU to GPU transfer of data
-        '.*Falling back to prediction using DMatrix.*',
-        # There is currently no way around LGBMRegressor naming features
-        '.*but LGBMRegressor was fitted with feature names.*',
-    ]:
-        warnings.filterwarnings(
-            'ignore', category=UserWarning, message=message
-        )
     wandb.init(tags=tags)
     _save_config_file_to_wandb(config)
     runner.run()
