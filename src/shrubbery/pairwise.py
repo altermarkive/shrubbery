@@ -32,9 +32,9 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
                 logger.info('Fitting...')
                 shuffled_x, shuffled_y = shuffle(x, y)
                 joint_x = np.concatenate([x, shuffled_x], axis=1)
-                selected = y != shuffled_y
-                joint_x = joint_x[selected.ravel()]
-                joint_y = y[selected.ravel()]
+                selected = (y != shuffled_y).ravel()
+                joint_x = joint_x[selected]
+                joint_y = y[selected].ravel()
                 start_time = time.time()
                 self.estimator = self.estimator.fit(joint_x, joint_y)
                 stop_time = time.time()
@@ -50,13 +50,13 @@ class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
             for _ in range(self.n_shuffles_fit):
                 shuffled_x, shuffled_y = shuffle(x, y)
                 joint_x = np.concatenate([x, shuffled_x], axis=1)
-                selected = y != shuffled_y
-                joint_x = joint_x[selected.ravel()]
-                joint_y = y[selected.ravel()]
+                selected = (y != shuffled_y).ravel()
+                joint_x = joint_x[selected]
+                joint_y = y[selected]
                 joint_x_list.append(joint_x)
                 joint_y_list.append(joint_y)
             joint_x = np.concatenate(joint_x_list)
-            joint_y = np.concatenate(joint_y_list)
+            joint_y = np.concatenate(joint_y_list).ravel()
             start_time = time.time()
             self.estimator = self.estimator.fit(joint_x, joint_y)
             stop_time = time.time()
