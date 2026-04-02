@@ -12,7 +12,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "aisp>=0.4.1",
     "amltk>=1.12.1",
     "autokeras>=2.0.0",
     "autoviml>=0.1.710",
