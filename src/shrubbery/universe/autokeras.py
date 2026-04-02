@@ -4,7 +4,6 @@ from pathlib import Path
 import autokeras as ak
 import numpy as np
 from keras import Model
-from keras.ops import convert_to_tensor
 from keras.saving import load_model as load_keras_model
 from keras.saving import save_model as save_keras_model
 from sklearn.base import BaseEstimator, RegressorMixin
@@ -48,16 +47,12 @@ class AutoKerasRegressor(BaseEstimator, RegressorMixin):
             max_trials=self.max_trials,
             overwrite=True,
         )
-        model.fit(
-            convert_to_tensor(x),
-            convert_to_tensor(y),
-            epochs=self.epochs,
-        )
+        model.fit(x, y, epochs=self.epochs)
         self.serialized_model_ = serialize_keras_model(model.export_model())
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         assert self.serialized_model_ is not None
         model = deserialize_keras_model(self.serialized_model_)
-        result = model.predict(convert_to_tensor(x))
+        result = model.predict(x)
         return result
