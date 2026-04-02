@@ -344,6 +344,7 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                 d_optimizer.step()
                 # Train generator
                 discriminator.eval()
+                generator.train()
                 g_optimizer.zero_grad()
                 d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
                     self.device
