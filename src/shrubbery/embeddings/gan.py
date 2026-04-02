@@ -332,11 +332,13 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                     self.device
                 )
                 synthetic_features = generator(g_noise)
-                x_combined = torch.cat([x_batch, synthetic_features.detach()], dim=0)
-                y_combined = torch.cat([
-                    torch.ones(batch_size, 1),
-                    torch.zeros(batch_size, 1)
-                ], dim=0).to(self.device)
+                x_combined = torch.cat(
+                    [x_batch, synthetic_features.detach()], dim=0
+                )
+                y_combined = torch.cat(
+                    [torch.ones(batch_size, 1), torch.zeros(batch_size, 1)],
+                    dim=0,
+                ).to(self.device)
                 d_outputs = discriminator(x_combined)
                 d_loss = criterion(d_outputs, y_combined)
                 d_loss.backward()
