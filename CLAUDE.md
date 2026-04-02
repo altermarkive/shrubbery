@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Living document**: As project priorities shift, update this file to reflect current goals, constraints, and conventions. Outdated instructions are worse than none — keep them accurate.
+
 ## Project Overview
 
 Shrubbery is an experimental ML pipeline for generating predictions for Numerai, a hedge fund that crowdsources predictions from data scientists using anonymized data. It uses GPU-accelerated models, era-aware time series processing, and Weights & Biases for experiment tracking.
