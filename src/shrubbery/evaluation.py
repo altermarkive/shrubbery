@@ -6,7 +6,6 @@ import wandb
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
 
-
 METRIC_PREDICTION_ID = 'Prediction ID'
 METRIC_PREDICTION_VALUE = 'Metric'
 

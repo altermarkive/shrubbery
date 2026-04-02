@@ -24,12 +24,12 @@ def submit_tournament_predictions(
     model_id = napi.get_models()[numerai_model_id]
     while True:
         try:
-            logger.info('Submitting prediction')
+            logger.info('Submitting tournament predictions')
             napi.upload_predictions(
                 file_path=str(prediction_path),
                 model_id=model_id,
             )
-            logger.info('Submitted prediction')
+            logger.info('Submitted tournament predictions')
             if wandb.run is not None:
                 tags = list(wandb.run.tags) if wandb.run.tags else []
                 wandb.run.tags = tuple(tags + ['submitted'])
@@ -39,13 +39,13 @@ def submit_tournament_predictions(
                 error.response is not None
                 and error.response.status_code == 429
             ):
-                logger.info('Backing off')
+                logger.info('Backing off upload of tournament predictions')
                 time.sleep(30 * 60)
             else:
-                logger.exception('Network failure')
+                logger.exception('Network failure for tournament predictions')
                 time.sleep(60)
         except Exception as error:
-            logger.exception('Submission failure')
+            logger.exception('Submission failure for tournament predictions')
             if 'Are you using the latest live ids' in str(error):
                 break
             time.sleep(10)
