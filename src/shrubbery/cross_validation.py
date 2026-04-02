@@ -1,15 +1,14 @@
 import operator
 from typing import Any, Generator
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import wandb
-from pandas.plotting import parallel_coordinates
 from sklearn.model_selection import BaseCrossValidator
 
 from shrubbery.constants import COLUMN_INDEX_ERA
+from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.observability import logger
 from shrubbery.utilities import dict_of_lists_to_list_of_dicts
 
@@ -141,25 +140,50 @@ def cross_validation_to_parallel_coordinates(
             categories = values.unique().tolist()
             result[column] = values.apply(categories.index)
     result = result.sort_values('mean_test_score').reset_index(drop=True)
-    min_score = result['mean_test_score'].min()
-    max_score = result['mean_test_score'].max()
-    score_span = max_score - min_score
-    result['class'] = (result['mean_test_score'] - min_score) / score_span
-    fig, ax = plt.subplots(figsize=(12, 6))
-    cmap = plt.colormaps['rainbow']
-    parallel_coordinates(
-        result, class_column='class', colormap=cmap, ax=ax, alpha=0.7
+    data_columns = list(result.columns)
+    column_mins = result.min()
+    column_maxs = result.max()
+    column_range = column_maxs - column_mins
+    result = (result - column_mins) / column_range
+    figure, axes = plt.subplots(figsize=(12, 6))
+    cmap = plt.colormaps['plasma']
+    norm = plt.Normalize(
+        vmin=column_mins['mean_test_score'],
+        vmax=column_maxs['mean_test_score'],
     )
-    sm = plt.cm.ScalarMappable(
-        cmap=cmap, norm=plt.Normalize(vmin=min_score, vmax=max_score)
-    )
-    sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax)
-    cbar.set_label('mean_test_score')
+    x = range(len(data_columns))
+    for _, row in result.iterrows():
+        axes.plot(
+            x, row[data_columns], color=cmap(row['mean_test_score']), alpha=0.7
+        )
+    for i in x:
+        axes.axvline(i, color='black', linewidth=0.5)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    plt.colorbar(sm, ax=axes)
+    for i, column in enumerate(data_columns):
+        axes.text(
+            i + 0.02,
+            1.02,
+            f'{column_maxs[column]:.3g}',
+            ha='left',
+            va='bottom',
+            fontsize=8,
+        )
+        axes.text(
+            i + 0.02,
+            -0.02,
+            f'{column_mins[column]:.3g}',
+            ha='left',
+            va='top',
+            fontsize=8,
+        )
+        axes.text(i, -0.06, column, ha='center', va='top', fontsize=8)
+    axes.set_yticks([])
+    axes.set_xticks([])
     title = f'Cross-validation result for {model_name}'
-    ax.set_title(title)
-    if ax.legend_ is not None:
-        ax.legend_.remove()
+    axes.set_title(title)
     plt.tight_layout()
-    wandb.log({title: fig})
-    plt.close(fig)
+    plot_path = locate_numerai_file(f'cross_validation_{model_name}.png')
+    plt.savefig(plot_path)
+    wandb.log({title: wandb.Image(str(plot_path))})
+    plt.close(figure)
