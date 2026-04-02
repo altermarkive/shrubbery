@@ -1,4 +1,5 @@
 import time
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -185,7 +186,7 @@ def submit_diagnostic_predictions(
                     file_path=str(prediction_path),
                     model_id=model_id,
                 )
-                diagnostics_ids.append[diagnostics_id]
+                diagnostics_ids.append(diagnostics_id)
                 logger.info('Uploaded diagnostic predictions')
                 break
             except requests.exceptions.HTTPError as error:
@@ -196,7 +197,9 @@ def submit_diagnostic_predictions(
                     logger.info('Backing off upload of diagnostic predictions')
                     time.sleep(60)
                 else:
-                    logger.exception('Network failure for diagnostic predictions')
+                    logger.exception(
+                        'Network failure for diagnostic predictions'
+                    )
                     time.sleep(60)
             except Exception:
                 logger.exception('Upload failure for diagnostic predictions')
