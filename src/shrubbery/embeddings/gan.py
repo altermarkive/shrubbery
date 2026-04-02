@@ -328,17 +328,17 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
                 batch_size = x_batch.size(0)
                 # Train discriminator
                 d_optimizer.zero_grad()
-                real_labels = torch.ones(batch_size, 1).to(self.device)
-                real_outputs = discriminator(x_batch)
-                d_loss_real = criterion(real_outputs, real_labels)
                 g_noise = torch.randn(batch_size, self.latent_dim).to(
                     self.device
                 )
-                syntetic_features = generator(g_noise)
-                fake_labels = torch.zeros(batch_size, 1).to(self.device)
-                fake_outputs = discriminator(syntetic_features.detach())
-                d_loss_fake = criterion(fake_outputs, fake_labels)
-                d_loss = d_loss_real + d_loss_fake
+                synthetic_features = generator(g_noise)
+                x_combined = torch.cat([x_batch, synthetic_features.detach()], dim=0)
+                y_combined = torch.cat([
+                    torch.ones(batch_size, 1),
+                    torch.zeros(batch_size, 1)
+                ], dim=0).to(self.device)
+                d_outputs = discriminator(x_combined)
+                d_loss = criterion(d_outputs, y_combined)
                 d_loss.backward()
                 d_optimizer.step()
                 # Train generator
@@ -361,7 +361,6 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         # Keeps: all layers up to and including the last hidden LeakyReLU
         embedder_layers = list(discriminator.discriminator.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
-        # Serialize the embedder
         self.serialized_model_ = io.BytesIO()
         jit.save(jit.script(embedder), self.serialized_model_)
         self.serialized_model_.seek(0)
