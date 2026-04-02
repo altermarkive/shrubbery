@@ -104,7 +104,9 @@ class Autoencoder(BaseEstimator, TransformerMixin):
 
 
 class AutoencoderNetwork(nn.Module):
-    def __init__(self, input_dim: int, layer_units: list[int]) -> None:
+    def __init__(
+        self, input_dim: int, layer_units: list[int], batch_norm_eps: float
+    ) -> None:
         super().__init__()
         self.input_dim = input_dim
         self.layer_units = layer_units
@@ -116,8 +118,7 @@ class AutoencoderNetwork(nn.Module):
             encoder_layers.extend(
                 [
                     nn.Linear(previous_units, units),
-                    # TODO: Check if 1e-3 would have better performance
-                    nn.BatchNorm1d(units, eps=1e-5),
+                    nn.BatchNorm1d(units, eps=batch_norm_eps),
                     nn.Sigmoid(),
                 ]
             )
@@ -129,8 +130,7 @@ class AutoencoderNetwork(nn.Module):
             decoder_layers.extend(
                 [
                     nn.Linear(previous_units, units),
-                    # TODO: Check if 1e-3 would have better performance
-                    nn.BatchNorm1d(units, eps=1e-5),
+                    nn.BatchNorm1d(units, eps=batch_norm_eps),
                     nn.Sigmoid(),
                 ]
             )
@@ -155,6 +155,7 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         layer_units: list[int],
         denoise: bool,
         learning_rate: float,
+        batch_norm_eps: float,
         device: str,
     ) -> None:
         self.batch_size = batch_size
@@ -162,14 +163,15 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         self.layer_units = layer_units
         self.denoise = denoise
         self.learning_rate = learning_rate
+        self.batch_norm_eps = batch_norm_eps
         self.device = device
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'AutoencoderEmbedder':
         # Autoencoder
         input_dim = x.shape[1]
-        module = AutoencoderNetwork(input_dim, self.layer_units).to(
-            self.device
-        )
+        module = AutoencoderNetwork(
+            input_dim, self.layer_units, self.batch_norm_eps
+        ).to(self.device)
         # Training
         x_train = x.copy()
         if self.denoise:
