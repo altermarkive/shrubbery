@@ -39,8 +39,8 @@ METRIC_PREDICTION_ID = 'Prediction ID'
 
 METRICS: List[MetricConfig] = [
     MetricConfig(
-        [METRIC_SHARPE_MEAN, METRIC_SHARPE_SD, METRIC_SHARPE_VALUE],
-        [True, False, True],
+        [METRIC_SHARPE_VALUE],
+        [True],
         per_era_sharpe,
     ),
     MetricConfig(
@@ -139,11 +139,7 @@ def validation_metrics(
     evaluation: Dict[str, Any] = {METRIC_PREDICTION_ID: prediction_id}
     for metric_config in METRICS:
         result = metric_config.metric_function(x, y_true, y_pred)
-        if isinstance(result, float):
-            evaluation[metric_config.metric_names[0]] = result
-        elif isinstance(result, dict):
-            for metric_name in result:
-                evaluation[metric_name] = result[metric_name]
+        evaluation[metric_config.metric_names[0]] = result
     validation_stats.append(evaluation)
     evaluation_table = pd.DataFrame.from_records(validation_stats)
     wandb.log({TABLE_EVALUATION: wandb.Table(data=evaluation_table)})
