@@ -40,6 +40,7 @@ There is no test suite in this project.
 - **Quotes**: Single quotes (`'`)
 - **Formatter/linter**: ruff (configured in `pyproject.toml`)
 - **Editor config**: 4-space indentation, LF line endings, UTF-8
+- **Comments**: Use less comments and empty lines within code; prefer decomposition into functions with meaningful names
 
 ## Architecture
 
