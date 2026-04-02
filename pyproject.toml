@@ -33,7 +33,6 @@ dependencies = [
     "opentsne>=1.0.2",
     "plotly>=6.2.0",
     "pyarrow>=19.0.1",
-    "pykan>=0.2.8",
     "reservoirpy>=0.4.1",
     "scikit-network>=0.33.3",
     "sklearn-genetic>=0.6.0",
