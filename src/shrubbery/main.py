@@ -123,6 +123,7 @@ class NumeraiBestGridSearchEstimator(
                 self.neutralization_normalize,
                 self.tb,
             ),
+            refit=False,
         )
         FitDownsamplerBySample(
             estimator=grid_search_cv,
