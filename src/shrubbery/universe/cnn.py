@@ -17,16 +17,19 @@ class CNNModule(nn.Module):
         dropout_rate: float,
     ) -> None:
         super().__init__()
+        padding = kernel_size // 2
         self.conv1d = nn.Conv1d(
             in_channels=1,
             out_channels=num_filters,
             kernel_size=kernel_size,
-            padding=kernel_size // 2,
+            padding=padding,
         )
         self.bn = nn.BatchNorm1d(num_filters)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
-        self.dense = nn.Linear(num_filters * input_dim, dense_units)
+        # Calculate actual output size after convolution
+        conv_output_size = input_dim + 2 * padding - kernel_size + 1
+        self.dense = nn.Linear(num_filters * conv_output_size, dense_units)
         self.dense_bn = nn.BatchNorm1d(dense_units)
         self.dense_relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout_rate)
