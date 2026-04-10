@@ -72,7 +72,7 @@ class NumeraiNeutralization(
     def __init__(
         self,
         estimator: Any,
-        neutralization_cap: int,
+        neutralization_cap: int | None,
         neutralization_proportion: float,
         neutralization_normalize: bool,
     ) -> None:
