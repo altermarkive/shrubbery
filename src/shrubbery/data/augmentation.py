@@ -11,7 +11,10 @@ from shrubbery.observability import logger
 
 
 def get_biggest_change_features(
-    x: np.ndarray, y: np.ndarray, feature_indices: list[int], n: int
+    x: np.ndarray,
+    y: np.ndarray,
+    feature_indices: list[int],
+    n: int | None,
 ) -> list[int]:
     """
     Find the riskiest features by comparing their correlation vs
@@ -22,7 +25,8 @@ def get_biggest_change_features(
         x (np.ndarray): Data to extract the riskiest features from
         y (np.ndarray): Primary target to correlate features with
         feature_indices (list[int]): List of feature indices
-        n (int): Specifies how many top riskiest features to return
+        n (int | None): How many top riskiest features to return,
+            or None to return all
 
     Returns:
         list[int]: Riskiest features
@@ -66,9 +70,8 @@ def get_biggest_change_features(
     ).mean()
 
     corr_diffs = h2_corr_means - h1_corr_means
-    worst_n = (
-        corr_diffs.abs().sort_values(ascending=False).head(n).index.tolist()
-    )
+    ranked = corr_diffs.abs().sort_values(ascending=False)
+    worst_n = (ranked if n is None else ranked.head(n)).index.tolist()
 
     return sorted(worst_n)
 
