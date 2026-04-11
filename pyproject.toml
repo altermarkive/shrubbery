@@ -33,7 +33,7 @@ dependencies = [
 dev = [
     "pdbpp>=0.11.7", # Extension of Python debugger
     "ruff>=0.15.9",
-    "ty>=0.0.15",
+    "ty>=0.0.28",
     "types-requests>=2.32.4.20250809",
     "wat>=0.7.0", # Deep inspection of Python objects
 ]
