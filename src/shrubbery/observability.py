@@ -8,6 +8,8 @@ def silence_false_positive_warnings() -> None:
         '.*Falling back to prediction using DMatrix.*',
         # There is currently no way around LGBMRegressor naming features
         '.*but LGBMRegressor was fitted with feature names.*',
+        # TensorRT is quite noisy
+        '.*invalid escape sequence.*'
     ]:
         warnings.filterwarnings(
             'ignore', category=UserWarning, message=message
