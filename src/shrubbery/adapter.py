@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch_tensorrt
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
-from torch.amp import autocast
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -38,14 +38,17 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         dataset = TensorDataset(x, y)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         optimizer, criterion = self.prepare(model)
+        scaler = GradScaler(self.device)
         for epoch in range(self.epochs):
             model.train()
             for x_batch, y_batch in (progress := tqdm(loader)):
                 optimizer.zero_grad()
-                outputs = model(x_batch)
-                metric = criterion(outputs.squeeze(), y_batch)
-                metric.backward()
-                optimizer.step()
+                with autocast(device_type=self.device, dtype=torch.float16):
+                    outputs = model(x_batch)
+                    metric = criterion(outputs.squeeze(), y_batch)
+                scaler.scale(metric).backward()
+                scaler.step(optimizer)
+                scaler.update()
                 progress.set_description(
                     f'Training - epoch: {epoch}; metric: {metric:.4f}'
                 )

@@ -5,6 +5,7 @@
 # * https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py  # noqa: E501
 import torch
 import torch.nn as nn
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -114,6 +115,8 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
             weight_decay=1e-3,
         )
         criterion = nn.BCEWithLogitsLoss()
+        d_scaler = GradScaler(self.device)
+        g_scaler = GradScaler(self.device)
         # Training
         dataset = TensorDataset(x, y)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
@@ -124,33 +127,40 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 # Train discriminator
                 discriminator.train()
                 d_optimizer.zero_grad()
-                g_noise = torch.randn(batch_size, self.latent_dim).to(
-                    self.device
-                )
-                synthetic_features = generator(g_noise)
-                x_combined = torch.cat(
-                    [x_batch, synthetic_features.detach()], dim=0
-                )
-                y_combined = torch.cat(
-                    [torch.ones(batch_size, 1), torch.zeros(batch_size, 1)],
-                    dim=0,
-                ).to(self.device)
-                d_outputs = discriminator(x_combined)
-                d_loss = criterion(d_outputs, y_combined)
-                d_loss.backward()
-                d_optimizer.step()
+                with autocast(device_type=self.device, dtype=torch.float16):
+                    g_noise = torch.randn(batch_size, self.latent_dim).to(
+                        self.device
+                    )
+                    synthetic_features = generator(g_noise)
+                    x_combined = torch.cat(
+                        [x_batch, synthetic_features.detach()], dim=0
+                    )
+                    y_combined = torch.cat(
+                        [
+                            torch.ones(batch_size, 1),
+                            torch.zeros(batch_size, 1),
+                        ],
+                        dim=0,
+                    ).to(self.device)
+                    d_outputs = discriminator(x_combined)
+                    d_loss = criterion(d_outputs, y_combined)
+                d_scaler.scale(d_loss).backward()
+                d_scaler.step(d_optimizer)
+                d_scaler.update()
                 # Train generator
                 discriminator.eval()
                 g_optimizer.zero_grad()
-                d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
-                    self.device
-                )
-                fake_samples = generator(d_noise)
-                fake_outputs = discriminator(fake_samples)
-                y_mislabled = torch.ones(2 * batch_size, 1).to(self.device)
-                g_loss = criterion(fake_outputs, y_mislabled)
-                g_loss.backward()
-                g_optimizer.step()
+                with autocast(device_type=self.device, dtype=torch.float16):
+                    d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
+                        self.device
+                    )
+                    fake_samples = generator(d_noise)
+                    fake_outputs = discriminator(fake_samples)
+                    y_mislabled = torch.ones(2 * batch_size, 1).to(self.device)
+                    g_loss = criterion(fake_outputs, y_mislabled)
+                g_scaler.scale(g_loss).backward()
+                g_scaler.step(g_optimizer)
+                g_scaler.update()
             progress.set_description(
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'

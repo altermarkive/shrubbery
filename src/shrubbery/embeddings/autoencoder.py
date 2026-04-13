@@ -1,7 +1,7 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
-import numpy as np
 import torch
 import torch.nn as nn
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -82,14 +82,15 @@ class AutoencoderEmbedder(TorchEstimator):
         ).to(self.device)
         # Training
         if self.denoise:
-            x_variance = np.var(x, axis=0)
-            x_stddev = np.sqrt(x_variance)
+            x_variance = x.var(dim=0)
+            x_stddev = x_variance.sqrt()
         optimizer = torch.optim.Adam(
             module.parameters(),
             lr=self.learning_rate,
             weight_decay=1e-3,
         )
         criterion = nn.MSELoss()
+        scaler = GradScaler(self.device)
         for epoch in range(self.epochs):
             if self.denoise:
                 noise = torch.randn_like(x) * (0.1 * x_stddev)
@@ -105,13 +106,15 @@ class AutoencoderEmbedder(TorchEstimator):
             metric_sum = 0.0
             for i, (x_batch, y_batch) in enumerate(progress := tqdm(loader)):
                 optimizer.zero_grad()
-                outputs = module(x_batch)
-                metric = criterion(outputs, y_batch)
-                metric.backward()
+                with autocast(device_type=self.device, dtype=torch.float16):
+                    outputs = module(x_batch)
+                    metric = criterion(outputs, y_batch)
+                scaler.scale(metric).backward()
                 torch.nn.utils.clip_grad_norm_(
                     module.parameters(), max_norm=1.0
                 )
-                optimizer.step()
+                scaler.step(optimizer)
+                scaler.update()
                 metric_sum += metric.item()
                 metric_average = metric_sum / (i + 1)
                 progress.set_description(
