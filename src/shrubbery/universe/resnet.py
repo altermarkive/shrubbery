@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import TorchRegressor
+from shrubbery.adapter import TorchEstimator
 
 
 class ResidualBlock(nn.Module):
@@ -30,7 +30,7 @@ class ResidualBlock(nn.Module):
         return out
 
 
-class ResNetRegressor(TorchRegressor):
+class ResNetRegressor(TorchEstimator):
     def __init__(
         self,
         hidden_dim: int,
@@ -50,13 +50,7 @@ class ResNetRegressor(TorchRegressor):
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
 
-    def prepare(
-        self, input_dim: int
-    ) -> tuple[
-        nn.Module,
-        torch.optim.Optimizer,
-        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-    ]:
+    def module(self, input_dim: int) -> nn.Module:
         layers: list[nn.Module] = []
         # Input projection to hidden dimension
         layers.append(nn.Linear(input_dim, self.hidden_dim))
@@ -74,11 +68,18 @@ class ResNetRegressor(TorchRegressor):
         layers.append(nn.Sigmoid())
         # Model
         module = nn.Sequential(*layers)
-        # Optimizer & criterion
+        return module
+
+    def prepare(
+        self, model: nn.Module
+    ) -> tuple[
+        torch.optim.Optimizer,
+        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    ]:
         optimizer = optim.AdamW(
-            module.parameters(),
+            model.parameters(),
             lr=self.learning_rate,
             weight_decay=self.weight_decay,
         )
         criterion = nn.BCELoss()
-        return (module, optimizer, criterion)
+        return (optimizer, criterion)

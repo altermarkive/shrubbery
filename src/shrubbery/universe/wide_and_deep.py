@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import TorchRegressor
+from shrubbery.adapter import TorchEstimator
 
 
 class ModelType(str, Enum):
@@ -122,7 +122,7 @@ def mse_with_l1_regularization(
     return regularized_loss
 
 
-class WideAndDeepRegressor(TorchRegressor):
+class WideAndDeepRegressor(TorchEstimator):
     def __init__(
         self,
         model_type: ModelType,
@@ -149,13 +149,7 @@ class WideAndDeepRegressor(TorchRegressor):
             optimizer_l2_regularization_strength
         )
 
-    def prepare(
-        self, input_dim: int
-    ) -> tuple[
-        nn.Module,
-        torch.optim.Optimizer,
-        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-    ]:
+    def module(self, input_dim: int) -> nn.Module:
         module: nn.Module
         match self.model_type:
             case ModelType.WIDE:
@@ -174,32 +168,39 @@ class WideAndDeepRegressor(TorchRegressor):
                 )
             case _:
                 raise NotImplementedError()
+        return module
+
+    def prepare(
+        self, model: nn.Module
+    ) -> tuple[
+        torch.optim.Optimizer,
+        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    ]:
         optimizer: torch.optim.Optimizer
         match self.optimizer_type:
             case OptimizerType.SGD:
                 optimizer = optim.SGD(
-                    module.parameters(),
+                    model.parameters(),
                     lr=self.optimizer_learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAM:
                 optimizer = optim.Adam(
-                    module.parameters(),
+                    model.parameters(),
                     lr=self.optimizer_learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAGRAD:
                 optimizer = optim.Adagrad(
-                    module.parameters(),
+                    model.parameters(),
                     lr=self.optimizer_learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case _:
                 raise NotImplementedError()
         criterion = mse_with_l1_regularization(
-            module,
+            model,
             self.optimizer_l1_regularization_strength,
             self.device,
         )
-
-        return (module, optimizer, criterion)
+        return (optimizer, criterion)
