@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
+    ModelWrapper,
     TorchEstimator,
     variance_scaling_initializer_with_fan_in,
 )
@@ -169,7 +170,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         # Keeps: all layers up to and including the last hidden LeakyReLU
         embedder_layers = list(discriminator.discriminator.children())[:-1]
         embedder = nn.Sequential(*embedder_layers)
-        return embedder
+        return ModelWrapper(embedder)
 
     def module(self, input_dim: int) -> nn.Module:
         discriminator = DiscriminatorNetwork(
