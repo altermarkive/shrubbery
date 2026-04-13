@@ -107,16 +107,14 @@ class WideAndDeepModule(nn.Module):
 
 
 def mse_with_l1_regularization(
-    module: nn.Module, l1_scale: float, device: str
+    module: nn.Module, l1_scale: float
 ) -> Callable[[torch.Tensor, torch.Tensor], torch.Tensor]:
     mse = nn.MSELoss()
 
     def regularized_loss(
         y_prediction: torch.Tensor, y_true: torch.Tensor
     ) -> torch.Tensor:
-        l1_loss = torch.tensor(0.0).to(device)
-        for param in module.parameters():
-            l1_loss += torch.sum(torch.abs(param))
+        l1_loss = sum(param.abs().sum() for param in module.parameters())
         return mse(y_prediction, y_true) + l1_scale * l1_loss
 
     return regularized_loss
@@ -201,6 +199,5 @@ class WideAndDeepRegressor(TorchEstimator):
         criterion = mse_with_l1_regularization(
             model,
             self.optimizer_l1_regularization_strength,
-            self.device,
         )
         return (optimizer, criterion)

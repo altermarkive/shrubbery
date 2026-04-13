@@ -98,13 +98,13 @@ class AutoencoderEmbedder(TorchEstimator):
             else:
                 x_train = x
             x_tensor = x_train.to(self.device)
-            dataset = TensorDataset(x_tensor, y)
+            dataset = TensorDataset(x_tensor)
             loader = DataLoader(
                 dataset, batch_size=self.batch_size, shuffle=True
             )
             module.train()
             metric_sum = 0.0
-            for i, (x_batch, y_batch) in enumerate(progress := tqdm(loader)):
+            for i, (x_batch,) in enumerate(progress := tqdm(loader)):
                 optimizer.zero_grad()
                 with autocast(device_type=self.device, dtype=torch.float16):
                     outputs = module(x_batch)

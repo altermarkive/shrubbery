@@ -118,11 +118,11 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         d_scaler = GradScaler(self.device)
         g_scaler = GradScaler(self.device)
         # Training
-        dataset = TensorDataset(x, y)
+        dataset = TensorDataset(x)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         generator.train()
         for epoch in (progress := tqdm(range(self.epochs))):
-            for x_batch, y_batch in loader:
+            for (x_batch,) in loader:
                 batch_size = x_batch.size(0)
                 # Train discriminator
                 discriminator.train()
@@ -156,8 +156,8 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                     )
                     fake_samples = generator(d_noise)
                     fake_outputs = discriminator(fake_samples)
-                    y_mislabled = torch.ones(2 * batch_size, 1).to(self.device)
-                    g_loss = criterion(fake_outputs, y_mislabled)
+                    y_mislabeled = torch.ones(2 * batch_size, 1).to(self.device)
+                    g_loss = criterion(fake_outputs, y_mislabeled)
                 g_scaler.scale(g_loss).backward()
                 g_scaler.step(g_optimizer)
                 g_scaler.update()
