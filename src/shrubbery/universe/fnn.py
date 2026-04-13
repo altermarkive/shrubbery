@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import TorchRegressor
+from shrubbery.adapter import TorchEstimator
 
 
 def relu_initializer(tensor: torch.Tensor) -> torch.Tensor:
@@ -39,7 +39,7 @@ def mse_with_weight_regularization(
     return l2_regularization
 
 
-class FeedforwardNeuralNetworkRegressor(TorchRegressor):
+class FeedforwardNeuralNetworkRegressor(TorchEstimator):
     def __init__(
         self,
         layer_units: list[int],
@@ -54,13 +54,7 @@ class FeedforwardNeuralNetworkRegressor(TorchRegressor):
         self.learning_rate = learning_rate
         self.regularization_scale = regularization_scale
 
-    def prepare(
-        self, input_dim: int
-    ) -> tuple[
-        nn.Module,
-        torch.optim.Optimizer,
-        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-    ]:
+    def module(self, input_dim: int) -> nn.Module:
         layers: list[nn.Module] = []
         # Embedder / feature extractor
         for units in self.layer_units:
@@ -76,11 +70,18 @@ class FeedforwardNeuralNetworkRegressor(TorchRegressor):
         nn.init.zeros_(dense.bias)
         layers.append(dense)
         module = nn.Sequential(*layers)
-        # Optimizer & criterion
+        return module
+
+    def prepare(
+        self, model: nn.Module
+    ) -> tuple[
+        torch.optim.Optimizer,
+        Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    ]:
         optimizer = optim.Adam(
-            module.parameters(), lr=self.learning_rate, weight_decay=0.0
+            model.parameters(), lr=self.learning_rate, weight_decay=0.0
         )
         criterion = mse_with_weight_regularization(
-            module, self.regularization_scale, self.device
+            model, self.regularization_scale, self.device
         )
-        return (module, optimizer, criterion)
+        return (optimizer, criterion)

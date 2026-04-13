@@ -1,15 +1,12 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
-import io
-
 import numpy as np
 import torch
-import torch.jit as jit
 import torch.nn as nn
-from sklearn.base import BaseEstimator, TransformerMixin
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
+    TorchEstimator,
     variance_scaling_initializer_with_fan_in,
 )
 
@@ -58,7 +55,7 @@ class AutoencoderNetwork(nn.Module):
         return decoded
 
 
-class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
+class AutoencoderEmbedder(TorchEstimator):
     def __init__(
         self,
         batch_size: int,
@@ -77,7 +74,7 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         self.batch_norm_eps = batch_norm_eps
         self.device = device
 
-    def fit(self, x: np.ndarray, y: np.ndarray) -> 'AutoencoderEmbedder':
+    def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         # Autoencoder
         input_dim = x.shape[1]
         module = AutoencoderNetwork(
@@ -87,7 +84,6 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         if self.denoise:
             x_variance = np.var(x, axis=0)
             x_stddev = np.sqrt(x_variance)
-        y_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
         optimizer = torch.optim.Adam(
             module.parameters(),
             lr=self.learning_rate,
@@ -96,14 +92,12 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
         criterion = nn.MSELoss()
         for epoch in range(self.epochs):
             if self.denoise:
-                noise = np.random.normal(0, 0.1 * x_stddev, size=x.shape)
+                noise = torch.randn_like(x) * (0.1 * x_stddev)
                 x_train = x + noise
             else:
                 x_train = x
-            x_tensor = torch.tensor(x_train, dtype=torch.float32).to(
-                self.device
-            )
-            dataset = TensorDataset(x_tensor, y_tensor)
+            x_tensor = x_train.to(self.device)
+            dataset = TensorDataset(x_tensor, y)
             loader = DataLoader(
                 dataset, batch_size=self.batch_size, shuffle=True
             )
@@ -123,17 +117,4 @@ class AutoencoderEmbedder(BaseEstimator, TransformerMixin):
                 progress.set_description(
                     f'Training - epoch: {epoch}; loss: {metric_average:.4f}'
                 )
-        self.serialized_model_ = io.BytesIO()
-        jit.save(jit.script(module.encoder), self.serialized_model_)
-        self.serialized_model_.seek(0)
-        return self
-
-    def transform(self, x: np.ndarray) -> np.ndarray:
-        x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-        self.serialized_model_.seek(0)
-        model = torch.jit.load(self.serialized_model_)
-        self.serialized_model_.seek(0)
-        model.eval()
-        with torch.no_grad():
-            result = model(x_tensor).cpu().numpy().squeeze()
-        return result
+        return module.encoder

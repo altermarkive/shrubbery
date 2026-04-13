@@ -3,17 +3,13 @@
 # * https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-a-1-dimensional-function-from-scratch-in-keras/  # noqa: E501
 # * https://medium.com/@mattiaspinelli/simple-generative-adversarial-network-gans-with-keras-1fe578e44a87  # noqa: E501
 # * https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py  # noqa: E501
-import io
-
-import numpy as np
 import torch
-import torch.jit as jit
 import torch.nn as nn
-from sklearn.base import BaseEstimator, TransformerMixin
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
+    TorchEstimator,
     variance_scaling_initializer_with_fan_in,
 )
 
@@ -77,7 +73,7 @@ class GeneratorNetwork(nn.Module):
         return self.generator(x)
 
 
-class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
+class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
     def __init__(
         self,
         batch_size: int,
@@ -96,9 +92,7 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         self.learning_rate = learning_rate
         self.device = device
 
-    def fit(
-        self, x: np.ndarray, y: np.ndarray
-    ) -> 'GenerativeAdversarialNetworkEmbedder':
+    def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         # GAN
         feature_count = x.shape[1]
         discriminator = DiscriminatorNetwork(
@@ -121,9 +115,7 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         )
         criterion = nn.BCEWithLogitsLoss()
         # Training
-        x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-        y_tensor = torch.tensor(y, dtype=torch.float32).to(self.device)
-        dataset = TensorDataset(x_tensor, y_tensor)
+        dataset = TensorDataset(x, y)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         generator.train()
         for epoch in (progress := tqdm(range(self.epochs))):
@@ -168,17 +160,4 @@ class GenerativeAdversarialNetworkEmbedder(BaseEstimator, TransformerMixin):
         # Keeps: all layers up to and including the last hidden LeakyReLU
         embedder_layers = list(discriminator.discriminator.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
-        self.serialized_model_ = io.BytesIO()
-        jit.save(jit.script(embedder), self.serialized_model_)
-        self.serialized_model_.seek(0)
-        return self
-
-    def transform(self, x: np.ndarray) -> np.ndarray:
-        x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-        self.serialized_model_.seek(0)
-        model = torch.jit.load(self.serialized_model_)
-        self.serialized_model_.seek(0)
-        model.eval()
-        with torch.no_grad():
-            result = model(x_tensor).cpu().numpy().squeeze()
-        return result
+        return embedder
