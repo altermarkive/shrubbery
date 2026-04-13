@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
+    ModelWrapper,
     TorchEstimator,
     variance_scaling_initializer_with_fan_in,
 )
@@ -120,7 +121,7 @@ class AutoencoderEmbedder(TorchEstimator):
                 progress.set_description(
                     f'Training - epoch: {epoch}; loss: {metric_average:.4f}'
                 )
-        return module.encoder
+        return ModelWrapper(module.encoder)
 
     def module(self, input_dim: int) -> nn.Module:
         return AutoencoderNetwork(
