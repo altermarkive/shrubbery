@@ -25,7 +25,7 @@ class ResidualBlock(nn.Module):
         out = self.dropout(out)
         out = self.dense2(out)
         out = self.bn2(out)
-        out += residual  # Skip connection
+        out = out + residual  # Skip connection
         out = self.activation(out)
         return out
 
@@ -65,7 +65,6 @@ class ResNetRegressor(TorchEstimator):
         layers.append(nn.ReLU())
         layers.append(nn.Dropout(self.dropout_rate))
         layers.append(nn.Linear(self.hidden_dim // 2, 1))
-        layers.append(nn.Sigmoid())
         # Model
         module = nn.Sequential(*layers)
         return module
@@ -81,5 +80,5 @@ class ResNetRegressor(TorchEstimator):
             lr=self.learning_rate,
             weight_decay=self.weight_decay,
         )
-        criterion = nn.BCELoss()
+        criterion = nn.BCEWithLogitsLoss()
         return (optimizer, criterion)
