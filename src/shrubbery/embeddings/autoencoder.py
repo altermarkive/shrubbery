@@ -108,7 +108,7 @@ class AutoencoderEmbedder(TorchEstimator):
                 optimizer.zero_grad()
                 with autocast(device_type=self.device, dtype=torch.float16):
                     outputs = module(x_batch)
-                    metric = criterion(outputs, y_batch)
+                    metric = criterion(outputs, x_batch)
                 scaler.scale(metric).backward()
                 torch.nn.utils.clip_grad_norm_(
                     module.parameters(), max_norm=1.0
