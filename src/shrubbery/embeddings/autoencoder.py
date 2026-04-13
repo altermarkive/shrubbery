@@ -121,3 +121,8 @@ class AutoencoderEmbedder(TorchEstimator):
                     f'Training - epoch: {epoch}; loss: {metric_average:.4f}'
                 )
         return module.encoder
+
+    def module(self, input_dim: int) -> nn.Module:
+        return AutoencoderNetwork(
+            input_dim, self.layer_units, self.batch_norm_eps
+        ).encoder

@@ -171,3 +171,10 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         embedder_layers = list(discriminator.discriminator.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
         return embedder
+
+    def module(self, input_dim: int) -> nn.Module:
+        discriminator = DiscriminatorNetwork(
+            input_dim, self.discriminator_layer_units
+        )
+        embedder_layers = list(discriminator.discriminator.children())[:-2]
+        return nn.Sequential(*embedder_layers)
