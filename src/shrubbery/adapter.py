@@ -1,5 +1,4 @@
 import io
-from abc import ABC, abstractmethod
 from typing import Callable
 
 import numpy as np
@@ -22,7 +21,7 @@ class ModelWrapper(nn.Module):
         return self.module(x)
 
 
-class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin, ABC):
+class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
     def __init__(
         self,
         epochs: int,
@@ -85,18 +84,16 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin, ABC):
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.transform(x)
 
-    @abstractmethod
     def module(self, input_dim: int) -> nn.Module:
-        pass
+        raise NotImplementedError('TorchEstimator.module not implemented')
 
-    @abstractmethod
     def prepare(
         self, model: nn.Module
     ) -> tuple[
         torch.optim.Optimizer,
         Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
     ]:
-        pass
+        raise NotImplementedError('TorchEstimator.module not implemented')
 
 
 def variance_scaling_initializer_with_fan_in(module: nn.Module) -> None:
