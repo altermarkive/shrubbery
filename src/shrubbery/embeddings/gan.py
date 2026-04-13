@@ -23,12 +23,12 @@ class DiscriminatorNetwork(nn.Module):
         previous_units = feature_count
         for i, units in enumerate(all_layer_units):
             discriminator_layers.append(nn.Linear(previous_units, units))
-            # Placing normalization before activation may:
-            # * stabilize training
-            # * improve activation performance (works better normalized inputs)
-            # * convergence faster and get better results
-            discriminator_layers.append(nn.BatchNorm1d(units))
             if i < len(all_layer_units) - 1:
+                # Placing normalization before activation may:
+                # * stabilize training
+                # * improve activation performance (works better normalized inputs)
+                # * convergence faster and get better results
+                discriminator_layers.append(nn.BatchNorm1d(units))
                 # Using ReLU (instead of sigmoid) on hidden layers may help
                 # with faster and more efficient training. LeakyReLU addresses
                 # the issue of "dying ReLUs" and may help maintaining non-zero
@@ -165,10 +165,9 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
             )
-        # Extract embedder from discriminator (remove last 2 layers, earlier ones have 3)
-        # Removes: final Linear & BatchNorm
+        # Extract embedder from discriminator (remove final Linear logits layer)
         # Keeps: all layers up to and including the last hidden LeakyReLU
-        embedder_layers = list(discriminator.discriminator.children())[:-2]
+        embedder_layers = list(discriminator.discriminator.children())[:-1]
         embedder = nn.Sequential(*embedder_layers)
         return embedder
 
@@ -176,5 +175,5 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         discriminator = DiscriminatorNetwork(
             input_dim, self.discriminator_layer_units
         )
-        embedder_layers = list(discriminator.discriminator.children())[:-2]
+        embedder_layers = list(discriminator.discriminator.children())[:-1]
         return nn.Sequential(*embedder_layers)
