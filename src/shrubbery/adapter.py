@@ -75,12 +75,12 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
         model = torch.compile(
-            model, mode='max-autotune', backend='torch_tensorrt'
+            model,
+            mode='max-autotune',
+            backend='torch_tensorrt',
+            options={'enabled_precisions': {torch.float16}},
         )
-        with (
-            torch.no_grad(),
-            autocast(device_type=self.device, dtype=torch.float16),
-        ):
+        with torch.no_grad():
             result = model(x_tensor).cpu().numpy().squeeze()
         return result
 
