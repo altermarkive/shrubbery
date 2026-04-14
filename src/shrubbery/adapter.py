@@ -78,14 +78,14 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compile_backend:
             case 'torch_tensorrt':
-                model = torch.compile(  # type: ignore[no-matching-overload]
+                model = torch.compile(
                     model,
                     backend='torch_tensorrt',
                     options={
                         'enabled_precisions': {torch.float16},
                         'optimization_level': 5,
                     },
-                )
+                )  # type: ignore[no-matching-overload]
             case _:
                 model = torch.compile(
                     model,
