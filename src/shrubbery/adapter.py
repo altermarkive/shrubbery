@@ -76,9 +76,11 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         model = torch.compile(
             model,
-            mode='max-autotune',
             backend='torch_tensorrt',
-            options={'enabled_precisions': {torch.float16}},
+            options={
+                'enabled_precisions': {torch.float16},
+                'optimization_level': 5,
+            },
         )
         with torch.no_grad():
             result = model(x_tensor).cpu().numpy().squeeze()
