@@ -50,7 +50,12 @@ class FeedforwardNeuralNetworkRegressor(TorchEstimator):
         epochs: int,
         device: str,
     ) -> None:
-        super().__init__(epochs=epochs, batch_size=batch_size, device=device)
+        super().__init__(
+            epochs=epochs,
+            batch_size=batch_size,
+            device=device,
+            compile_backend='inductor',
+        )
         self.layer_units = layer_units
         self.learning_rate = learning_rate
         self.regularization_scale = regularization_scale
