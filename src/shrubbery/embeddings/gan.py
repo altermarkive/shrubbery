@@ -86,13 +86,16 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         learning_rate: float,
         device: str,
     ) -> None:
-        self.batch_size = batch_size
-        self.epochs = epochs
+        super().__init__(
+            epochs=epochs,
+            batch_size=batch_size,
+            device=device,
+            compile_backend='inductor',
+        )
         self.latent_dim = latent_dim
         self.generator_layer_units = generator_layer_units
         self.discriminator_layer_units = discriminator_layer_units
         self.learning_rate = learning_rate
-        self.device = device
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         # GAN
