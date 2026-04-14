@@ -27,10 +27,12 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         epochs: int,
         batch_size: int,
         device: str,
+        compile_backend: str = 'torch_tensorrt',
     ) -> None:
         self.epochs = epochs
         self.batch_size = batch_size
         self.device = device
+        self.compile_backend = compile_backend
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         module = self.module(input_dim=x.shape[1])
@@ -74,14 +76,22 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         )
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
-        model = torch.compile(  # type: ignore[call-overload]
-            model,
-            backend='torch_tensorrt',
-            options={
-                'enabled_precisions': {torch.float16},
-                'optimization_level': 5,
-            },
-        )
+        match self.compile_backend:
+            case 'torch_tensorrt':
+                model = torch.compile(  # type: ignore[call-overload]
+                    model,
+                    backend='torch_tensorrt',
+                    options={
+                        'enabled_precisions': {torch.float16},
+                        'optimization_level': 5,
+                    },
+                )
+            case _:
+                model = torch.compile(
+                    model,
+                    backend=self.compile_backend,
+                    mode='max-autotune',
+                )
         with torch.no_grad():
             result = model(x_tensor).cpu().numpy().squeeze()
         return result

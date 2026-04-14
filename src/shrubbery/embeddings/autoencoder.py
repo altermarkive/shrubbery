@@ -67,13 +67,15 @@ class AutoencoderEmbedder(TorchEstimator):
         batch_norm_eps: float,
         device: str,
     ) -> None:
-        self.batch_size = batch_size
-        self.epochs = epochs
+        super().__init__(
+            epochs=epochs,
+            batch_size=batch_size,
+            device=device,
+        )
         self.layer_units = layer_units
         self.denoise = denoise
         self.learning_rate = learning_rate
         self.batch_norm_eps = batch_norm_eps
-        self.device = device
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         # Autoencoder
