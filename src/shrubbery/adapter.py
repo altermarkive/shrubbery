@@ -74,7 +74,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         )
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
-        model = torch.compile(
+        model = torch.compile(  # type: ignore[call-overload]
             model,
             backend='torch_tensorrt',
             options={
