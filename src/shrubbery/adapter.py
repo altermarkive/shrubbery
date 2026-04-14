@@ -78,7 +78,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compile_backend:
             case 'torch_tensorrt':
-                model = torch.compile(  # type: ignore[call-overload]
+                model = torch.compile(  # type: ignore[no-matching-overload]
                     model,
                     backend='torch_tensorrt',
                     options={
