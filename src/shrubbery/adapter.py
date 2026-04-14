@@ -1,5 +1,5 @@
 import io
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 import torch
@@ -78,14 +78,15 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compile_backend:
             case 'torch_tensorrt':
+                trt_options: Any = {
+                    'enabled_precisions': {torch.float16},
+                    'optimization_level': 5,
+                }
                 model = torch.compile(
                     model,
                     backend='torch_tensorrt',
-                    options={
-                        'enabled_precisions': {torch.float16},
-                        'optimization_level': 5,
-                    },
-                )  # type: ignore[no-matching-overload]
+                    options=trt_options,
+                )
             case _:
                 model = torch.compile(
                     model,
