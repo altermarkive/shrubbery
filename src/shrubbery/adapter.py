@@ -67,6 +67,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
 
     def transform(self, x: np.ndarray) -> np.ndarray:
         x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
+        x_tensor = x_tensor.contiguous()
         self.serialized_model_.seek(0)
         module = self.module(input_dim=x.shape[1])
         model = ModelWrapper(module)
