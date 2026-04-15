@@ -42,7 +42,12 @@ class ResNetRegressor(TorchEstimator):
         batch_size: int,
         device: str,
     ) -> None:
-        super().__init__(epochs=epochs, batch_size=batch_size, device=device)
+        super().__init__(
+            epochs=epochs,
+            batch_size=batch_size,
+            device=device,
+            compile_backend='inductor',
+        )
         self.hidden_dim = hidden_dim
         self.num_blocks = num_blocks
         self.dropout_rate = dropout_rate
