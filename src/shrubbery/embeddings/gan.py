@@ -160,7 +160,9 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                     )
                     fake_samples = generator(d_noise)
                     fake_outputs = discriminator(fake_samples)
-                    y_mislabeled = torch.ones(2 * batch_size, 1).to(self.device)
+                    y_mislabeled = torch.ones(2 * batch_size, 1).to(
+                        self.device
+                    )
                     g_loss = criterion(fake_outputs, y_mislabeled)
                 g_scaler.scale(g_loss).backward()
                 g_scaler.step(g_optimizer)
