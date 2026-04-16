@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 
-class Backend(Enum, str):
+class Backend(str, Enum):
     TENSORRT = 'tensorrt'
     INDUCTOR = 'inductor'
     JIT = 'jit'
