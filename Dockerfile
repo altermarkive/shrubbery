@@ -50,6 +50,9 @@ RUN /usr/bin/python3.13 -m pip install --disable-pip-version-check --no-cache-di
 ADD . /tmp/shrubbery
 RUN cd /tmp/shrubbery && UV_HTTP_TIMEOUT=60 uv pip install --system '.[dev]' && rm -rf /tmp/shrubbery
 
+# TensorRT is quite noisy
+ENV PYTHONWARNINGS="ignore::SyntaxWarning"
+
 ENTRYPOINT [ "/bin/bash" ]
 
 # TODO: Follow the best practices listed at https://docs.astral.sh/uv/guides/integration/docker/ and switch to regular user

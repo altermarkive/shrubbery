@@ -12,13 +12,6 @@ def silence_false_positive_warnings() -> None:
         warnings.filterwarnings(
             'ignore', category=UserWarning, message=message
         )
-    for message in [
-        # TensorRT is quite noisy
-        '.*invalid escape sequence.*',
-    ]:
-        warnings.filterwarnings(
-            'ignore', category=SyntaxWarning, message=message
-        )
 
 
 def setup_logger() -> logging.Logger:
