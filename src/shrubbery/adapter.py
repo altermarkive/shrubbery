@@ -66,8 +66,6 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
-        x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-        x_tensor = x_tensor.contiguous()
         self.serialized_model_.seek(0)
         module = self.module(input_dim=x.shape[1])
         model = ModelWrapper(module)
@@ -79,6 +77,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compile_backend:
             case 'torch_tensorrt':
+                x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
                 model = torch_tensorrt.compile(
                     model,
                     inputs=[x_tensor],
@@ -86,6 +85,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     optimization_level=5,
                 )
             case _:
+                x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.compile(
                     model,
                     backend=self.compile_backend,

@@ -9,7 +9,7 @@ def silence_false_positive_warnings() -> None:
         # There is currently no way around LGBMRegressor naming features
         '.*but LGBMRegressor was fitted with feature names.*',
         # TensorRT is quite noisy
-        '.*invalid escape sequence.*'
+        '.*invalid escape sequence.*',
     ]:
         warnings.filterwarnings(
             'ignore', category=UserWarning, message=message
