@@ -1,4 +1,5 @@
 import io
+from enum import Enum
 from typing import Callable
 
 import numpy as np
@@ -10,6 +11,12 @@ from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
+
+
+class Backend(Enum, str):
+    TENSORRT = 'tensorrt'
+    INDUCTOR = 'inductor'
+    JIT = 'jit'
 
 
 class ModelWrapper(nn.Module):
@@ -27,7 +34,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         epochs: int,
         batch_size: int,
         device: str,
-        compile_backend: str = 'torch_tensorrt',
+        compile_backend: Backend = Backend.TENSORRT,
     ) -> None:
         self.epochs = epochs
         self.batch_size = batch_size
@@ -76,7 +83,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
         match self.compile_backend:
-            case 'torch_tensorrt':
+            case Backend.TENSORRT:
                 x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
                 model = torch_tensorrt.compile(
                     model,
@@ -84,13 +91,16 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     enabled_precisions={torch.float16},
                     optimization_level=5,
                 )
-            case _:
+            case Backend.INDUCTOR:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.compile(
                     model,
                     backend=self.compile_backend,
                     mode='max-autotune',
                 )
+            case Backend.JIT:
+                x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
+                model = torch.jit.script(model)
         with torch.no_grad():
             result = model(x_tensor).cpu().numpy().squeeze()
         return result
