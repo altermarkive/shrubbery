@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import TorchEstimator
+from shrubbery.adapter import CompilerBackend, TorchEstimator
 
 
 class ModelType(str, Enum):
@@ -133,8 +133,14 @@ class WideAndDeepRegressor(TorchEstimator):
         optimizer_l1_regularization_strength: float,
         optimizer_l2_regularization_strength: float,
         device: str,
+        compiler: CompilerBackend,
     ) -> None:
-        super().__init__(epochs=epochs, batch_size=batch_size, device=device)
+        super().__init__(
+            epochs=epochs,
+            batch_size=batch_size,
+            device=device,
+            compiler=compiler,
+        )
         self.model_type = model_type
         self.dropout_rate = dropout_rate
         self.units = units

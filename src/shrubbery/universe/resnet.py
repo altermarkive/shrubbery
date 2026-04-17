@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import Backend, TorchEstimator
+from shrubbery.adapter import CompilerBackend, TorchEstimator
 
 
 class ResidualBlock(nn.Module):
@@ -41,12 +41,13 @@ class ResNetRegressor(TorchEstimator):
         epochs: int,
         batch_size: int,
         device: str,
+        compiler: CompilerBackend,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
             device=device,
-            compile_backend=Backend.JIT,
+            compiler=compiler,
         )
         self.hidden_dim = hidden_dim
         self.num_blocks = num_blocks
