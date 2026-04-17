@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
+    CompilerBackend,
     ModelWrapper,
     TorchEstimator,
     variance_scaling_initializer_with_fan_in,
@@ -66,11 +67,13 @@ class AutoencoderEmbedder(TorchEstimator):
         learning_rate: float,
         batch_norm_eps: float,
         device: str,
+        compiler: CompilerBackend,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
             device=device,
+            compiler=compiler,
         )
         self.layer_units = layer_units
         self.denoise = denoise

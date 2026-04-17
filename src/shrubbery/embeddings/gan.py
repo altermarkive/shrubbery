@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
-    Backend,
+    CompilerBackend,
     ModelWrapper,
     TorchEstimator,
     variance_scaling_initializer_with_fan_in,
@@ -86,12 +86,13 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         discriminator_layer_units: list[int],
         learning_rate: float,
         device: str,
+        compiler: CompilerBackend,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
             device=device,
-            compile_backend=Backend.INDUCTOR,
+            compiler=compiler,
         )
         self.latent_dim = latent_dim
         self.generator_layer_units = generator_layer_units

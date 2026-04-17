@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 
-class Backend(str, Enum):
+class CompilerBackend(str, Enum):
     TENSORRT = 'tensorrt'
     INDUCTOR = 'inductor'
     JIT = 'jit'
@@ -34,12 +34,12 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         epochs: int,
         batch_size: int,
         device: str,
-        compile_backend: Backend = Backend.TENSORRT,
+        compiler: CompilerBackend = CompilerBackend.TENSORRT,
     ) -> None:
         self.epochs = epochs
         self.batch_size = batch_size
         self.device = device
-        self.compile_backend = compile_backend
+        self.compiler = compiler
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         module = self.module(input_dim=x.shape[1])
@@ -82,8 +82,8 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         )
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
-        match self.compile_backend:
-            case Backend.TENSORRT:
+        match self.compiler:
+            case CompilerBackend.TENSORRT:
                 x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
                 model = torch_tensorrt.compile(
                     model,
@@ -91,14 +91,14 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     enabled_precisions={torch.float16},
                     optimization_level=5,
                 )
-            case Backend.INDUCTOR:
+            case CompilerBackend.INDUCTOR:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.compile(
                     model,
-                    backend=self.compile_backend,
+                    backend='inductor',
                     mode='max-autotune',
                 )
-            case Backend.JIT:
+            case CompilerBackend.JIT:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.jit.script(model)
         with torch.no_grad():
