@@ -1,5 +1,4 @@
 import io
-import os
 from enum import Enum
 from typing import Callable
 
@@ -67,18 +66,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'TorchEstimator':
         x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
         y_tensor = torch.tensor(y, dtype=torch.float32).to(self.device)
-        if 'PROFILE_TRAINING' in os.environ:
-            with torch.profiler.profile(
-                activities=[
-                    torch.profiler.ProfilerActivity.CPU,
-                    torch.profiler.ProfilerActivity.CUDA,
-                ],
-                on_trace_ready=torch.profiler.tensorboard_trace_handler('./trace'),
-            ) as profiler:
-                module = self.train(x_tensor, y_tensor)
-                profiler.step()
-        else:
-            module = self.train(x_tensor, y_tensor)
+        module = self.train(x_tensor, y_tensor)
         self.serialized_model_ = io.BytesIO()
         torch.save(module.state_dict(), self.serialized_model_)
         self.serialized_model_.seek(0)
@@ -114,18 +102,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.jit.script(model)
         with torch.no_grad():
-            if 'PROFILE_INFERENCE' in os.environ:
-                with torch.profiler.profile(
-                    activities=[
-                        torch.profiler.ProfilerActivity.CPU,
-                        torch.profiler.ProfilerActivity.CUDA,
-                    ],
-                    on_trace_ready=torch.profiler.tensorboard_trace_handler('./trace'),
-                ) as profiler:
-                    result = model(x_tensor)
-                    profiler.step()
-            else:        
-                result = model(x_tensor)
+            result = model(x_tensor)
         return result.cpu().numpy().squeeze()
 
     def predict(self, x: np.ndarray) -> np.ndarray:
