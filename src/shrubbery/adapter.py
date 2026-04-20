@@ -1,6 +1,5 @@
 import io
 import os
-from datetime import datetime
 from enum import Enum
 from typing import Callable
 
@@ -74,12 +73,10 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     torch.profiler.ProfilerActivity.CPU,
                     torch.profiler.ProfilerActivity.CUDA,
                 ],
-                profile_memory=False,
-                record_shapes=False,
+                on_trace_ready=torch.profiler.tensorboard_trace_handler('./trace'),
             ) as profiler:
                 module = self.train(x_tensor, y_tensor)
-                stamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                profiler.export_chrome_trace(f'trace_training_{stamp}.json')
+                profiler.step()
         else:
             module = self.train(x_tensor, y_tensor)
         self.serialized_model_ = io.BytesIO()
@@ -101,9 +98,8 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
             case CompilerBackend.TENSORRT:
                 x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
                 model = torch_tensorrt.compile(
-                    model,
+                    model.to(torch.float16),
                     inputs=[x_tensor],
-                    enabled_precisions={torch.float16},
                     optimization_level=5,
                 )
             case CompilerBackend.INDUCTOR:
@@ -124,12 +120,10 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                         torch.profiler.ProfilerActivity.CPU,
                         torch.profiler.ProfilerActivity.CUDA,
                     ],
-                    profile_memory=False,
-                    record_shapes=False,
+                    on_trace_ready=torch.profiler.tensorboard_trace_handler('./trace'),
                 ) as profiler:
                     result = model(x_tensor)
-                    stamp = datetime.now().strftime("%Y%m%d%H%M%S")
-                    profiler.export_chrome_trace(f'trace_inference_{stamp}.json')
+                    profiler.step()
             else:        
                 result = model(x_tensor)
         return result.cpu().numpy().squeeze()

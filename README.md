@@ -13,3 +13,11 @@ To run the code create `.env` script which sets the necessary environment variab
 You can see an example use of the package in `example.py`.
 
 [![shrubbery](http://img.youtube.com/vi/93C9VbA6h1U/0.jpg)](http://www.youtube.com/watch?v=93C9VbA6h1U)
+
+Running in `ghcr.io/altermarkive/shrubbery:latest` container:
+
+```python
+uv sync
+uv pip install -e .
+uv run src/shrubbery/example.py --retrain
+```
