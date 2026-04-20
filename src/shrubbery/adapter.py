@@ -110,6 +110,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     model,
                     backend='inductor',
                     mode='max-autotune',
+                    dynamic=True,
                 )
             case CompilerBackend.JIT:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
