@@ -26,6 +26,12 @@ def main() -> None:
         default=False,
     )
     parser.add_argument(
+        '--trace',
+        type=bool,
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
+    parser.add_argument(
         '--local',
         type=bool,
         action=argparse.BooleanOptionalAction,
@@ -55,10 +61,6 @@ def run_docker(arguments: argparse.Namespace) -> None:
         '--rm',
         f'-i{"" if arguments.headless else "t"}',
         '--shm-size=16g',
-        '-e',
-        'PROFILE_TRAINING=1',
-        '-e',
-        'PROFILE_INFERENCE=1',
         '--userns=keep-id',
         '-v',
         f'{os.getcwd()}:/w:U',
@@ -71,6 +73,15 @@ def run_docker(arguments: argparse.Namespace) -> None:
         command.extend(['--device', 'nvidia.com/gpu=all'])
     if not (arguments.lint or arguments.debug):
         command.extend(['--entrypoint', '/usr/local/bin/uv'])
+    if arguments.trace:
+        command.extend(
+            [
+                '-e',
+                'PROFILE_TRAINING=1',
+                '-e',
+                'PROFILE_INFERENCE=1',
+            ]
+        )
     if not arguments.local:
         command.extend(
             [
