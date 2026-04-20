@@ -1,4 +1,6 @@
 import io
+import os
+from datetime import datetime
 from enum import Enum
 from typing import Callable
 
@@ -66,7 +68,18 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'TorchEstimator':
         x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
         y_tensor = torch.tensor(y, dtype=torch.float32).to(self.device)
-        module = self.train(x_tensor, y_tensor)
+        if 'PROFILE_TRAINING' in os.environ:
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA,
+                ]
+            ) as profiler:
+                module = self.train(x_tensor, y_tensor)
+                stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                profiler.export_chrome_trace(f'trace_training_{stamp}.json')
+        else:
+            module = self.train(x_tensor, y_tensor)
         self.serialized_model_ = io.BytesIO()
         torch.save(module.state_dict(), self.serialized_model_)
         self.serialized_model_.seek(0)
@@ -102,8 +115,19 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.jit.script(model)
         with torch.no_grad():
-            result = model(x_tensor).cpu().numpy().squeeze()
-        return result
+            if 'PROFILE_INFERENCE' in os.environ:
+                with torch.profiler.profile(
+                    activities=[
+                        torch.profiler.ProfilerActivity.CPU,
+                        torch.profiler.ProfilerActivity.CUDA,
+                    ]
+                ) as profiler:
+                    result = model(x_tensor)
+                    stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                    profiler.export_chrome_trace(f'trace_inference_{stamp}.json')
+            else:        
+                result = model(x_tensor)
+        return result.cpu().numpy().squeeze()
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.transform(x)
