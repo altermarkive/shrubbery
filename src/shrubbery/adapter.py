@@ -73,7 +73,9 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 activities=[
                     torch.profiler.ProfilerActivity.CPU,
                     torch.profiler.ProfilerActivity.CUDA,
-                ]
+                ],
+                profile_memory=False,
+                record_shapes=False,
             ) as profiler:
                 module = self.train(x_tensor, y_tensor)
                 stamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -121,7 +123,9 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                     activities=[
                         torch.profiler.ProfilerActivity.CPU,
                         torch.profiler.ProfilerActivity.CUDA,
-                    ]
+                    ],
+                    profile_memory=False,
+                    record_shapes=False,
                 ) as profiler:
                     result = model(x_tensor)
                     stamp = datetime.now().strftime("%Y%m%d%H%M%S")
