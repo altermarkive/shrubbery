@@ -54,6 +54,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         'run',
         '--rm',
         f'-i{"" if arguments.headless else "t"}',
+        '--shm-size=16g',
         '-e',
         'PROFILE_TRAINING=1',
         '-e',
