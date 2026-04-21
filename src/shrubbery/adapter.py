@@ -87,7 +87,14 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
                 model = torch_tensorrt.compile(
                     model.to(torch.float16),
-                    inputs=[x_tensor],
+                    inputs=[
+                        torch_tensorrt.Input(
+                            min_shape=(1, x.shape[1]),
+                            opt_shape=x.shape,
+                            max_shape=x.shape,
+                            dtype=torch.float16,
+                        )
+                    ],
                     optimization_level=5,
                 )
             case CompilerBackend.INDUCTOR:
