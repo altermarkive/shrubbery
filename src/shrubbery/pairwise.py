@@ -6,7 +6,7 @@ from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
 
-from shrubbery.observability import logger
+from .observability import logger
 
 
 class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):

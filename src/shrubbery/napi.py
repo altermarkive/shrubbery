@@ -3,7 +3,7 @@ import time
 
 from numerapi import NumerAPI
 
-from shrubbery.observability import logger
+from .observability import logger
 
 
 def numerai_api() -> NumerAPI:

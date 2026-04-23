@@ -8,31 +8,31 @@ import pandas as pd
 import wandb
 from sklearn.model_selection import GridSearchCV
 
-from shrubbery.constants import (
+from .constants import (
     COLUMN_ERA,
     COLUMN_ID,
 )
-from shrubbery.data.augmentation import override_numerai_era
-from shrubbery.data.ingest import (
+from .data.augmentation import override_numerai_era
+from .data.ingest import (
     download_numerai_files,
     get_feature_set,
     get_training_targets,
     read_parquet_and_unpack,
 )
-from shrubbery.metrics import submit_diagnostic_predictions
-from shrubbery.napi import napi
-from shrubbery.observability import logger, silence_false_positive_warnings
-from shrubbery.tournament import (
+from .metrics import submit_diagnostic_predictions
+from .napi import napi
+from .observability import logger, silence_false_positive_warnings
+from .tournament import (
     submit_tournament_predictions,
     update_tournament_submissions,
 )
-from shrubbery.utilities import load_model, store_model
-from shrubbery.validation import (
+from .utilities import load_model, store_model
+from .validation import (
     cross_validation_to_parallel_coordinates,
     get_best_parameters,
     reformat_cross_validation_result,
 )
-from shrubbery.workspace import get_workspace_path
+from .workspace import get_workspace_path
 
 
 class WandbGridSearchCV(GridSearchCV):
