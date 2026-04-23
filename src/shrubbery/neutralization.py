@@ -5,10 +5,10 @@ import pandas as pd
 import scipy
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
-from .constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
-from .data.augmentation import get_biggest_change_features
-from .observability import logger
-from .utilities import PrintableModelMixin
+from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_INDEX_TARGET
+from shrubbery.data.augmentation import get_biggest_change_features
+from shrubbery.observability import logger
+from shrubbery.utilities import PrintableModelMixin
 
 
 def neutralize(

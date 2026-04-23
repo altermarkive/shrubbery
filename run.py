@@ -14,12 +14,6 @@ def main() -> None:
         default=True,
     )
     parser.add_argument(
-        '--lint',
-        type=bool,
-        action=argparse.BooleanOptionalAction,
-        default=False,
-    )
-    parser.add_argument(
         '--debug',
         type=bool,
         action=argparse.BooleanOptionalAction,
@@ -65,7 +59,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
     ]
     if arguments.gpus:
         command.extend(['--device', 'nvidia.com/gpu=all'])
-    if not (arguments.lint or arguments.debug):
+    if not arguments.debug:
         command.extend(['--entrypoint', '/usr/local/bin/uv'])
     if not arguments.local:
         command.extend(
@@ -76,14 +70,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         )
     else:
         command.extend(['shrubbery'])
-    if arguments.lint:
-        command.extend(
-            [
-                '-c',
-                '"ruff check --select I src && ruff format --check --diff && ty check --extra-search-path /usr/local/lib/python3.13/dist-packages/ && deptry . --ignore DEP002"',  # noqa: E501
-            ]
-        )
-    if not arguments.lint and not arguments.debug:
+    if not arguments.debug:
         command.extend(arguments.command[1:])
     command = ' '.join(command)
     if arguments.priority is not None:

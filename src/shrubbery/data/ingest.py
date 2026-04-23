@@ -6,11 +6,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..constants import COLUMN_ERA
-from ..data.augmentation import numeric_eras
-from ..napi import napi
-from ..observability import logger
-from ..workspace import get_workspace_path
+from shrubbery.constants import COLUMN_ERA
+from shrubbery.data.augmentation import numeric_eras
+from shrubbery.napi import napi
+from shrubbery.observability import logger
+from shrubbery.workspace import get_workspace_path
 
 DATA_SUBDIRECTORY = 'data'
 

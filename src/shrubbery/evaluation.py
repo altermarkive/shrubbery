@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import wandb
 
-from .constants import COLUMN_INDEX_TARGET
+from shrubbery.constants import COLUMN_INDEX_TARGET
 
 METRIC_PREDICTION_ID = 'Prediction ID'
 METRIC_PREDICTION_VALUE = 'Metric'

@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from tpot import TPOTRegressor
 
-from ..utilities import PrintableModelMixin
+from shrubbery.utilities import PrintableModelMixin
 
 
 class TPOTRegressorWrapper(

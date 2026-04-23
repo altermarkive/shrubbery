@@ -7,10 +7,10 @@ import pandas as pd
 import wandb
 from sklearn.model_selection import BaseCrossValidator
 
-from .constants import COLUMN_INDEX_ERA
-from .data.ingest import locate_numerai_file
-from .observability import logger
-from .utilities import dict_of_lists_to_list_of_dicts
+from shrubbery.constants import COLUMN_INDEX_ERA
+from shrubbery.data.ingest import locate_numerai_file
+from shrubbery.observability import logger
+from shrubbery.utilities import dict_of_lists_to_list_of_dicts
 
 
 # Numerai-specific cross-validation generator

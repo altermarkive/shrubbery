@@ -8,11 +8,11 @@ import pandas as pd
 import wandb
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 
-from .constants import COLUMN_INDEX_TARGET
-from .evaluation import METRIC_PREDICTION_VALUE, validation_metrics
-from .mixer import mix_combinatorial, mix_predictions
-from .observability import logger
-from .utilities import PrintableModelMixin, model_to_string
+from shrubbery.constants import COLUMN_INDEX_TARGET
+from shrubbery.evaluation import METRIC_PREDICTION_VALUE, validation_metrics
+from shrubbery.mixer import mix_combinatorial, mix_predictions
+from shrubbery.observability import logger
+from shrubbery.utilities import PrintableModelMixin, model_to_string
 
 
 class EnsembleType(str, Enum):

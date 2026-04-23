@@ -5,14 +5,14 @@ import pandas as pd
 import requests
 import wandb
 
-from .constants import (
+from shrubbery.constants import (
     COLUMN_MMC,
     COLUMN_ROUND_NUMBER,
     COLUMN_V2_CORR20,
 )
-from .napi import napi
-from .observability import logger
-from .utilities import save_prediction
+from shrubbery.napi import napi
+from shrubbery.observability import logger
+from shrubbery.utilities import save_prediction
 
 
 def submit_tournament_predictions(

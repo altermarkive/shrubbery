@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from ..adapter import CompilerBackend, TorchEstimator
+from shrubbery.adapter import CompilerBackend, TorchEstimator
 
 
 def relu_initializer(tensor: torch.Tensor) -> torch.Tensor:
