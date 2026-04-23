@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from ..adapter import CompilerBackend, TorchEstimator
+from shrubbery.adapter import CompilerBackend, TorchEstimator
 
 
 class ResidualBlock(nn.Module):

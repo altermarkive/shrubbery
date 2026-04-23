@@ -3,11 +3,11 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from ..constants import (
+from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_INDEX_ERA,
 )
-from ..observability import logger
+from shrubbery.observability import logger
 
 
 def get_biggest_change_features(

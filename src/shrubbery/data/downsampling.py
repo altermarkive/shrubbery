@@ -3,8 +3,8 @@ from typing import Any
 import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin
 
-from ..constants import COLUMN_INDEX_ERA
-from ..utilities import PrintableModelMixin
+from shrubbery.constants import COLUMN_INDEX_ERA
+from shrubbery.utilities import PrintableModelMixin
 
 
 class FitDownsamplerBySample(

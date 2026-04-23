@@ -5,7 +5,7 @@ from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
-from ..adapter import (
+from shrubbery.adapter import (
     CompilerBackend,
     ModelWrapper,
     TorchEstimator,

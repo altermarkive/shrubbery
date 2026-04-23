@@ -4,8 +4,8 @@ import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, TransformerMixin
 from sklearn.compose import ColumnTransformer
 
-from ..constants import COLUMN_INDEX_ERA, COLUMN_TARGET
-from ..data.ingest import lookup_target_index
+from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_TARGET
+from shrubbery.data.ingest import lookup_target_index
 
 
 class NumeraiFeaturesSelector(ColumnTransformer):
