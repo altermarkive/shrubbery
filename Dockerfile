@@ -13,7 +13,6 @@ RUN apt-get -yq update && \
         libatlas3-base \
         libblas-dev \
         libfreetype-dev \
-        libhdf5-dev \
         libjpeg-dev \
         libnvidia-compute-590-server \
         libopenblas-dev \
@@ -22,20 +21,19 @@ RUN apt-get -yq update && \
         unzip \
         zlib1g-dev
 # build-essential - tornado
-# cmake - lightgbm (older, non-wheel version)
+# cmake - lightgbm
 # curl - uv
 # git-lfs - N/A
 # libatlas3-base - N/A
 # libblas-dev - N/A
-# libfreetype-dev - matplotlib (older, non-wheel version)
-# libhdf5-dev - Keras
-# libjpeg-dev - Pillow (older, non-wheel version)
+# libfreetype-dev - matplotlib
+# libjpeg-dev - Pillow
 # libnvidia-compute-590-server - lightgbm
 # libopenblas-dev - N/A
-# pkg-config - matplotlib (older, non-wheel version)
+# pkg-config - matplotlib
 # software-properties-common - Python
 # unzip - N/A
-# zlib - Pillow (older, non-wheel version)
+# zlib - Pillow
 
 RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get -yq install python3.13-full python3.13-dev && \
