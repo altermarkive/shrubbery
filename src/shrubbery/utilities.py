@@ -9,9 +9,9 @@ import pandas as pd
 import requests
 import wandb
 
-from shrubbery.constants import COLUMN_ERA
-from shrubbery.observability import logger
-from shrubbery.workspace import get_workspace_path
+from .constants import COLUMN_ERA
+from .observability import logger
+from .workspace import get_workspace_path
 
 MODEL_SUBDIRECTORY = 'models'
 PREDICTIONS_SUBDIRECTORY = 'predictions'

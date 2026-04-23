@@ -2,8 +2,8 @@ import os
 
 from xgboost import XGBRegressor
 
-from shrubbery.main import NumeraiRunner, config_content, main_arguments
-from shrubbery.neutralization import NumeraiNeutralization
+from .main import NumeraiRunner, config_content, main_arguments
+from .neutralization import NumeraiNeutralization
 
 if __name__ == '__main__':
     arguments = main_arguments()

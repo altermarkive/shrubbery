@@ -3,9 +3,9 @@ import time
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from shrubbery.constants import COLUMN_INDEX_ERA
-from shrubbery.observability import logger
-from shrubbery.utilities import model_to_string
+from ..constants import COLUMN_INDEX_ERA
+from ..observability import logger
+from ..utilities import model_to_string
 
 
 class GenericEmbedder(BaseEstimator, TransformerMixin):

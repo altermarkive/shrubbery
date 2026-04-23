@@ -3,8 +3,8 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
-from shrubbery.evaluation import METRIC_PREDICTION_ID, validation_metrics
-from shrubbery.observability import logger
+from .evaluation import METRIC_PREDICTION_ID, validation_metrics
+from .observability import logger
 
 
 def _encode(decoded: set[str]) -> str:
