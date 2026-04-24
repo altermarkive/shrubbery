@@ -77,6 +77,9 @@ class Ensembler(
         for config in self.estimators:
             # Now do a full train
             logger.info(f'Training ensemble model: {config.name}')
+            logger.info(
+                f'Ensemble model config: {model_to_string(config.estimator)}'
+            )
             config.estimator = config.estimator.fit(x_training, y_training)
             # Garbage collection gets rid of unused data and frees up memory
             gc.collect()
