@@ -23,7 +23,7 @@ dependencies = [
     "myfm==0.3.2.0",
     "numerapi>=2.20.7",
     "numpy>=2.4.4",
-    "nvidia-modelopt>=0.42.0",
+    "nvidia-modelopt>=0.43.0",
     "pandas>=2.3.3",
     "requests>=2.33.1",
     "scikit-learn>=1.8.0",
