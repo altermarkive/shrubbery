@@ -1,5 +1,5 @@
 # Sync NVIDIA Driver & CUDA versions (`nvidia-smi`)
-FROM nvidia/cuda:13.2.0-runtime-ubuntu24.04
+FROM nvidia/cuda:13.2.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -14,7 +14,7 @@ RUN apt-get -yq update && \
         libblas-dev \
         libfreetype-dev \
         libjpeg-dev \
-        libnvidia-compute-590-server \
+        libnvidia-compute-595-server \
         libopenblas-dev \
         pkg-config \
         software-properties-common \
@@ -28,7 +28,7 @@ RUN apt-get -yq update && \
 # libblas-dev - N/A
 # libfreetype-dev - matplotlib
 # libjpeg-dev - Pillow
-# libnvidia-compute-590-server - lightgbm
+# libnvidia-compute-595-server - lightgbm
 # libopenblas-dev - N/A
 # pkg-config - matplotlib
 # software-properties-common - Python
