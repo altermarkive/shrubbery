@@ -108,7 +108,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
             case CompilerBackend.JIT:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.jit.script(model)
-        with torch.no_grad():
+        with torch.inference_mode():
             result = model(x_tensor)
         return result.cpu().numpy().squeeze()
 
