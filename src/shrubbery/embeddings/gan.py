@@ -57,7 +57,7 @@ class GeneratorNetwork(nn.Module):
             if i < len(all_layer_units) - 1:
                 # Placing normalization before activation may:
                 # * stabilize training
-                # * improve activation performance (works better normalized inputs)
+                # * improve activation performance (better normalized inputs)
                 # * convergence faster and get better results
                 generator_layers.append(nn.BatchNorm1d(units))
                 # Using ReLU (instead of sigmoid) on hidden layers may help
