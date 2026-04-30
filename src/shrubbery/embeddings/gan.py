@@ -54,20 +54,19 @@ class GeneratorNetwork(nn.Module):
         previous_units = latent_dim
         for i, units in enumerate(all_layer_units):
             generator_layers.append(nn.Linear(previous_units, units))
-            # Placing normalization before activation may:
-            # * stabilize training
-            # * improve activation performance (works better normalized inputs)
-            # * convergence faster and get better results
-            generator_layers.append(nn.BatchNorm1d(units))
-            # Using ReLU (instead of sigmoid) on hidden layers may help
-            # with faster and more efficient training. LeakyReLU addresses
-            # the issue of "dying ReLUs" and may help maintaining non-zero
-            # gradients and improve learning dynamics.
-            generator_layers.append(
-                nn.LeakyReLU(negative_slope=0.2)
-                if i < len(all_layer_units) - 1
-                else nn.Sigmoid()
-            )
+            if i < len(all_layer_units) - 1:
+                # Placing normalization before activation may:
+                # * stabilize training
+                # * improve activation performance (works better normalized inputs)
+                # * convergence faster and get better results
+                generator_layers.append(nn.BatchNorm1d(units))
+                # Using ReLU (instead of sigmoid) on hidden layers may help
+                # with faster and more efficient training. LeakyReLU addresses
+                # the issue of "dying ReLUs" and may help maintaining non-zero
+                # gradients and improve learning dynamics.
+                generator_layers.append(nn.LeakyReLU(negative_slope=0.2))
+            else:
+                generator_layers.append(nn.Sigmoid())
             previous_units = units
         self.generator = nn.Sequential(*generator_layers)
         variance_scaling_initializer_with_fan_in(self)
@@ -107,7 +106,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         ).to(self.device)
         d_optimizer = torch.optim.Adam(
             discriminator.parameters(),
-            lr=self.learning_rate,
+            lr=self.learning_rate / 2,
             weight_decay=1e-3,
         )
         generator = GeneratorNetwork(
