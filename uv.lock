@@ -1173,7 +1173,7 @@ cu13 = [
 
 [[package]]
 name = "numerapi"
-version = "2.22.0"
+version = "2.23.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1183,9 +1183,9 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/df/15/cc6566eb2e824df89c6edd474849d6186ad52cb9a398b028a28a7ad5fbf0/numerapi-2.22.0.tar.gz", hash = "sha256:0ee4b499505646b2ab8f2a6090fab59492adf9b5e6c8421237f07c0dce93624f", size = 28866, upload-time = "2026-01-05T19:54:05.406Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/40/6289befd1501d55ea894beaee97e5b0851556bb835653ef74905ca95e276/numerapi-2.23.1.tar.gz", hash = "sha256:b9a41fd95b46c63d3d61732b69cacffdbe47c9d03ba9d4adc64fb4d011df4774", size = 33816, upload-time = "2026-04-23T23:01:15.846Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/e0/7ab164986052c66d4f757df5980c10ee54975b0957d66d523419332adb34/numerapi-2.22.0-py3-none-any.whl", hash = "sha256:439b696f0b15e587cc254289eb517abf622a087a978d605aa6c365e538eb2108", size = 27021, upload-time = "2026-01-05T19:54:04.3Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/ae/4c13113beb884f4d7143b8685941cf2b42c3565742e7ffb010deb7566559/numerapi-2.23.1-py3-none-any.whl", hash = "sha256:6b0943986cbcc280919db33df1ef3afba4487370a76e24bafc9d25b8d3abd7ca", size = 29589, upload-time = "2026-04-23T23:01:14.791Z" },
 ]
 
 [[package]]
@@ -2256,7 +2256,7 @@ requires-dist = [
     { name = "lightgbm", specifier = ">=4.6.0" },
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "myfm", specifier = "==0.3.2.0" },
-    { name = "numerapi", specifier = ">=2.20.7" },
+    { name = "numerapi", specifier = ">=2.23.1" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "nvidia-modelopt", specifier = ">=0.43.0" },
     { name = "pandas", specifier = ">=2.3.3" },
