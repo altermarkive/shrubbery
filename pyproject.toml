@@ -34,7 +34,7 @@ dependencies = [
     "torch-tensorrt>=2.11.0",
     "tpot>=1.1.0",
     "tqdm>=4.67.3",
-    "wandb>=0.26.0",
+    "wandb>=0.26.1",
     "xgboost>=3.2.0",
 ]
 
