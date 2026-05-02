@@ -21,7 +21,7 @@ dependencies = [
     #     from ._myfm import RelationBlock
     # ModuleNotFoundError: No module named 'myfm._myfm'
     "myfm==0.3.2.0",
-    "numerapi>=2.20.7",
+    "numerapi>=2.23.1",
     "numpy>=2.4.4",
     "nvidia-modelopt>=0.43.0",
     "pandas>=2.3.3",
