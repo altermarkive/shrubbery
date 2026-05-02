@@ -16,7 +16,7 @@ dependencies = [
     "cudf-cu13>=25.10.0",
     "cuml-cu13>=25.10.0",
     "lightgbm>=4.6.0",
-    "matplotlib>=3.10.8",
+    "matplotlib>=3.10.9",
     # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
     #     from ._myfm import RelationBlock
     # ModuleNotFoundError: No module named 'myfm._myfm'
