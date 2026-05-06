@@ -60,7 +60,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
     if arguments.gpus:
         command.extend(['--device', 'nvidia.com/gpu=all'])
     if not arguments.debug:
-        command.extend(['--entrypoint', '/shrubbery/.venv/bin/python'])
+        command.extend(['--entrypoint', '/app/venv/bin/python'])
     if not arguments.local:
         command.extend(
             [

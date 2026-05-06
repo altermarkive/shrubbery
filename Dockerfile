@@ -3,47 +3,52 @@ FROM nvidia/cuda:13.2.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -yq update && \
-    apt-get -yq remove python && \
-    apt-get -yq install \
+RUN apt-get -qy update \
+    && apt-get -qy remove python \
+    && apt-get -qyy install \
+        -o APT::Install-Recommends=false \
+        -o APT::Install-Suggests=false \
         build-essential \
-        cmake \
         curl \
         git-lfs \
         libatlas3-base \
         libblas-dev \
-        libfreetype-dev \
-        libjpeg-dev \
         libopenblas-dev \
         pkg-config \
         unzip \
-        zlib1g-dev
-# build-essential - tornado
-# cmake - lightgbm
-# curl - uv
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+# build-essential - N/A
+# curl - N/A
 # git-lfs - N/A
 # libatlas3-base - N/A
 # libblas-dev - N/A
-# libfreetype-dev - matplotlib
-# libjpeg-dev - Pillow
 # libopenblas-dev - N/A
-# pkg-config - matplotlib
 # unzip - N/A
-# zlib - Pillow
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-ENV UV_PYTHON_INSTALL_DIR="/opt/uv-python"
-ENV UV_NO_CACHE=1
-ENV VIRTUAL_ENV="/shrubbery/.venv"
-ADD . /shrubbery
-RUN cd /shrubbery && UV_HTTP_TIMEOUT=60 /bin/uv sync --locked && \
-    chmod -R a+rX $VIRTUAL_ENV $UV_PYTHON_INSTALL_DIR
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV PYTHONPATH="$VIRTUAL_ENV/lib/python3.13/site-packages:/shrubbery/src"
+ENV UV_LINK_MODE=copy \
+    UV_NO_CACHE=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_HTTP_TIMEOUT=60 \
+    UV_PYTHON=python3.13 \
+    UV_PYTHON_INSTALL_DIR=/app/python \
+    VIRTUAL_ENV=/app/venv
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    /bin/uv sync --active --frozen --no-dev --no-install-project
+COPY . /app/package
+WORKDIR /app/package
+RUN --mount=type=cache,target=/root/.cache/uv \
+    /bin/uv pip install . && \
+    rm -rf /app/package
+WORKDIR /app
+RUN chmod -R a+rX /app
+ENV PATH="/app/venv/bin:$PATH"
 
 # TensorRT is quite noisy
 ENV PYTHONWARNINGS="ignore::SyntaxWarning"
 
 ENTRYPOINT [ "/bin/bash" ]
-
-# TODO: Follow the best practices listed at https://docs.astral.sh/uv/guides/integration/docker/ and switch to regular user
