@@ -40,10 +40,17 @@ dependencies = [
 
 [tool.uv]
 index-strategy = "unsafe-best-match"
+no-binary-package = ["lightgbm"]
+
+[tool.uv.config-settings]
+lightgbm = [
+    "cmake.define.USE_GPU=ON",
+    "cmake.define.USE_CUDA=ON",
+]
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cu130" },
+    { index = "pytorch-cu130" },
 ]
 
 [[tool.uv.index]]
