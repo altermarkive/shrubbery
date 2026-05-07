@@ -16,6 +16,37 @@ from shrubbery.adapter import (
     variance_scaling_initializer_with_fan_in,
 )
 
+# Why BatchNorm is applied to every layer (including the final one) of both
+# the discriminator and the generator:
+#
+# * Discriminator final layer (Linear + BatchNorm, no activation):
+#   BCEWithLogitsLoss consumes raw logits. Applying BatchNorm to those logits
+#   normalizes them to roughly N(0, 1), which caps how confident the
+#   discriminator can become and prevents logit saturation. This acts as
+#   implicit output regularization, similar in spirit to (a much lighter
+#   form of) spectral normalization or gradient penalty.
+#
+# * Why this matters for embedding quality:
+#   In standard GAN training, an unconstrained discriminator tends to overfit
+#   by finding trivial shortcuts to separate real from fake, collapsing onto
+#   a shallow decision boundary. The BatchNorm constraint forces it to stay
+#   in a moderate-confidence regime, so to maintain discrimination ability
+#   it must build richer, more informative hidden representations. Those
+#   hidden layers are exactly what is extracted as the embedding, so a
+#   constrained discriminator yields higher-quality embeddings.
+#
+# * Generator final layer (Linear + BatchNorm + Sigmoid):
+#   BatchNorm before Sigmoid produces inputs near N(0, 1), so the Sigmoid
+#   maps them to a spread around 0.5 instead of saturating at 0 or 1. The
+#   resulting synthetic samples look more in-distribution, making the
+#   discriminator's task genuinely harder and reinforcing the pressure on
+#   the discriminator to learn better features.
+#
+# * Discriminator learning rate is NOT halved relative to the generator:
+#   The BatchNorm-based output constraint already prevents the discriminator
+#   from dominating, so an additional lr reduction would only slow learning
+#   of the hidden representations and degrade embedding quality.
+
 
 class DiscriminatorNetwork(nn.Module):
     def __init__(self, feature_count: int, layer_units: list[int]) -> None:
@@ -25,12 +56,12 @@ class DiscriminatorNetwork(nn.Module):
         previous_units = feature_count
         for i, units in enumerate(all_layer_units):
             discriminator_layers.append(nn.Linear(previous_units, units))
+            # Placing normalization before activation may:
+            # * stabilize training
+            # * improve activation performance (works better normalized inputs)
+            # * convergence faster and get better results
+            discriminator_layers.append(nn.BatchNorm1d(units))
             if i < len(all_layer_units) - 1:
-                # Placing normalization before activation may:
-                # * stabilize training
-                # * improve activation performance (works better normalized inputs)
-                # * convergence faster and get better results
-                discriminator_layers.append(nn.BatchNorm1d(units))
                 # Using ReLU (instead of sigmoid) on hidden layers may help
                 # with faster and more efficient training. LeakyReLU addresses
                 # the issue of "dying ReLUs" and may help maintaining non-zero
@@ -54,19 +85,20 @@ class GeneratorNetwork(nn.Module):
         previous_units = latent_dim
         for i, units in enumerate(all_layer_units):
             generator_layers.append(nn.Linear(previous_units, units))
-            if i < len(all_layer_units) - 1:
-                # Placing normalization before activation may:
-                # * stabilize training
-                # * improve activation performance (better normalized inputs)
-                # * convergence faster and get better results
-                generator_layers.append(nn.BatchNorm1d(units))
-                # Using ReLU (instead of sigmoid) on hidden layers may help
-                # with faster and more efficient training. LeakyReLU addresses
-                # the issue of "dying ReLUs" and may help maintaining non-zero
-                # gradients and improve learning dynamics.
-                generator_layers.append(nn.LeakyReLU(negative_slope=0.2))
-            else:
-                generator_layers.append(nn.Sigmoid())
+            # Placing normalization before activation may:
+            # * stabilize training
+            # * improve activation performance (better normalized inputs)
+            # * convergence faster and get better results
+            generator_layers.append(nn.BatchNorm1d(units))
+            # Using ReLU (instead of sigmoid) on hidden layers may help
+            # with faster and more efficient training. LeakyReLU addresses
+            # the issue of "dying ReLUs" and may help maintaining non-zero
+            # gradients and improve learning dynamics.
+            generator_layers.append(
+                nn.LeakyReLU(negative_slope=0.2)
+                if i < len(all_layer_units) - 1
+                else nn.Sigmoid()
+            )
             previous_units = units
         self.generator = nn.Sequential(*generator_layers)
         variance_scaling_initializer_with_fan_in(self)
@@ -106,7 +138,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         ).to(self.device)
         d_optimizer = torch.optim.Adam(
             discriminator.parameters(),
-            lr=self.learning_rate / 2,
+            lr=self.learning_rate,
             weight_decay=1e-3,
         )
         generator = GeneratorNetwork(
@@ -173,9 +205,10 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
             )
-        # Extract embedder from discriminator (remove final Linear logits layer)
+        # Extract embedder from discriminator (remove last 2 layers, earlier ones have 3)
+        # Removes: final Linear & BatchNorm
         # Keeps: all layers up to and including the last hidden LeakyReLU
-        embedder_layers = list(discriminator.discriminator.children())[:-1]
+        embedder_layers = list(discriminator.discriminator.children())[:-2]
         embedder = nn.Sequential(*embedder_layers)
         return ModelWrapper(embedder)
 
@@ -183,5 +216,5 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         discriminator = DiscriminatorNetwork(
             input_dim, self.discriminator_layer_units
         )
-        embedder_layers = list(discriminator.discriminator.children())[:-1]
+        embedder_layers = list(discriminator.discriminator.children())[:-2]
         return nn.Sequential(*embedder_layers)
