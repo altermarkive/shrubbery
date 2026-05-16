@@ -1,7 +1,7 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
 import torch
 import torch.nn as nn
-from torch.amp import GradScaler, autocast
+from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -96,7 +96,6 @@ class AutoencoderEmbedder(TorchEstimator):
             weight_decay=1e-3,
         )
         criterion = nn.MSELoss()
-        scaler = GradScaler(self.device)
         for epoch in range(self.epochs):
             if self.denoise:
                 noise = torch.randn_like(x) * (0.1 * x_stddev)
@@ -112,15 +111,14 @@ class AutoencoderEmbedder(TorchEstimator):
             metric_sum = 0.0
             for i, (x_batch,) in enumerate(progress := tqdm(loader)):
                 optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.float16):
+                with autocast(device_type=self.device, dtype=torch.bfloat16):
                     outputs = module(x_batch)
                     metric = criterion(outputs, x_batch)
-                scaler.scale(metric).backward()
+                metric.backward()
                 torch.nn.utils.clip_grad_norm_(
                     module.parameters(), max_norm=1.0
                 )
-                scaler.step(optimizer)
-                scaler.update()
+                optimizer.step()
                 metric_sum += metric.item()
                 metric_average = metric_sum / (i + 1)
                 progress.set_description(

@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch_tensorrt
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
-from torch.amp import GradScaler, autocast
+from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -47,17 +47,15 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         dataset = TensorDataset(x, y)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         optimizer, criterion = self.prepare(model)
-        scaler = GradScaler(self.device)
         for epoch in range(self.epochs):
             model.train()
             for x_batch, y_batch in (progress := tqdm(loader)):
                 optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.float16):
+                with autocast(device_type=self.device, dtype=torch.bfloat16):
                     outputs = model(x_batch)
                     metric = criterion(outputs.squeeze(), y_batch)
-                scaler.scale(metric).backward()
-                scaler.step(optimizer)
-                scaler.update()
+                metric.backward()
+                optimizer.step()
                 progress.set_description(
                     f'Training - epoch: {epoch}; metric: {metric:.4f}'
                 )
@@ -84,15 +82,17 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compiler:
             case CompilerBackend.TENSORRT:
-                x_tensor = torch.tensor(x, dtype=torch.float16).to(self.device)
+                x_tensor = torch.tensor(x, dtype=torch.bfloat16).to(
+                    self.device
+                )
                 model = torch_tensorrt.compile(
-                    model.to(torch.float16),
+                    model.to(torch.bfloat16),
                     inputs=[
                         torch_tensorrt.Input(
                             min_shape=(1, x.shape[1]),
                             opt_shape=x.shape,
                             max_shape=x.shape,
-                            dtype=torch.float16,
+                            dtype=torch.bfloat16,
                         )
                     ],
                     optimization_level=5,
