@@ -5,7 +5,7 @@
 # * https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py  # noqa: E501
 import torch
 import torch.nn as nn
-from torch.amp import GradScaler, autocast
+from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -120,8 +120,6 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
             weight_decay=1e-3,
         )
         criterion = nn.BCEWithLogitsLoss()
-        d_scaler = GradScaler(self.device)
-        g_scaler = GradScaler(self.device)
         # Training
         dataset = TensorDataset(x)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
@@ -133,7 +131,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 # Train discriminator
                 discriminator.train()
                 d_optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.float16):
+                with autocast(device_type=self.device, dtype=torch.bfloat16):
                     g_noise = torch.randn(batch_size, self.latent_dim).to(
                         self.device
                     )
@@ -150,13 +148,12 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                     ).to(self.device)
                     d_outputs = discriminator(x_combined)
                     d_loss = criterion(d_outputs, y_combined)
-                d_scaler.scale(d_loss).backward()
-                d_scaler.step(d_optimizer)
-                d_scaler.update()
+                d_loss.backward()
+                d_optimizer.step()
                 # Train generator
                 discriminator.eval()
                 g_optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.float16):
+                with autocast(device_type=self.device, dtype=torch.bfloat16):
                     d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
                         self.device
                     )
@@ -166,9 +163,8 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                         self.device
                     )
                     g_loss = criterion(fake_outputs, y_mislabeled)
-                g_scaler.scale(g_loss).backward()
-                g_scaler.step(g_optimizer)
-                g_scaler.update()
+                g_loss.backward()
+                g_optimizer.step()
             progress.set_description(
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
