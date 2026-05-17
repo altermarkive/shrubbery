@@ -14,6 +14,7 @@ RUN apt-get -qy update \
         git-lfs \
         libatlas3-base \
         libblas-dev \
+        libnvidia-compute-595-server \
         libopenblas-dev \
         pkg-config \
         unzip \
@@ -25,6 +26,7 @@ RUN apt-get -qy update \
 # git-lfs - N/A
 # libatlas3-base - N/A
 # libblas-dev - N/A
+# libnvidia-compute-595-server - lightgbm
 # libopenblas-dev - N/A
 # unzip - N/A
 
