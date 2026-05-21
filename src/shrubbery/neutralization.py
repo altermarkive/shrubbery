@@ -135,9 +135,7 @@ class NumeraiNeutralization(
         return predictions
 
 
-def _combine_x_y_into_frame(
-    x: np.ndarray, y: np.ndarray
-) -> pd.DataFrame:
+def _combine_x_y_into_frame(x: np.ndarray, y: np.ndarray) -> pd.DataFrame:
     feature_count = x.shape[1] - COLUMN_INDEX_ERA - 1
     feature_columns = [
         f'{COLUMN_FEATURE_PREFIX}_{index}' for index in range(feature_count)
