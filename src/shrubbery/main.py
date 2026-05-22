@@ -5,12 +5,14 @@ from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
+import torch
 import wandb
 from sklearn.model_selection import GridSearchCV
 
 from shrubbery.constants import (
     COLUMN_ERA,
     COLUMN_ID,
+    RANDOM_SEED,
 )
 from shrubbery.data.augmentation import override_numerai_era
 from shrubbery.data.ingest import (
@@ -99,6 +101,8 @@ class NumeraiRunner:
         self.notes = notes
 
     def run(self, config_content: bytes, config_name: str) -> None:
+        torch.manual_seed(RANDOM_SEED)
+        np.random.seed(RANDOM_SEED)
         silence_false_positive_warnings()
         update_tournament_submissions(self.numerai_model_id)
         wandb.init(dir='/tmp/wandb')
