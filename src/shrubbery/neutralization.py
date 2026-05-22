@@ -50,29 +50,6 @@ def neutralize(
     return np.concatenate(computed)
 
 
-def neutralize_series(
-    series: pd.Series, by: pd.Series, proportion: float
-) -> pd.Series:
-    scores = series.values.reshape(-1, 1)
-    exposures = by.values.reshape(-1, 1)
-
-    # This line makes series neutral to a constant column so that
-    # it's centered and for sure gets corr 0 with exposures
-    exposures = np.hstack(
-        (
-            exposures,
-            np.array([np.mean(series)] * len(exposures)).reshape(-1, 1),
-        )
-    )
-
-    correction = proportion * exposures.dot(
-        np.linalg.lstsq(exposures, scores, rcond=None)[0]
-    )
-    corrected_scores = scores - correction
-    neutralized = pd.Series(corrected_scores.ravel(), index=series.index)
-    return neutralized
-
-
 class NumeraiNeutralization(
     BaseEstimator, MetaEstimatorMixin, RegressorMixin, PrintableModelMixin
 ):
