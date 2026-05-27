@@ -9,31 +9,26 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--gpus',
-        type=bool,
         action=argparse.BooleanOptionalAction,
         default=True,
     )
     parser.add_argument(
         '--debug',
-        type=bool,
         action=argparse.BooleanOptionalAction,
         default=False,
     )
     parser.add_argument(
         '--local',
-        type=bool,
         action=argparse.BooleanOptionalAction,
         default=False,
     )
     parser.add_argument(
         '--headless',
-        type=bool,
         action=argparse.BooleanOptionalAction,
         default=False,
     )
     parser.add_argument(
         '--priority',
-        type=str,
         default=None,
     )
     parser.add_argument('command', nargs=argparse.REMAINDER)
