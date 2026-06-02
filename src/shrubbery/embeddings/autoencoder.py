@@ -7,8 +7,10 @@ from tqdm import tqdm
 
 from shrubbery.adapter import (
     CompilerBackend,
+    LearningSchedule,
     ModelWrapper,
     TorchEstimator,
+    make_scheduler,
     variance_scaling_initializer_with_fan_in,
 )
 
@@ -68,16 +70,18 @@ class AutoencoderEmbedder(TorchEstimator):
         batch_norm_eps: float,
         device: str,
         compiler: CompilerBackend,
+        learning_schedule: LearningSchedule | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
+            learning_rate=learning_rate,
             device=device,
             compiler=compiler,
+            learning_schedule=learning_schedule,
         )
         self.layer_units = layer_units
         self.denoise = denoise
-        self.learning_rate = learning_rate
         self.batch_norm_eps = batch_norm_eps
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
@@ -96,6 +100,9 @@ class AutoencoderEmbedder(TorchEstimator):
             weight_decay=1e-3,
         )
         criterion = nn.MSELoss()
+        scheduler = make_scheduler(
+            optimizer, self.learning_schedule, self.learning_rate, self.epochs
+        )
         for epoch in range(self.epochs):
             if self.denoise:
                 noise = torch.randn_like(x) * (0.1 * x_stddev)
@@ -124,6 +131,8 @@ class AutoencoderEmbedder(TorchEstimator):
                 progress.set_description(
                     f'Training - epoch: {epoch}; loss: {metric_average:.4f}'
                 )
+            if scheduler is not None:
+                scheduler.step()
         return ModelWrapper(module.encoder)
 
     def module(self, input_dim: int) -> nn.Module:

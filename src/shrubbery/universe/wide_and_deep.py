@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import CompilerBackend, TorchEstimator
+from shrubbery.adapter import CompilerBackend, LearningSchedule, TorchEstimator
 
 
 class ModelType(str, Enum):
@@ -134,18 +134,20 @@ class WideAndDeepRegressor(TorchEstimator):
         optimizer_l2_regularization_strength: float,
         device: str,
         compiler: CompilerBackend,
+        learning_schedule: LearningSchedule | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
+            learning_rate=optimizer_learning_rate,
             device=device,
             compiler=compiler,
+            learning_schedule=learning_schedule,
         )
         self.model_type = model_type
         self.dropout_rate = dropout_rate
         self.units = units
         self.optimizer_type = optimizer_type
-        self.optimizer_learning_rate = optimizer_learning_rate
         self.optimizer_l1_regularization_strength = (
             optimizer_l1_regularization_strength
         )
@@ -185,19 +187,19 @@ class WideAndDeepRegressor(TorchEstimator):
             case OptimizerType.SGD:
                 optimizer = optim.SGD(
                     model.parameters(),
-                    lr=self.optimizer_learning_rate,
+                    lr=self.learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAM:
                 optimizer = optim.Adam(
                     model.parameters(),
-                    lr=self.optimizer_learning_rate,
+                    lr=self.learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case OptimizerType.ADAGRAD:
                 optimizer = optim.Adagrad(
                     model.parameters(),
-                    lr=self.optimizer_learning_rate,
+                    lr=self.learning_rate,
                     weight_decay=self.optimizer_l2_regularization_strength,
                 )
             case _:

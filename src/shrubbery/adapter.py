@@ -1,4 +1,5 @@
 import io
+from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
 
@@ -19,6 +20,67 @@ class CompilerBackend(str, Enum):
     JIT = 'jit'
 
 
+class SchedulerType(str, Enum):
+    COSINE = 'cosine'
+    ONE_CYCLE = 'one_cycle'
+
+
+@dataclass(frozen=True)
+class LearningSchedule:
+    scheduler: SchedulerType
+    warmup_epochs: int = 0
+    warmup_start_factor: float = 0.1
+    cosine_min_lr_ratio: float = 0.01
+    one_cycle_pct_start: float = 0.1
+
+
+def make_scheduler(
+    optimizer: torch.optim.Optimizer,
+    schedule: LearningSchedule | None,
+    learning_rate: float,
+    epochs: int,
+) -> torch.optim.lr_scheduler.LRScheduler | None:
+    """
+    Build an LR scheduler from a LearningSchedule config, stepped once per epoch.
+    Returns None when no scheduling is requested.
+    """
+    if schedule is None:
+        return None
+    main: torch.optim.lr_scheduler.LRScheduler | None = None
+    match schedule.scheduler:
+        case SchedulerType.ONE_CYCLE:
+            if schedule.warmup_epochs > 0:
+                raise ValueError(
+                    'ONE_CYCLE has built-in warmup via pct_start; warmup_epochs must be 0'
+                )
+            return torch.optim.lr_scheduler.OneCycleLR(
+                optimizer,
+                max_lr=learning_rate,
+                total_steps=epochs,
+                pct_start=schedule.one_cycle_pct_start,
+            )
+        case SchedulerType.COSINE:
+            main = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                T_max=epochs - schedule.warmup_epochs,
+                eta_min=learning_rate * schedule.cosine_min_lr_ratio,
+            )
+    if schedule.warmup_epochs > 0:
+        warmup = torch.optim.lr_scheduler.LinearLR(
+            optimizer,
+            start_factor=schedule.warmup_start_factor,
+            total_iters=schedule.warmup_epochs,
+        )
+        if main is not None:
+            return torch.optim.lr_scheduler.SequentialLR(
+                optimizer,
+                schedulers=[warmup, main],
+                milestones=[schedule.warmup_epochs],
+            )
+        return warmup
+    return main
+
+
 class ModelWrapper(nn.Module):
     def __init__(self, module: nn.Module):
         super().__init__()
@@ -33,13 +95,17 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self,
         epochs: int,
         batch_size: int,
+        learning_rate: float,
         device: str,
         compiler: CompilerBackend = CompilerBackend.TENSORRT,
+        learning_schedule: LearningSchedule | None = None,
     ) -> None:
         self.epochs = epochs
         self.batch_size = batch_size
+        self.learning_rate = learning_rate
         self.device = device
         self.compiler = compiler
+        self.learning_schedule = learning_schedule
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         module = self.module(input_dim=x.shape[1])
@@ -47,6 +113,9 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         dataset = TensorDataset(x, y)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         optimizer, criterion = self.prepare(model)
+        scheduler = make_scheduler(
+            optimizer, self.learning_schedule, self.learning_rate, self.epochs
+        )
         for epoch in range(self.epochs):
             model.train()
             for x_batch, y_batch in (progress := tqdm(loader)):
@@ -59,6 +128,8 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 progress.set_description(
                     f'Training - epoch: {epoch}; metric: {metric:.4f}'
                 )
+            if scheduler is not None:
+                scheduler.step()
         return model
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'TorchEstimator':
