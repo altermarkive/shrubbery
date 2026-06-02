@@ -11,8 +11,10 @@ from tqdm import tqdm
 
 from shrubbery.adapter import (
     CompilerBackend,
+    LearningSchedule,
     ModelWrapper,
     TorchEstimator,
+    make_scheduler,
     variance_scaling_initializer_with_fan_in,
 )
 
@@ -118,17 +120,19 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         learning_rate: float,
         device: str,
         compiler: CompilerBackend,
+        learning_schedule: LearningSchedule | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
             batch_size=batch_size,
+            learning_rate=learning_rate,
             device=device,
             compiler=compiler,
+            learning_schedule=learning_schedule,
         )
         self.latent_dim = latent_dim
         self.generator_layer_units = generator_layer_units
         self.discriminator_layer_units = discriminator_layer_units
-        self.learning_rate = learning_rate
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         # GAN
@@ -155,6 +159,18 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         # Training
         dataset = TensorDataset(x)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+        d_scheduler = make_scheduler(
+            d_optimizer,
+            self.learning_schedule,
+            self.learning_rate,
+            self.epochs,
+        )
+        g_scheduler = make_scheduler(
+            g_optimizer,
+            self.learning_schedule,
+            self.learning_rate,
+            self.epochs,
+        )
         for epoch in (progress := tqdm(range(self.epochs))):
             discriminator.train()
             generator.train()
@@ -197,6 +213,10 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                     g_loss = criterion(fake_outputs, y_mislabeled)
                 g_loss.backward()
                 g_optimizer.step()
+            if d_scheduler is not None:
+                d_scheduler.step()
+            if g_scheduler is not None:
+                g_scheduler.step()
             progress.set_description(
                 f'Training - epoch: {epoch}; '
                 f'd_loss: {d_loss.item():.5f}; g_loss: {g_loss.item():.5f}'
