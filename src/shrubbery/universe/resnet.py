@@ -4,7 +4,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import CompilerBackend, LearningSchedule, TorchEstimator
+from shrubbery.adapter import (
+    CompilerBackend,
+    EarlyStopping,
+    LearningSchedule,
+    TorchEstimator,
+)
 
 
 class ResidualBlock(nn.Module):
@@ -43,6 +48,7 @@ class ResNetRegressor(TorchEstimator):
         device: str,
         compiler: CompilerBackend,
         learning_schedule: LearningSchedule | None = None,
+        early_stopping: EarlyStopping | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
@@ -51,6 +57,7 @@ class ResNetRegressor(TorchEstimator):
             device=device,
             compiler=compiler,
             learning_schedule=learning_schedule,
+            early_stopping=early_stopping,
         )
         self.hidden_dim = hidden_dim
         self.num_blocks = num_blocks

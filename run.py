@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import subprocess
 from pathlib import Path
 
 
@@ -72,7 +73,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         priority = arguments.priority
         command = f'sbatch --wrap="{command}" --priority={priority} --nodes=1 --output=/tmp/slurm-%j.out --error=/tmp/slurm-%j.err'
     print(command)
-    os.system(command)
+    subprocess.run(command, shell=True, check=True)
 
 
 if __name__ == '__main__':

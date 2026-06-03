@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch_tensorrt
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
+from sklearn.model_selection import train_test_split
 from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
@@ -81,6 +82,40 @@ def make_scheduler(
     return main
 
 
+@dataclass(frozen=True)
+class EarlyStopping:
+    val_fraction: float = 0.1
+    patience: int = 5
+    min_delta: float = 0.0
+    min_epochs: int = 1
+
+
+class EarlyStoppingState:
+    def __init__(self, config: EarlyStopping) -> None:
+        self._config = config
+        self._best_loss = float('inf')
+        self._epochs_without_improvement = 0
+
+    def step(
+        self,
+        epoch: int,
+        validation_loss: float,
+    ) -> bool:
+        """Update state; returns True when training should stop."""
+        config = self._config
+        if validation_loss < self._best_loss - config.min_delta:
+            self._best_loss = validation_loss
+            self._epochs_without_improvement = 0
+        else:
+            self._epochs_without_improvement += 1
+        if (
+            epoch + 1 >= config.min_epochs
+            and self._epochs_without_improvement >= config.patience
+        ):
+            return True
+        return False
+
+
 class ModelWrapper(nn.Module):
     def __init__(self, module: nn.Module):
         super().__init__()
@@ -99,6 +134,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         device: str,
         compiler: CompilerBackend = CompilerBackend.TENSORRT,
         learning_schedule: LearningSchedule | None = None,
+        early_stopping: EarlyStopping | None = None,
     ) -> None:
         self.epochs = epochs
         self.batch_size = batch_size
@@ -106,15 +142,31 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self.device = device
         self.compiler = compiler
         self.learning_schedule = learning_schedule
+        self.early_stopping = early_stopping
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
-        module = self.module(input_dim=x.shape[1])
+        x_training, y_training, x_validation, y_validation = x, y, None, None
+        if self.early_stopping is not None:
+            x_training, x_validation, y_training, y_validation = (
+                train_test_split(
+                    x,
+                    y,
+                    test_size=self.early_stopping.val_fraction,
+                    shuffle=False,
+                )
+            )
+        module = self.module(input_dim=x_training.shape[1])
         model = ModelWrapper(module).to(self.device)
-        dataset = TensorDataset(x, y)
+        dataset = TensorDataset(x_training, y_training)
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
         optimizer, criterion = self.prepare(model)
         scheduler = make_scheduler(
             optimizer, self.learning_schedule, self.learning_rate, self.epochs
+        )
+        early_stopping_state = (
+            EarlyStoppingState(self.early_stopping)
+            if self.early_stopping is not None
+            else None
         )
         for epoch in range(self.epochs):
             model.train()
@@ -130,6 +182,22 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
                 )
             if scheduler is not None:
                 scheduler.step()
+            if (
+                early_stopping_state is not None
+                and x_validation is not None
+                and y_validation is not None
+            ):
+                model.eval()
+                with torch.no_grad():
+                    with autocast(
+                        device_type=self.device, dtype=torch.bfloat16
+                    ):
+                        validation_output = model(x_validation)
+                        validation_loss = criterion(
+                            validation_output.squeeze(), y_validation
+                        ).item()
+                if early_stopping_state.step(epoch, validation_loss):
+                    break
         return model
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> 'TorchEstimator':

@@ -1,12 +1,15 @@
 # Code inspired by: https://github.com/jimfleming/numerai/blob/master/models/autoencoder/model.py  # noqa: E501
 import torch
 import torch.nn as nn
+from sklearn.model_selection import train_test_split
 from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from shrubbery.adapter import (
     CompilerBackend,
+    EarlyStopping,
+    EarlyStoppingState,
     LearningSchedule,
     ModelWrapper,
     TorchEstimator,
@@ -71,6 +74,7 @@ class AutoencoderEmbedder(TorchEstimator):
         device: str,
         compiler: CompilerBackend,
         learning_schedule: LearningSchedule | None = None,
+        early_stopping: EarlyStopping | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
@@ -79,21 +83,26 @@ class AutoencoderEmbedder(TorchEstimator):
             device=device,
             compiler=compiler,
             learning_schedule=learning_schedule,
+            early_stopping=early_stopping,
         )
         self.layer_units = layer_units
         self.denoise = denoise
         self.batch_norm_eps = batch_norm_eps
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
+        x_training, x_validation = x, None
+        if self.early_stopping is not None:
+            x_training, x_validation = train_test_split(
+                x, test_size=self.early_stopping.val_fraction, shuffle=False
+            )
         # Autoencoder
-        input_dim = x.shape[1]
+        input_dim = x_training.shape[1]
         module = AutoencoderNetwork(
             input_dim, self.layer_units, self.batch_norm_eps
         ).to(self.device)
         # Training
         if self.denoise:
-            x_variance = x.var(dim=0)
-            x_stddev = x_variance.sqrt()
+            x_stddev = x_training.var(dim=0).sqrt()
         optimizer = torch.optim.Adam(
             module.parameters(),
             lr=self.learning_rate,
@@ -103,14 +112,18 @@ class AutoencoderEmbedder(TorchEstimator):
         scheduler = make_scheduler(
             optimizer, self.learning_schedule, self.learning_rate, self.epochs
         )
+        early_stopping_state = (
+            EarlyStoppingState(self.early_stopping)
+            if self.early_stopping is not None
+            else None
+        )
         for epoch in range(self.epochs):
-            if self.denoise:
-                noise = torch.randn_like(x) * (0.1 * x_stddev)
-                x_train = x + noise
-            else:
-                x_train = x
-            x_tensor = x_train.to(self.device)
-            dataset = TensorDataset(x_tensor)
+            x_training = (
+                x_training + torch.randn_like(x_training) * (0.1 * x_stddev)
+                if self.denoise
+                else x_training
+            )
+            dataset = TensorDataset(x_training.to(self.device))
             loader = DataLoader(
                 dataset, batch_size=self.batch_size, shuffle=True
             )
@@ -133,6 +146,17 @@ class AutoencoderEmbedder(TorchEstimator):
                 )
             if scheduler is not None:
                 scheduler.step()
+            if early_stopping_state is not None and x_validation is not None:
+                module.eval()
+                with torch.no_grad():
+                    with autocast(
+                        device_type=self.device, dtype=torch.bfloat16
+                    ):
+                        validation_loss = criterion(
+                            module(x_validation), x_validation
+                        ).item()
+                if early_stopping_state.step(epoch, validation_loss):
+                    break
         return ModelWrapper(module.encoder)
 
     def module(self, input_dim: int) -> nn.Module:
