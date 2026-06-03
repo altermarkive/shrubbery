@@ -5,7 +5,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from shrubbery.adapter import CompilerBackend, LearningSchedule, TorchEstimator
+from shrubbery.adapter import (
+    CompilerBackend,
+    EarlyStopping,
+    LearningSchedule,
+    TorchEstimator,
+)
 
 
 def relu_initializer(tensor: torch.Tensor) -> torch.Tensor:
@@ -51,6 +56,7 @@ class FeedforwardNeuralNetworkRegressor(TorchEstimator):
         device: str,
         compiler: CompilerBackend,
         learning_schedule: LearningSchedule | None = None,
+        early_stopping: EarlyStopping | None = None,
     ) -> None:
         super().__init__(
             epochs=epochs,
@@ -59,6 +65,7 @@ class FeedforwardNeuralNetworkRegressor(TorchEstimator):
             device=device,
             compiler=compiler,
             learning_schedule=learning_schedule,
+            early_stopping=early_stopping,
         )
         self.layer_units = layer_units
         self.regularization_scale = regularization_scale
