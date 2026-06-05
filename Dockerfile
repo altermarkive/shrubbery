@@ -66,7 +66,6 @@ RUN apt-get -yq update && \
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_LINK_MODE=copy \
-    UV_NO_CACHE=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_HTTP_TIMEOUT=60 \
     UV_PYTHON=python3.13 \
@@ -74,16 +73,24 @@ ENV UV_LINK_MODE=copy \
     VIRTUAL_ENV=/app/venv
 # TensorRT is quite noisy
 ENV PYTHONWARNINGS="ignore::SyntaxWarning"
-WORKDIR /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
+
+ENV USER=user
+ENV HOME=/home/$USER
+RUN userdel -r ubuntu 2> /dev/null || true
+RUN useradd -m -s /bin/bash -u 1000 $USER && \
+    mkdir /app && \
+    chown -R $USER:$USER $HOME /app && \
+    echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+USER $USER
+
+ENV UV_NO_CACHE=1
+RUN --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     /bin/uv sync --active --frozen --no-dev --no-install-project
-COPY . /app/package
-WORKDIR /app/package
-RUN --mount=type=cache,target=/root/.cache/uv \
-    /bin/uv pip install . && \
-    rm -rf /app/package
+COPY --chown=$USER:$USER . /app/shrubbery
+WORKDIR /app/shrubbery
+RUN /bin/uv pip install --python $VIRTUAL_ENV . && \
+    rm -rf /app/shrubbery
 WORKDIR /app
 RUN chmod -R a+rX /app
 ENV PATH="$PATH:$VIRTUAL_ENV/bin"
