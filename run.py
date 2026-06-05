@@ -46,6 +46,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         f'-i{"" if arguments.headless else "t"}',
         '--shm-size=16g',
         '--userns=keep-id',
+        f'--user {os.getgid()}:{os.getuid()}',
         '-v',
         f'{os.getcwd()}:/w:U',
         '-w',
