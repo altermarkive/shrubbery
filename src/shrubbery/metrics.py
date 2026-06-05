@@ -246,6 +246,7 @@ def submit_diagnostic_predictions(
         for key, value in diagnostics.items():
             if isinstance(value, float) or isinstance(value, int):
                 metrics[key] = float(value)
+                logger.info(f'Numerai Diagnostics - {key}: {metrics[key]}')
         if wandb.run is not None:
             wandb.run.summary.update(metrics)
     return metrics
