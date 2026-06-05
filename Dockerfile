@@ -73,12 +73,13 @@ ENV UV_LINK_MODE=copy \
     VIRTUAL_ENV=/app/venv
 # TensorRT is quite noisy
 ENV PYTHONWARNINGS="ignore::SyntaxWarning"
+# Initiate Virtual Environment
+RUN /bin/uv venv
 
 ENV USER=user
 ENV HOME=/home/$USER
 RUN userdel -r ubuntu 2> /dev/null || true
 RUN useradd -m -s /bin/bash -u 1000 $USER && \
-    mkdir /app && \
     chown -R $USER:$USER $HOME /app && \
     echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER $USER
@@ -92,5 +93,4 @@ WORKDIR /app/shrubbery
 RUN /bin/uv pip install --python $VIRTUAL_ENV . && \
     rm -rf /app/shrubbery
 WORKDIR /app
-RUN chmod -R a+rX /app
 ENV PATH="$PATH:$VIRTUAL_ENV/bin"
