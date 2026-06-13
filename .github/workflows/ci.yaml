@@ -8,9 +8,9 @@ jobs:
       - name: Free
         uses: jlumbroso/free-disk-space@main
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
       - name: Preparing
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           version: "latest"
       - name: Linting
