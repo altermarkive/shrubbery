@@ -29,7 +29,9 @@ class FitDownsamplerByEra(
             eras_first_index = eras_last_index % self.era_stride
             eras_downsampled = eras[eras_first_index :: self.era_stride]
             downsampled = np.isin(x[:, COLUMN_INDEX_ERA], eras_downsampled)
-            result = self.estimator.fit(x[downsampled], y[downsampled], **kwargs)
+            result = self.estimator.fit(
+                x[downsampled], y[downsampled], **kwargs
+            )
         else:
             result = self.estimator.fit(x, y, **kwargs)
         self.fitted_ = True
