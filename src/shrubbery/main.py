@@ -205,4 +205,10 @@ def main_arguments() -> argparse.Namespace:
     parser.add_argument(
         '--retrain', action='store_true', help='Use this flag to retrain'
     )
+    parser.add_argument(
+        '--training-era-stride',
+        type=int,
+        default=1,
+        help='Use this argument to downsample eras by given stride',
+    )
     return parser.parse_args()
