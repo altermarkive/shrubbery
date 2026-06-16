@@ -1,4 +1,5 @@
 import math
+import os
 import time
 
 import pandas as pd
@@ -68,45 +69,38 @@ def get_performances(numerai_model_id: str) -> pd.DataFrame:
     return performances.join(submission_scores)
 
 
-def get_projects():
-    api = wandb.Api()
-    return [project.name for project in api.projects()]
-
-
 def update_tournament_submissions(numerai_model_id: str) -> None:
     try:
         performances = get_performances(numerai_model_id)
     except KeyError:
         # New model, ignore error
         return
-    projects = get_projects()
     api = wandb.Api()
-    for project in projects:
-        runs = api.runs(project)
-        for run in runs:
-            if 'submitted' not in run.tags:
+    runs = api.runs(os.environ['WANDB_PROJECT'])
+    for run in runs:
+        if 'submitted' not in run.tags:
+            continue
+        if 'numerai_model_id' not in run.summary:
+            continue
+        if run.summary['numerai_model_id'] != numerai_model_id:
+            continue
+        round_number = run.summary.get('tournament_round')
+        if round_number is None:
+            continue
+        entry = performances[
+            performances[COLUMN_ROUND_NUMBER] == int(round_number)
+        ]
+        scores = {
+            score_key: entry[score_key].item()
+            for score_key in [COLUMN_MMC, COLUMN_V2_CORR20]
+        }
+        try:
+            if any(math.isnan(value) for value in scores.values()):
                 continue
-            if 'numerai_model_id' not in run.summary:
-                continue
-            if run.summary['numerai_model_id'] != numerai_model_id:
-                continue
-            round_number = run.summary.get('tournament_round')
-            if round_number is None:
-                continue
-            entry = performances[
-                performances[COLUMN_ROUND_NUMBER] == int(round_number)
-            ]
-            scores = {
-                score_key: entry[score_key].item()
-                for score_key in [COLUMN_MMC, COLUMN_V2_CORR20]
-            }
-            try:
-                if any(math.isnan(value) for value in scores.values()):
-                    continue
-                # Score changes over time - hence repeated check & update
-                run.summary.update(scores)
-            except TypeError:
-                # New model, ignore error
-                return
-            run.tags.append('scored')
-            run.update()
+            # Score changes over time - hence repeated check & update
+            run.summary.update(scores)
+        except TypeError:
+            # New model, ignore error
+            return
+        run.tags.append('scored')
+        run.update()
