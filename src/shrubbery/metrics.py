@@ -212,7 +212,7 @@ class CompositeMetric:
             name: metric(x, y_true, y_pred)
             for name, metric in self.variables.items()
         }
-        return numexpr.evaluate(self.formula, local_dict=values)
+        return float(numexpr.evaluate(self.formula, local_dict=values))
 
 
 def submit_diagnostic_predictions(
