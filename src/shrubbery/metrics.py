@@ -1,6 +1,8 @@
 import time
+from collections.abc import Callable
 from typing import Any
 
+import numexpr
 import numpy as np
 import pandas as pd
 import requests
@@ -193,6 +195,24 @@ class MSE:
         self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
     ) -> float:
         return mean_squared_error(y_true, y_pred)
+
+
+# Composite metric defined by a formula over named sub-metrics
+class CompositeMetric:
+    __name__ = 'Composite'
+
+    def __init__(self, variables: dict[str, Callable], formula: str) -> None:
+        self.variables = variables
+        self.formula = formula
+
+    def __call__(
+        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
+    ) -> float:
+        values: dict[str, float] = {
+            name: metric(x, y_true, y_pred)
+            for name, metric in self.variables.items()
+        }
+        return numexpr.evaluate(self.formula, local_dict=values)
 
 
 def submit_diagnostic_predictions(
