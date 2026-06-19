@@ -112,7 +112,7 @@ class AutoencoderEmbedder(TorchEstimator):
         ).to(self.device)
         # Training
         x_clean = x_training
-        x_stddev = x_clean.var(dim=0).sqrt() if self.denoise else None
+        x_stddev = x_clean.var(dim=0).sqrt()
         optimizer = torch.optim.Adam(
             module.parameters(),
             lr=self.learning_rate,
