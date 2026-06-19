@@ -46,7 +46,7 @@ class ResNetRegressor(TorchEstimator):
         epochs: int,
         batch_size: int,
         device: str,
-        compiler: CompilerBackend,
+        compiler: CompilerBackend = CompilerBackend.JIT,
         learning_schedule: LearningSchedule | None = None,
         early_stopping: EarlyStopping | None = None,
     ) -> None:
@@ -56,6 +56,11 @@ class ResNetRegressor(TorchEstimator):
             learning_rate=learning_rate,
             device=device,
             compiler=compiler,
+            # ResNet uses BCELoss, and PyTorch explicitly forbids BCELoss
+            # under autocast (it raises a RuntimeError, steering you to
+            # BCEWithLogitsLoss instead), so autocast is not exposed here and
+            # is forced off.
+            autocast=False,
             learning_schedule=learning_schedule,
             early_stopping=early_stopping,
         )
@@ -79,6 +84,7 @@ class ResNetRegressor(TorchEstimator):
         layers.append(nn.ReLU())
         layers.append(nn.Dropout(self.dropout_rate))
         layers.append(nn.Linear(self.hidden_dim // 2, 1))
+        layers.append(nn.Sigmoid())
         # Model
         module = nn.Sequential(*layers)
         return module
@@ -94,5 +100,5 @@ class ResNetRegressor(TorchEstimator):
             lr=self.learning_rate,
             weight_decay=self.weight_decay,
         )
-        criterion = nn.BCEWithLogitsLoss()
+        criterion = nn.BCELoss()
         return (optimizer, criterion)
