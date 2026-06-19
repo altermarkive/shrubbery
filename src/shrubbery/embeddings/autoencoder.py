@@ -2,7 +2,6 @@
 import torch
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
-from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -72,7 +71,17 @@ class AutoencoderEmbedder(TorchEstimator):
         learning_rate: float,
         batch_norm_eps: float,
         device: str,
-        compiler: CompilerBackend,
+        compiler: CompilerBackend = CompilerBackend.JIT,
+        # Caution: setting autocast=True trains in bfloat16, and pairing it
+        # with compiler=CompilerBackend.TENSORRT also runs inference in
+        # bfloat16. bfloat16 keeps only ~2-3 significant decimal digits, so
+        # the autoencoder embeddings get quantized to a coarse grid. Those
+        # embeddings feed downstream tree models, and the lost resolution
+        # collapses distinct feature values into ties, shrinking the number
+        # of usable splits and degrading their predictions. Keep both off
+        # (autocast=False, compiler=JIT) unless the speedup is worth
+        # measurably weaker embeddings.
+        autocast: bool = False,
         learning_schedule: LearningSchedule | None = None,
         early_stopping: EarlyStopping | None = None,
     ) -> None:
@@ -82,6 +91,7 @@ class AutoencoderEmbedder(TorchEstimator):
             learning_rate=learning_rate,
             device=device,
             compiler=compiler,
+            autocast=autocast,
             learning_schedule=learning_schedule,
             early_stopping=early_stopping,
         )
@@ -101,8 +111,8 @@ class AutoencoderEmbedder(TorchEstimator):
             input_dim, self.layer_units, self.batch_norm_eps
         ).to(self.device)
         # Training
-        if self.denoise:
-            x_stddev = x_training.var(dim=0).sqrt()
+        x_clean = x_training
+        x_stddev = x_clean.var(dim=0).sqrt() if self.denoise else None
         optimizer = torch.optim.Adam(
             module.parameters(),
             lr=self.learning_rate,
@@ -118,22 +128,28 @@ class AutoencoderEmbedder(TorchEstimator):
             else None
         )
         for epoch in range(self.epochs):
+            # Add fresh noise to the clean input each epoch (denoising
+            # autoencoder reconstructs the clean signal from a noisy input).
             x_training = (
-                x_training + torch.randn_like(x_training) * (0.1 * x_stddev)
+                x_clean + torch.randn_like(x_clean) * (0.1 * x_stddev)
                 if self.denoise
-                else x_training
+                else x_clean
             )
-            dataset = TensorDataset(x_training.to(self.device))
+            dataset = TensorDataset(
+                x_training.to(self.device), x_clean.to(self.device)
+            )
             loader = DataLoader(
                 dataset, batch_size=self.batch_size, shuffle=True
             )
             module.train()
             metric_sum = 0.0
-            for i, (x_batch,) in enumerate(progress := tqdm(loader)):
+            for i, (x_training_batch, x_clean_batch) in enumerate(
+                progress := tqdm(loader)
+            ):
                 optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.bfloat16):
-                    outputs = module(x_batch)
-                    metric = criterion(outputs, x_batch)
+                with self.autocast_context():
+                    outputs = module(x_training_batch)
+                    metric = criterion(outputs, x_clean_batch)
                 metric.backward()
                 torch.nn.utils.clip_grad_norm_(
                     module.parameters(), max_norm=1.0
@@ -149,9 +165,7 @@ class AutoencoderEmbedder(TorchEstimator):
             if early_stopping_state is not None and x_validation is not None:
                 module.eval()
                 with torch.no_grad():
-                    with autocast(
-                        device_type=self.device, dtype=torch.bfloat16
-                    ):
+                    with self.autocast_context():
                         validation_loss = criterion(
                             module(x_validation), x_validation
                         ).item()

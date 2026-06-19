@@ -1,4 +1,5 @@
 import io
+from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
@@ -132,7 +133,8 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         batch_size: int,
         learning_rate: float,
         device: str,
-        compiler: CompilerBackend = CompilerBackend.TENSORRT,
+        compiler: CompilerBackend = CompilerBackend.JIT,
+        autocast: bool = False,
         learning_schedule: LearningSchedule | None = None,
         early_stopping: EarlyStopping | None = None,
     ) -> None:
@@ -141,8 +143,14 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self.learning_rate = learning_rate
         self.device = device
         self.compiler = compiler
+        self.autocast = autocast
         self.learning_schedule = learning_schedule
         self.early_stopping = early_stopping
+
+    def autocast_context(self) -> AbstractContextManager:
+        if self.autocast:
+            return autocast(device_type=self.device, dtype=torch.bfloat16)
+        return nullcontext()
 
     def train(self, x: torch.Tensor, y: torch.Tensor) -> nn.Module:
         x_training, y_training, x_validation, y_validation = x, y, None, None
@@ -172,7 +180,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
             model.train()
             for x_batch, y_batch in (progress := tqdm(loader)):
                 optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.bfloat16):
+                with self.autocast_context():
                     outputs = model(x_batch)
                     metric = criterion(outputs.squeeze(), y_batch)
                 metric.backward()
@@ -189,9 +197,7 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
             ):
                 model.eval()
                 with torch.no_grad():
-                    with autocast(
-                        device_type=self.device, dtype=torch.bfloat16
-                    ):
+                    with self.autocast_context():
                         validation_output = model(x_validation)
                         validation_loss = criterion(
                             validation_output.squeeze(), y_validation
@@ -221,17 +227,15 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         model.eval().to(self.device)
         match self.compiler:
             case CompilerBackend.TENSORRT:
-                x_tensor = torch.tensor(x, dtype=torch.bfloat16).to(
-                    self.device
-                )
+                x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch_tensorrt.compile(
-                    model.to(torch.bfloat16),
+                    model.to(torch.float32),
                     inputs=[
                         torch_tensorrt.Input(
                             min_shape=(1, x.shape[1]),
                             opt_shape=x.shape,
                             max_shape=x.shape,
-                            dtype=torch.bfloat16,
+                            dtype=torch.float32,
                         )
                     ],
                     optimization_level=5,

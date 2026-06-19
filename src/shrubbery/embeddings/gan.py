@@ -5,7 +5,6 @@
 # * https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py  # noqa: E501
 import torch
 import torch.nn as nn
-from torch.amp import autocast
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
@@ -119,7 +118,17 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
         discriminator_layer_units: list[int],
         learning_rate: float,
         device: str,
-        compiler: CompilerBackend,
+        compiler: CompilerBackend = CompilerBackend.JIT,
+        # Caution: setting autocast=True trains in bfloat16, and pairing it
+        # with compiler=CompilerBackend.TENSORRT also runs inference in
+        # bfloat16. bfloat16 keeps only ~2-3 significant decimal digits, so
+        # the discriminator embeddings get quantized to a coarse grid. Those
+        # embeddings feed downstream tree models, and the lost
+        # resolution collapses distinct feature values into ties, shrinking
+        # the number of usable splits and degrading their predictions. Keep
+        # both off (autocast=False, compiler=JIT) unless the speedup is worth
+        # measurably weaker embeddings.
+        autocast: bool = False,
         learning_schedule: LearningSchedule | None = None,
     ) -> None:
         super().__init__(
@@ -128,6 +137,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
             learning_rate=learning_rate,
             device=device,
             compiler=compiler,
+            autocast=autocast,
             learning_schedule=learning_schedule,
         )
         self.latent_dim = latent_dim
@@ -179,7 +189,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 # Train discriminator
                 discriminator.train()
                 d_optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.bfloat16):
+                with self.autocast_context():
                     g_noise = torch.randn(batch_size, self.latent_dim).to(
                         self.device
                     )
@@ -201,7 +211,7 @@ class GenerativeAdversarialNetworkEmbedder(TorchEstimator):
                 # Train generator
                 discriminator.eval()
                 g_optimizer.zero_grad()
-                with autocast(device_type=self.device, dtype=torch.bfloat16):
+                with self.autocast_context():
                     d_noise = torch.randn(2 * batch_size, self.latent_dim).to(
                         self.device
                     )

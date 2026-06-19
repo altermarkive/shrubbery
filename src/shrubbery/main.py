@@ -92,6 +92,7 @@ class NumeraiRunner:
         numerai_model_id: str,
         version: str,
         notes: str,
+        deterministic: bool,
     ) -> None:
         self.feature_set_name = feature_set_name
         self.retrain = retrain
@@ -99,10 +100,18 @@ class NumeraiRunner:
         self.numerai_model_id = numerai_model_id
         self.version = version
         self.notes = notes
+        self.deterministic = deterministic
 
     def run(self, config_content: bytes, config_name: str) -> None:
-        torch.manual_seed(RANDOM_SEED)
-        np.random.seed(RANDOM_SEED)
+        if self.deterministic:
+            # Seeding pins every stochastic component (weight init, dropout,
+            # DataLoader shuffling, GAN/denoise noise, unseeded RF bootstrap)
+            # to a single draw. That makes runs reproducible but can lock
+            # training onto a worse-than-average outcome compared to an
+            # unseeded run, so only enable it when you specifically need
+            # determinism.
+            torch.manual_seed(RANDOM_SEED)
+            np.random.seed(RANDOM_SEED)
         silence_false_positive_warnings()
         update_tournament_submissions(self.numerai_model_id)
         wandb.init(dir='/tmp/wandb')
