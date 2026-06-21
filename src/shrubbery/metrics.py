@@ -94,6 +94,9 @@ class PerEraSharpe:
 
 
 # Max Drawdown
+# Caution: When applied in-sample
+# (e.g. running validation on the training dataset)
+# it produces 0.
 # greater_is_better: True
 class PerEraMaxDrawdown:
     __name__ = 'Max Drawdown'
@@ -137,31 +140,6 @@ class PerEraMaxAPY:
             - 1
         ) * 100
         return apy
-
-
-# TODO: Max Feature Exposure causes: RuntimeWarning: invalid value encountered in divide
-# Max Feature Exposure
-# greater_is_better: False
-class MaxFeatureExposure:
-    __name__ = 'Max Feature Exposure'
-
-    def __call__(
-        self, x: np.ndarray, y_true: np.ndarray, y_pred: np.ndarray
-    ) -> float:
-        # Check the feature exposure of your validation predictions
-        validation_data_grouped, feature_indices = (
-            _get_validation_data_grouped(x, y_true, y_pred)
-        )
-        max_per_era = validation_data_grouped.apply(
-            lambda group: (
-                group[feature_indices]
-                .corrwith(group[COLUMN_Y_PRED])
-                .abs()
-                .max()
-            ),
-            include_groups=False,
-        )
-        return max_per_era.mean()
 
 
 # Feature Neutral Correlation
