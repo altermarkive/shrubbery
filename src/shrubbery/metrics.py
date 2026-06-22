@@ -119,6 +119,9 @@ class PerEraMaxDrawdown:
 
 
 # APY
+# Caution: When applied in-sample
+# (e.g. running validation on the training dataset)
+# it produces a constant value.
 # greater_is_better: True
 class PerEraMaxAPY:
     __name__ = 'APY'
