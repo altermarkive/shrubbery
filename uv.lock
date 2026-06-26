@@ -2482,7 +2482,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "sklearn-genetic", specifier = ">=0.6.0" },
-    { name = "sklearn-genetic-opt", specifier = ">=0.12.0" },
+    { name = "sklearn-genetic-opt", specifier = ">=0.13.0" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "torch-tensorrt", specifier = ">=2.11.0" },
     { name = "tpot", specifier = ">=1.1.0" },
@@ -2517,7 +2517,7 @@ wheels = [
 
 [[package]]
 name = "sklearn-genetic-opt"
-version = "0.12.0"
+version = "0.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deap" },
@@ -2525,9 +2525,9 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/41/39/4b3ff7d5ef107bda7cbf155a376188074c0a50c5295dacc9c487bb36185a/sklearn_genetic_opt-0.12.0.tar.gz", hash = "sha256:4e526cc62b424706d6158048a0b50ecb0162fe8015d0c8889aaec1a2d40c0ac6", size = 34058, upload-time = "2025-07-23T16:44:22.14Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/03/7be4aaa641a7396d673bfdc42791f2c48273e129649df11bde265977ff72/sklearn_genetic_opt-0.13.0.tar.gz", hash = "sha256:2a6200c4f3e808cc6869bf5c4e6c1f6b69c6fc88340c359590e08fffad70eaee", size = 60673, upload-time = "2026-06-22T20:58:22.045Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/10/15c3c2e30b4393a04469761c99ffbee7a00e1eb255b418c08197a7261312/sklearn_genetic_opt-0.12.0-py3-none-any.whl", hash = "sha256:7e0b9b5c0db51b822bf731a05f14fbf2a6a79b1f6b8418fdb077ed76cf134365", size = 37469, upload-time = "2025-07-23T16:44:20.865Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/12/aed378f9a38ae8bb56df4b046871b9d06aa8d05981c749331b1227e66fd2/sklearn_genetic_opt-0.13.0-py3-none-any.whl", hash = "sha256:cc4d1d39c1cea67d429a5fba778719dc9bc897b3243b7303a26a8888c6e125ea", size = 63602, upload-time = "2026-06-22T20:58:20.329Z" },
 ]
 
 [[package]]
