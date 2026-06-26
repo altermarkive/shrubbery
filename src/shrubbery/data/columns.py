@@ -1,7 +1,7 @@
 from typing import Any
 
 import numpy as np
-from sklearn.base import BaseEstimator, MetaEstimatorMixin, TransformerMixin
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
 from sklearn.compose import ColumnTransformer
 
 from shrubbery.constants import COLUMN_INDEX_ERA, COLUMN_TARGET
@@ -17,7 +17,7 @@ class NumeraiFeaturesSelector(ColumnTransformer):
 
 
 class NumeraiTargetSelector(
-    BaseEstimator, MetaEstimatorMixin, TransformerMixin
+    RegressorMixin, MetaEstimatorMixin, BaseEstimator
 ):
     def __init__(
         self, estimator: Any, target: int | str = COLUMN_TARGET
