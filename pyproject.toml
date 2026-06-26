@@ -32,7 +32,6 @@ dependencies = [
     "requests>=2.33.1",
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
-    "sklearn-genetic>=0.6.0",
     "sklearn-genetic-opt>=0.13.0",
     "torch>=2.8.0",
     "torch-tensorrt>=2.11.0",
