@@ -1737,6 +1737,18 @@ wheels = [
 ]
 
 [[package]]
+name = "optuna-integration"
+version = "4.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "optuna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/38/15/378c53a5fce6924be331ba7a7e0b3227f1d2ec8a0c8461c3d2475e5ba2e8/optuna_integration-4.9.0.tar.gz", hash = "sha256:c650615ea52259f518fee245be4f63be55c7495ffc7361d05e5054496ec427b8", size = 89927, upload-time = "2026-06-01T06:11:53.237Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bf/5b/05b6bc0e2fa1dd09d96f75d6cddfeaaaafde6028f89bbfb45e006a82a89a/optuna_integration-4.9.0-py3-none-any.whl", hash = "sha256:578dccd6657c12e0457750512ce718d4e3dab8730fa36dcd0b502eacfaa1e795", size = 103447, upload-time = "2026-06-01T06:11:51.831Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "26.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2434,6 +2446,8 @@ dependencies = [
     { name = "numexpr" },
     { name = "numpy" },
     { name = "nvidia-modelopt" },
+    { name = "optuna" },
+    { name = "optuna-integration" },
     { name = "pandas" },
     { name = "requests" },
     { name = "scikit-learn" },
@@ -2461,6 +2475,8 @@ requires-dist = [
     { name = "numexpr", specifier = ">=2.14.1" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "nvidia-modelopt", specifier = ">=0.43.0" },
+    { name = "optuna", specifier = ">=4.9.0" },
+    { name = "optuna-integration", specifier = ">=4.9.0" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "requests", specifier = ">=2.33.1" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
