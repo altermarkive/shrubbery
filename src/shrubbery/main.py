@@ -36,6 +36,8 @@ from shrubbery.validation import (
 )
 from shrubbery.workspace import get_workspace_path
 
+PREDICT_ROW_CAP = 100000
+
 
 class WandbGridSearchCV(GridSearchCV):
     def __init__(
@@ -186,9 +188,16 @@ class NumeraiRunner:
         diagnostic_data = pd.DataFrame(validation_data.index).set_index(
             COLUMN_ID
         )
-        diagnostic_data['predictions'] = self.estimator.predict(
-            validation_data[[COLUMN_ERA] + feature_cols].to_numpy()
-        )
+        diagnostic_features = validation_data[
+            [COLUMN_ERA] + feature_cols
+        ].to_numpy()
+        diagnostic_predictions = [
+            self.estimator.predict(
+                diagnostic_features[start : start + PREDICT_ROW_CAP]
+            )
+            for start in range(0, len(diagnostic_features), PREDICT_ROW_CAP)
+        ]
+        diagnostic_data['predictions'] = np.concatenate(diagnostic_predictions)
         gc.collect()
         submit_diagnostic_predictions(diagnostic_data, self.numerai_model_id)
 
