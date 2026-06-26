@@ -16,9 +16,7 @@ class NumeraiFeaturesSelector(ColumnTransformer):
         )
 
 
-class NumeraiTargetSelector(
-    RegressorMixin, MetaEstimatorMixin, BaseEstimator
-):
+class NumeraiTargetSelector(RegressorMixin, MetaEstimatorMixin, BaseEstimator):
     def __init__(
         self, estimator: Any, target: int | str = COLUMN_TARGET
     ) -> None:
