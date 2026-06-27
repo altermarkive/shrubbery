@@ -1,12 +1,22 @@
 # Numerai Experiments
 
-Numerai is a hedge fund where trades are determined based on predictions crowdsourced from data scientists given anonymized data.
-This repo contains my experimental code for generation of Numerai predictions.
+This repo contains my experimental code for generation of Numerai predictions. Numerai is a hedge fund where trades are determined based on predictions crowdsourced from data scientists given anonymized data.
+
+This file provides guidance to the user and coding agent when working with code in this repository.
+
+## Living Document
+
+As project priorities shift, this file is meant to be updated to reflect current goals, constraints, and conventions. Outdated instructions are worse than none — keep them accurate.
+
+
+## Architecture
+
+### Environment Variables (`.env`)
 
 To run the code create `.env` script which sets the necessary environment variables:
 
-- `NUMERAI_PUBLIC_ID` & `NUMERAI_SECRET_KEY` - credentials to Numerai's API
-- `NUMERAI_MODEL` - name of the model to upload predictions to
+- `NUMERAI_PUBLIC_ID` & `NUMERAI_SECRET_KEY` - Numerai API credentials
+- `NUMERAI_MODEL` - name of the model for submissions of predictions 
 - `WANDB_API_KEY` - credentials to the Weights & Biases API
 - `WANDB_ENTITY` & `WANDB_PROJECT` - the identifiers of Weights & Biases entity & project to upload plots and tables to
 
