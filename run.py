@@ -9,11 +9,6 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--gpus',
-        action=argparse.BooleanOptionalAction,
-        default=True,
-    )
-    parser.add_argument(
         '--debug',
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -44,6 +39,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
         'run',
         '--rm',
         f'-i{"" if arguments.headless else "t"}',
+        '--device',
+        'nvidia.com/gpu=all',
         '--shm-size=16g',
         '--userns=keep-id',
         f'--user {os.getgid()}:{os.getuid()}',
@@ -54,8 +51,6 @@ def run_docker(arguments: argparse.Namespace) -> None:
         '--env-file',
         f'{base / ".env"}',
     ]
-    if arguments.gpus:
-        command.extend(['--device', 'nvidia.com/gpu=all'])
     if not arguments.debug:
         command.extend(['--entrypoint', '/app/venv/bin/python'])
     if not arguments.local:
