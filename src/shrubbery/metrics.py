@@ -94,9 +94,10 @@ class PerEraSharpe:
 
 
 # Max Drawdown
-# Caution: When applied in-sample
-# (e.g. running validation on the training dataset)
-# it produces 0.
+# Caution: It produces 0 when applied in-sample
+# (running validation on the training dataset).
+# The leakage happens because embedders are trained on the entire training set
+# and only CombinatorialEnsembler splits off a hold-out set.
 # greater_is_better: True
 class PerEraMaxDrawdown:
     __name__ = 'Max Drawdown'
