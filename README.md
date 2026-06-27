@@ -63,7 +63,11 @@ uv run python example.py --retrain
 - Processing is **era-aware** - Numerai's time periods ("eras") are respected throughout splitting, evaluation, and neutralization
 - **GPU-first**: NVIDIA CUDA acceleration via cuML, XGBoost GPU, PyTorch
 
-### Environment Variables (`.env`)
+### Simplified Model Example
+
+You can see an example use of the package in `example.py`.
+
+## Environment Variables (`.env`)
 
 To run the code create `.env` script which sets the necessary environment variables:
 
@@ -72,9 +76,11 @@ To run the code create `.env` script which sets the necessary environment variab
 - `WANDB_API_KEY` - credentials to the Weights & Biases API
 - `WANDB_ENTITY` & `WANDB_PROJECT` - the identifiers of Weights & Biases entity & project to upload plots and tables to
 
-### Simplified Model Example
+## CI/CD
 
-You can see an example use of the package in `example.py`.
+GitHub Actions (`.github/workflows/ci.yaml`): On every push, it runs linting, builds and pushes a Docker container image to GHCR (`ghcr.io/{owner}/shrubbery`), and prunes old images (keeps latest 10).
+
+## Video Introduction
 
 [![shrubbery](http://img.youtube.com/vi/93C9VbA6h1U/0.jpg)](http://www.youtube.com/watch?v=93C9VbA6h1U)
 
