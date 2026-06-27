@@ -42,6 +42,27 @@ uv run python example.py --retrain
 
 ## Architecture
 
+### Core Pipeline (`src/shrubbery/`)
+
+**Entry point**: `main.py` - `NumeraiRunner` implements training harness for model pipeline: data download → feature selection → model training → tournament submission. `WandbGridSearchCV` wraps scikit-learn's GridSearchCV to store results on W&B and is meant fir use with embargo-aware cross-validation.
+
+**Data layer** (`data/`): `ingest.py` downloads/caches Numerai datasets. `augmentation.py` and `downsampling.py` handle data preprocessing.
+
+**Model universe** (`universe/`): Model wrappers (XGBoost, FNN, ResNet, Wide&Deep, TPOT, Factorization Machines) following scikit-learn's estimator interface.
+
+**Embeddings** (`embeddings/`): Feature embedding strategies - Autoencoder, GAN, and a generic wrapper which concatenates features and embeddings.
+
+**Key abstractions**:
+- `NumeraiNeutralization` (`neutralization.py`): scikit-learn compatible meta-estimator that applies feature exposure neutralization (reduces prediction correlation to risky features using pseudo-inverse techniques)
+- `NumeraiTimeSeriesSplitter` (`validation.py`): Era-aware CV splitter with embargo periods to prevent data leakage
+- `CombinatorialEnsembler` (`ensemble.py`): Multi-model combining via product-and-root or sum-and-rank methods
+
+### Key Design Patterns
+
+- All models follow **scikit-learn's BaseEstimator interface** for interoperability
+- Processing is **era-aware** - Numerai's time periods ("eras") are respected throughout splitting, evaluation, and neutralization
+- **GPU-first**: NVIDIA CUDA acceleration via cuML, XGBoost GPU, PyTorch
+
 ### Environment Variables (`.env`)
 
 To run the code create `.env` script which sets the necessary environment variables:
@@ -51,17 +72,15 @@ To run the code create `.env` script which sets the necessary environment variab
 - `WANDB_API_KEY` - credentials to the Weights & Biases API
 - `WANDB_ENTITY` & `WANDB_PROJECT` - the identifiers of Weights & Biases entity & project to upload plots and tables to
 
+### Simplified Model Example
+
 You can see an example use of the package in `example.py`.
 
 [![shrubbery](http://img.youtube.com/vi/93C9VbA6h1U/0.jpg)](http://www.youtube.com/watch?v=93C9VbA6h1U)
 
-Running in `ghcr.io/altermarkive/shrubbery:latest` container:
+## Profiling
 
-```python
-uv sync
-uv pip install -e .
-uv run src/shrubbery/example.py --retrain
-```
+Instructions in this section are meant for manual use by the user.
 
 Profiling Compute:
 
