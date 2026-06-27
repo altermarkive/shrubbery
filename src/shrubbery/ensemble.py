@@ -174,7 +174,12 @@ class CombinatorialEnsembler(
     def fit(
         self, x: np.ndarray, y: np.ndarray, **kwargs: dict[str, Any]
     ) -> 'CombinatorialEnsembler':
-        training_index, holdout_index = next(iter(self.cv.split(x, y)))
+        # Consume all splits and keep the last one. For
+        # NumeraiTimeSeriesSplitter the final fold trains on the earliest
+        # eras and validates on the latest (era-disjoint, embargoed), which
+        # keeps the holdout genuinely out-of-sample so time-ordered metrics
+        # like Max Drawdown are meaningful instead of collapsing to 0.
+        *_, (training_index, holdout_index) = self.cv.split(x, y)
         x_training = x[training_index]
         y_training = y[training_index]
         x_holdout = x[holdout_index]
