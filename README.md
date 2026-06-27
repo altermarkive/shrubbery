@@ -1,13 +1,44 @@
 # Numerai Experiments
 
-This repo contains my experimental code for generation of Numerai predictions. Numerai is a hedge fund where trades are determined based on predictions crowdsourced from data scientists given anonymized data.
-
-This file provides guidance to the user and coding agent when working with code in this repository.
+Shrubbery is an experimental ML pipeline for generating predictions for Numerai, a hedge fund where trades are determined based on predictions crowdsourced from data scientists given anonymized data. It uses GPU-accelerated models, era-aware time series processing, and Weights & Biases for experiment tracking.
 
 ## Living Document
 
+This file provides guidance to the user and coding agent when working with code in this repository.
+
 As project priorities shift, this file is meant to be updated to reflect current goals, constraints, and conventions. Outdated instructions are worse than none — keep them accurate.
 
+## Build & Development Commands
+
+- **Package manager**: `uv` (dependencies in `pyproject.toml`, lockfile in `uv.lock`)
+- **Sandboxing**: `podman`
+
+**Running**:
+
+Models are executed by the user in a Docker container via shrubbery's `run.py`:
+
+```bash
+# Run model inference
+run.py -- example.py
+
+# Run model training
+run.py -- example.py --retrain
+```
+
+Models are executed by the coding agent already inside the Docker container directly via `uv`:
+
+```bash
+# Run model inference
+uv run python example.py
+
+# Run model training
+uv run python example.py --retrain
+```
+
+**Linting**:
+```bash
+/bin/sh .github/workflows/linting.sh
+```
 
 ## Architecture
 
