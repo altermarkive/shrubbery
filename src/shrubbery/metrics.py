@@ -120,9 +120,10 @@ class PerEraMaxDrawdown:
 
 
 # APY
-# Caution: When applied in-sample
-# (e.g. running validation on the training dataset)
-# it produces a constant value.
+# Caution: It produces constant value when applied in-sample
+# (running validation on the training dataset).
+# The leakage happens because embedders are trained on the entire training set
+# and only CombinatorialEnsembler splits off a hold-out set.
 # greater_is_better: True
 class PerEraMaxAPY:
     __name__ = 'APY'
