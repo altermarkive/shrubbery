@@ -5,6 +5,7 @@ import pandas as pd
 import wandb
 
 from shrubbery.constants import COLUMN_INDEX_TARGET
+from shrubbery.observability import logger
 
 METRIC_PREDICTION_ID = 'Prediction ID'
 METRIC_PREDICTION_VALUE = 'Metric'
@@ -66,3 +67,5 @@ def validation_metrics(
     validation_stats.append(evaluation)
     evaluation_table = pd.DataFrame.from_records(validation_stats)
     wandb.log({TABLE_EVALUATION: wandb.Table(data=evaluation_table)})
+    logger.info(f'Validation {prediction_id}: {result}')
+    return result

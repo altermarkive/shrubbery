@@ -96,7 +96,6 @@ def mix_combinatorial(
         mix = next_mix(lut, sort_ascending)
         if mix is None:
             break
-        logger.info(f'Next up: {mix}')
         mix_all(
             x,
             y_true,
