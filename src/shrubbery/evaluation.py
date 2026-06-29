@@ -50,9 +50,6 @@ def numerai_scorer(
     return NumeraiScorer(metric=metric, greater_is_better=greater_is_better)
 
 
-TABLE_EVALUATION = 'Evaluation Table'
-
-
 def validation_metrics(
     x: np.ndarray,
     y_true: np.ndarray,
@@ -65,7 +62,5 @@ def validation_metrics(
     result = metric_function(x, y_true, y_pred)
     evaluation[METRIC_PREDICTION_VALUE] = result
     validation_stats.append(evaluation)
-    evaluation_table = pd.DataFrame.from_records(validation_stats)
-    wandb.log({TABLE_EVALUATION: wandb.Table(data=evaluation_table)})
     logger.info(f'Validation {prediction_id}: {result}')
     return result
