@@ -1,16 +1,14 @@
-import math
-import os
 import time
 
 import pandas as pd
 import requests
-import wandb
 
 from shrubbery.constants import (
     COLUMN_MMC,
     COLUMN_ROUND_NUMBER,
     COLUMN_V2_CORR20,
 )
+from shrubbery.data.ingest import locate_numerai_file
 from shrubbery.napi import napi
 from shrubbery.observability import logger
 from shrubbery.utilities import save_prediction
@@ -31,9 +29,6 @@ def submit_tournament_predictions(
                 model_id=model_id,
             )
             logger.info('Submitted tournament predictions')
-            if wandb.run is not None:
-                tags = list(wandb.run.tags) if wandb.run.tags else []
-                wandb.run.tags = tuple(tags + ['submitted'])
             break
         except requests.exceptions.HTTPError as error:
             if (
@@ -75,32 +70,6 @@ def update_tournament_submissions(numerai_model_id: str) -> None:
     except KeyError:
         # New model, ignore error
         return
-    api = wandb.Api()
-    runs = api.runs(os.environ['WANDB_PROJECT'])
-    for run in runs:
-        if 'submitted' not in run.tags:
-            continue
-        if 'numerai_model_id' not in run.summary:
-            continue
-        if run.summary['numerai_model_id'] != numerai_model_id:
-            continue
-        round_number = run.summary.get('tournament_round')
-        if round_number is None:
-            continue
-        entry = performances[
-            performances[COLUMN_ROUND_NUMBER] == int(round_number)
-        ]
-        scores = {
-            score_key: entry[score_key].item()
-            for score_key in [COLUMN_MMC, COLUMN_V2_CORR20]
-        }
-        try:
-            if any(math.isnan(value) for value in scores.values()):
-                continue
-            # Score changes over time - hence repeated check & update
-            run.summary.update(scores)
-        except TypeError:
-            # New model, ignore error
-            return
-        run.tags.append('scored')
-        run.update()
+    performances[[COLUMN_ROUND_NUMBER, COLUMN_MMC, COLUMN_V2_CORR20]].to_csv(
+        locate_numerai_file(f'parformances_{numerai_model_id}.csv')
+    )
