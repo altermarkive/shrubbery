@@ -91,7 +91,7 @@ class Ensembler(
             logger.info(
                 f'Ensemble model config: {model_to_string(config.estimator)}'
             )
-            y_predictions = config.estimator.predict(x_training)
+            y_predictions = config.estimator.predict(x_training).clip(0.0, 1.0)
             predictions[config.name] = y_predictions
             validation_metrics(
                 x_training,
@@ -134,7 +134,7 @@ class Ensembler(
                 )
                 predictions[config.name] = config.estimator.predict(
                     x.astype(np.float32)
-                )
+                ).clip(0.0, 1.0)
                 gc.collect()
         logger.info('Creating ensemble')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
@@ -201,7 +201,7 @@ class CombinatorialEnsembler(
             logger.info(
                 f'Ensemble model config: {model_to_string(config.estimator)}'
             )
-            y_predictions = config.estimator.predict(x_holdout)
+            y_predictions = config.estimator.predict(x_holdout).clip(0.0, 1.0)
             predictions[config.name] = y_predictions
             validation_metrics(
                 x_holdout,
@@ -244,7 +244,7 @@ class CombinatorialEnsembler(
                 )
                 predictions[config.name] = config.estimator.predict(
                     x.astype(np.float32)
-                )
+                ).clip(0.0, 1.0)
                 gc.collect()
         logger.info('Creating ensemble')
         logger.info(f'Ensemble: {self.estimator_names_best_}')
