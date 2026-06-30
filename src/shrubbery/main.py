@@ -119,6 +119,7 @@ class NumeraiRunner:
         tournament_round = napi.get_current_round()
         logger.info(f'Tournament round: {tournament_round}')
         logger.info(f'Model ID: {self.numerai_model_id}')
+        logger.info(f'Notes: {self.notes}')
         if wandb.run is not None:
             wandb.run.summary.update(
                 {
