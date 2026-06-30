@@ -1,13 +1,11 @@
 import time
 from collections.abc import Callable
-from typing import Any
 
 import numexpr
 import numpy as np
 import pandas as pd
 import requests
 import scipy
-import wandb
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.metrics import mean_squared_error
 
@@ -275,6 +273,4 @@ def submit_diagnostic_predictions(
             if isinstance(value, float) or isinstance(value, int):
                 metrics[key] = float(value)
                 logger.info(f'Numerai Diagnostics - {key}: {metrics[key]}')
-        if wandb.run is not None:
-            wandb.run.summary.update(metrics)
     return metrics

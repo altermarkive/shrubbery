@@ -116,11 +116,14 @@ class NumeraiRunner:
         update_tournament_submissions(self.numerai_model_id)
         wandb.init(dir='/tmp/wandb')
         _save_config_file_to_wandb(config_content, config_name)
+        tournament_round = napi.get_current_round()
+        logger.info(f'Tournament round: {tournament_round}')
+        logger.info(f'Model ID: {self.numerai_model_id}')
         if wandb.run is not None:
             wandb.run.summary.update(
                 {
                     'numerai_model_id': self.numerai_model_id,
-                    'tournament_round': napi.get_current_round(),
+                    'tournament_round': tournament_round,
                 }
             )
             wandb.run.notes = self.notes

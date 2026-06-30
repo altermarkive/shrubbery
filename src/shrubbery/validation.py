@@ -4,7 +4,6 @@ from typing import Any, Generator
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import wandb
 from sklearn.model_selection import BaseCrossValidator
 
 from shrubbery.constants import COLUMN_INDEX_ERA
@@ -107,9 +106,8 @@ def reformat_cross_validation_result(
         dict_of_lists_to_list_of_dicts(cross_validation_result),
         key=operator.itemgetter('rank_test_score'),
     )
-    cross_validation_table = wandb.Table(data=pd.DataFrame(results))
-    cross_validation_table_name = f'Cross-validation Table ({model_name})'
-    wandb.log({cross_validation_table_name: cross_validation_table})
+    table_path = locate_numerai_file(f'cross_validation_{model_name}.csv')
+    pd.DataFrame(results).to_csv(table_path)
     return results
 
 
@@ -185,5 +183,4 @@ def cross_validation_to_parallel_coordinates(
     plt.tight_layout()
     plot_path = locate_numerai_file(f'cross_validation_{model_name}.png')
     plt.savefig(plot_path)
-    wandb.log({title: wandb.Image(str(plot_path))})
     plt.close(figure)
