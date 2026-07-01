@@ -23,10 +23,6 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         default=False,
     )
-    parser.add_argument(
-        '--priority',
-        default=None,
-    )
     parser.add_argument('command', nargs=argparse.REMAINDER)
     arguments = parser.parse_args()
     run_docker(arguments)
@@ -65,9 +61,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
     if not arguments.debug:
         command.extend(arguments.command[1:])
     command = ' '.join(command)
-    if arguments.priority is not None:
-        priority = arguments.priority
-        command = f'sbatch --wrap="{command}" --priority={priority} --nodes=1 --output=/tmp/slurm-%j.out --error=/tmp/slurm-%j.err'
+    Path('workspace/logs').mkdir(parents=True, exist_ok=True)
+    command += ' 2>&1 > workspace/logs/$(date +%Y%m%d%H%M%S).log'
     print(command)
     subprocess.run(command, shell=True, check=True)
 
