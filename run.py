@@ -61,8 +61,9 @@ def run_docker(arguments: argparse.Namespace) -> None:
     if not arguments.debug:
         command.extend(arguments.command[1:])
     command = ' '.join(command)
-    Path('workspace/logs').mkdir(parents=True, exist_ok=True)
-    command += ' 2>&1 > workspace/logs/$(date +%Y%m%d%H%M%S).log'
+    if not arguments.debug:
+        Path('workspace/logs').mkdir(parents=True, exist_ok=True)
+        command += ' 2>&1 > workspace/logs/$(date +%Y%m%d%H%M%S).log'
     print(command)
     subprocess.run(command, shell=True, check=True)
 
