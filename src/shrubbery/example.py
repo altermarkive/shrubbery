@@ -8,7 +8,7 @@ from shrubbery.neutralization import NumeraiNeutralization
 if __name__ == '__main__':
     arguments = main_arguments()
     NumeraiRunner(
-        numerai_model_id=os.getenv('NUMERAI_MODEL', 'default'),
+        numerai_model_id=os.environ['NUMERAI_MODEL'],
         notes='Example',
         version='latest',
         feature_set_name='small',  # fncv3_features

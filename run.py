@@ -45,6 +45,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
         '/w',
         '--env-file',
         f'{base / ".env"}',
+        '-e',
+        f'NUMERAI_MODEL={arguments.model}',
         '--entrypoint',
         '/app/venv/bin/python',
     ]
