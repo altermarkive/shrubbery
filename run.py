@@ -17,11 +17,6 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         default=False,
     )
-    parser.add_argument(
-        '--headless',
-        action=argparse.BooleanOptionalAction,
-        default=False,
-    )
     parser.add_argument('command', nargs=argparse.REMAINDER)
     arguments = parser.parse_args()
     run_docker(arguments)
@@ -33,7 +28,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         'podman',
         'run',
         '--rm',
-        f'-i{"" if arguments.headless else "t"}',
+        '-it',
         '--device',
         'nvidia.com/gpu=all',
         '--shm-size=16g',
