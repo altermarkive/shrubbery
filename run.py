@@ -9,11 +9,6 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--debug',
-        action=argparse.BooleanOptionalAction,
-        default=False,
-    )
-    parser.add_argument(
         '--local',
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -46,9 +41,9 @@ def run_docker(arguments: argparse.Namespace) -> None:
         '/w',
         '--env-file',
         f'{base / ".env"}',
+        '--entrypoint',
+        '/app/venv/bin/python',
     ]
-    if not arguments.debug:
-        command.extend(['--entrypoint', '/app/venv/bin/python'])
     if not arguments.local:
         command.extend(
             [
@@ -58,12 +53,10 @@ def run_docker(arguments: argparse.Namespace) -> None:
         )
     else:
         command.extend(['shrubbery'])
-    if not arguments.debug:
-        command.extend(arguments.command[1:])
+    command.extend(arguments.command[1:])
     command = ' '.join(command)
-    if not arguments.debug:
-        Path('workspace/logs').mkdir(parents=True, exist_ok=True)
-        command += ' 2>&1 > workspace/logs/$(date +%Y%m%d%H%M%S).log'
+    Path('workspace/logs').mkdir(parents=True, exist_ok=True)
+    command += ' 2>&1 > workspace/logs/$(date +%Y%m%d%H%M%S).log'
     print(command)
     subprocess.run(command, shell=True, check=True)
 
