@@ -9,6 +9,10 @@ from pathlib import Path
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--model',
+        type=str,
+    )
+    parser.add_argument(
         '--local',
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -53,6 +57,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         )
     else:
         command.extend(['shrubbery'])
+    command.append(f'{arguments.model}.py')
     command.extend(arguments.command[1:])
     command = ' '.join(command)
     Path('workspace/logs').mkdir(parents=True, exist_ok=True)
