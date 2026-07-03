@@ -47,6 +47,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
         f'{base / ".env"}',
         '-e',
         f'NUMERAI_MODEL={arguments.model}',
+        '-e',
+        f'NUMERAI_MODEL_PATH=workspace/models/model_{arguments.model}.pkl.zip',
         '--entrypoint',
         '/app/venv/bin/python',
     ]

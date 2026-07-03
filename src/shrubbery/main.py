@@ -1,5 +1,6 @@
 import argparse
 import gc
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -164,22 +165,17 @@ class NumeraiRunner:
             logger.info('No nans in the features this week!')
         # Load model if present
         model_name = f'model_{self.numerai_model_id}'
-        model, version = (
-            (None, 'latest')
-            if self.retrain
-            else load_model(model_name, self.version)
-        )
+        model_file = Path(os.environ['NUMERAI_MODEL_PATH'])
+        model = None if self.retrain else load_model(model_file)
         if model is None:
             logger.info(f'Training model: {model_name}')
             self.estimator = self.estimator.fit(
                 training_data[[COLUMN_ERA] + feature_cols].to_numpy(),
                 training_data[targets].to_numpy(),
             )
-            version = store_model(self.estimator, model_name)
+            store_model(self.estimator, model_file)
         else:
             self.estimator = model
-        version = '' if version == 'latest' else version.replace('v', '')
-        model_name = f'{model_name}{version}'
         gc.collect()
 
         tournament_data = pd.DataFrame(live_data.index).set_index(COLUMN_ID)
