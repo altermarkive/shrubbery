@@ -3,6 +3,7 @@ import gc
 import os
 import subprocess
 import sys
+import traceback
 from pathlib import Path
 from typing import Any, Callable
 
@@ -185,14 +186,19 @@ class NumeraiRunner:
         gc.collect()
         submit_tournament_predictions(tournament_data, self.numerai_model_id)
 
-        diagnostic_data = pd.DataFrame(validation_data.index).set_index(
-            COLUMN_ID
-        )
-        diagnostic_data['predictions'] = self.estimator.predict(
-            validation_data[[COLUMN_ERA] + feature_cols].to_numpy()
-        )
-        gc.collect()
-        submit_diagnostic_predictions(diagnostic_data, self.numerai_model_id)
+        try:
+            diagnostic_data = pd.DataFrame(validation_data.index).set_index(
+                COLUMN_ID
+            )
+            diagnostic_data['predictions'] = self.estimator.predict(
+                validation_data[[COLUMN_ERA] + feature_cols].to_numpy()
+            )
+            gc.collect()
+            submit_diagnostic_predictions(
+                diagnostic_data, self.numerai_model_id
+            )
+        except MemoryError:
+            traceback.print_exc()
 
         wandb.finish()
 
