@@ -1,5 +1,7 @@
 import argparse
 import gc
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Callable
 
@@ -224,4 +226,11 @@ def main_arguments() -> argparse.Namespace:
         default=1,
         help='Use this argument to downsample eras by given stride',
     )
-    return parser.parse_args()
+    parser.add_argument(
+        '--debug', action='store_true', help='Start bash shell in-situ'
+    )
+    arguments = parser.parse_args()
+    if arguments.debug:
+        subprocess.run('/bin/bash')
+        sys.exit()
+    return arguments
