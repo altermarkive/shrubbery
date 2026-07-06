@@ -1,6 +1,5 @@
 import time
 from typing import Any
-from warnings import deprecated
 
 import numpy as np
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, RegressorMixin
@@ -10,7 +9,7 @@ from sklearn.utils import shuffle
 from shrubbery.observability import logger
 
 
-@deprecated('Did not observe it to have significant edge over non-wrapped')
+# TODO: Phase out - did not observe it to have significant edge
 class Pairwise(BaseEstimator, MetaEstimatorMixin, RegressorMixin):
     def __init__(
         self,
