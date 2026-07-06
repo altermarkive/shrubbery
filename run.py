@@ -44,8 +44,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
         f'NUMERAI_MODEL={arguments.model}',
         '-e',
         f'NUMERAI_MODEL_PATH=workspace/models/model_{arguments.model}.pkl.zip',
-        '--entrypoint',
-        '/app/venv/bin/python',
+        '-v',
+        f'{os.getcwd()}/{arguments.model}.py:/app/model.py:U',
     ]
     if not arguments.local:
         command.extend(
@@ -56,7 +56,6 @@ def run_docker(arguments: argparse.Namespace) -> None:
         )
     else:
         command.extend(['shrubbery'])
-    command.append(f'{arguments.model}.py')
     command.extend(arguments.command[1:])
     command = ' '.join(command)
     Path('workspace/logs').mkdir(parents=True, exist_ok=True)
