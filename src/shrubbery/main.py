@@ -6,6 +6,7 @@ import sys
 import traceback
 from pathlib import Path
 from typing import Any, Callable
+from warnings import deprecated
 
 import numpy as np
 import pandas as pd
@@ -41,6 +42,7 @@ from shrubbery.validation import (
 from shrubbery.workspace import get_workspace_path
 
 
+@deprecated('Use GridSearchCV with verbose set to 10 instead')
 class WandbGridSearchCV(GridSearchCV):
     def __init__(
         self,
