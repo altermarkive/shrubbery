@@ -80,10 +80,6 @@ To run the code create `.env` script which sets the necessary environment variab
 
 GitHub Actions (`.github/workflows/ci.yaml`): On every push, it runs linting, builds and pushes a Docker container image to GHCR (`ghcr.io/{owner}/shrubbery`), and prunes old images (keeps latest 10).
 
-## Video Introduction
-
-[![shrubbery](http://img.youtube.com/vi/93C9VbA6h1U/0.jpg)](http://www.youtube.com/watch?v=93C9VbA6h1U)
-
 ## Profiling
 
 Instructions in this section are meant for manual use by the user.
