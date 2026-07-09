@@ -1,4 +1,4 @@
-FROM ghcr.io/altermarkive/utilities:latest
+FROM ghcr.io/marek-burza/utilities:latest
 
 ENV UV_NO_CACHE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \

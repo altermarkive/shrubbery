@@ -51,7 +51,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         command.extend(
             [
                 '--pull=always',
-                'ghcr.io/altermarkive/shrubbery:latest',
+                'ghcr.io/marek-burza/shrubbery:latest',
             ]
         )
     else:
