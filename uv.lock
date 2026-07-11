@@ -2443,7 +2443,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.33.1" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scipy", specifier = ">=1.17.1" },
-    { name = "sklearn-genetic-opt", specifier = ">=0.13.1" },
+    { name = "sklearn-genetic-opt", specifier = ">=0.13.2" },
     { name = "torch", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu130" },
     { name = "torch-tensorrt", specifier = ">=2.11.0" },
     { name = "tpot", specifier = ">=1.1.0" },
@@ -2463,7 +2463,7 @@ wheels = [
 
 [[package]]
 name = "sklearn-genetic-opt"
-version = "0.13.1"
+version = "0.13.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deap" },
@@ -2472,9 +2472,9 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/59/fb/dd493fbf155a9a1d98159fbf1cfc9bdae857a9b361f0b1ec491d4154777a/sklearn_genetic_opt-0.13.1.tar.gz", hash = "sha256:7410522d599f5d51a705099061655efcda8abd0ce3714bae1835eedf4b3b6d68", size = 67177, upload-time = "2026-06-26T19:50:35.543Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0c/1a/49d772882b7f52e3bfbcac603eeca29efbd4aa12a70e1d27e4b9fc29e067/sklearn_genetic_opt-0.13.2.tar.gz", hash = "sha256:b175d3d4d4fce2ad22564a3b215bf4ca08bfcccfbc2f73467b7cc4fd7c11c894", size = 69991, upload-time = "2026-06-27T06:34:14.27Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/9e/61591d6786f3f2c43f1b48aa4103c638a61972b90f392b50ae10c16b3de7/sklearn_genetic_opt-0.13.1-py3-none-any.whl", hash = "sha256:bff6f49e2cb8185ad6a43dca8e404d0838a85696b9a2fbc3330701097c630f9e", size = 70305, upload-time = "2026-06-26T19:50:34.236Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/81/c3839f2292ca707a176454eb556a9f774ac1db3dad8739c110c1193a7be6/sklearn_genetic_opt-0.13.2-py3-none-any.whl", hash = "sha256:81682dc6bfe01ecb99c02e1c2aadda08896c5b6dfa33426d0c5ccdc3daa36775", size = 71600, upload-time = "2026-06-27T06:34:12.888Z" },
 ]
 
 [[package]]
