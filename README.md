@@ -6,7 +6,7 @@ Shrubbery is an experimental ML pipeline for generating predictions for Numerai,
 
 This file provides guidance to the user and coding agent when working with code in this repository.
 
-As project priorities shift, this file is meant to be updated to reflect current goals, constraints, and conventions. Outdated instructions are worse than none — keep them accurate.
+As project priorities shift, this file is meant to be updated to reflect current goals, constraints, and conventions. Outdated instructions are worse than none - keep them accurate.
 
 ## Build & Development Commands
 
