@@ -23,7 +23,7 @@ def neutralize(
     y: np.ndarray,
     neutralizers: list[int],
     proportion: float,
-    normalize: bool,
+    normalize: bool = True,
 ) -> np.ndarray:
     if not neutralizers:
         neutralizers = list(range(COLUMN_INDEX_ERA + 1, x.shape[1]))
@@ -34,11 +34,10 @@ def neutralize(
     for era in eras:
         data_era = data[data[:, COLUMN_INDEX_ERA] == era]
         scores = data_era[:, column_index_scores]
-        if normalize:
-            scores = (
-                scipy.stats.rankdata(scores, method='ordinal') - 0.5
-            ) / len(scores)
-            scores = scipy.stats.norm.ppf(scores).reshape(-1, 1)
+        scores = (scipy.stats.rankdata(scores, method='ordinal') - 0.5) / len(
+            scores
+        )
+        scores = scipy.stats.norm.ppf(scores).reshape(-1, 1)
         exposures = data_era[:, neutralizers]
         scores -= proportion * exposures.dot(
             np.linalg.pinv(exposures.astype(np.float32), rcond=1e-6).dot(
@@ -58,7 +57,7 @@ class NumeraiNeutralization(
         estimator: Any,
         neutralization_cap: int | None,
         neutralization_proportion: float,
-        neutralization_normalize: bool,
+        neutralization_normalize: bool = True,
     ) -> None:
         self.estimator = estimator
         self.neutralization_cap = neutralization_cap
@@ -86,7 +85,6 @@ class NumeraiNeutralization(
             predictions,
             self.neutralization_feature_indices_,
             self.neutralization_proportion,
-            self.neutralization_normalize,
         )
         neutralized = np.concatenate(
             [
