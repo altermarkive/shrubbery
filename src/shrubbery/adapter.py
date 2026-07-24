@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.init as init
-import torch_tensorrt
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
 from sklearn.model_selection import train_test_split
 from torch.amp import autocast
@@ -17,7 +16,6 @@ from tqdm import tqdm
 
 
 class CompilerBackend(str, Enum):
-    TENSORRT = 'tensorrt'
     INDUCTOR = 'inductor'
     JIT = 'jit'
 
@@ -226,20 +224,6 @@ class TorchEstimator(BaseEstimator, TransformerMixin, RegressorMixin):
         self.serialized_model_.seek(0)
         model.eval().to(self.device)
         match self.compiler:
-            case CompilerBackend.TENSORRT:
-                x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
-                model = torch_tensorrt.compile(
-                    model.to(torch.float32),
-                    inputs=[
-                        torch_tensorrt.Input(
-                            min_shape=(1, x.shape[1]),
-                            opt_shape=x.shape,
-                            max_shape=x.shape,
-                            dtype=torch.float32,
-                        )
-                    ],
-                    optimization_level=5,
-                )
             case CompilerBackend.INDUCTOR:
                 x_tensor = torch.tensor(x, dtype=torch.float32).to(self.device)
                 model = torch.compile(

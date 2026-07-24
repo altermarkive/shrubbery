@@ -34,7 +34,6 @@ dependencies = [
     "scipy>=1.17.1",
     "sklearn-genetic-opt>=0.13.3",
     "torch>=2.8.0",
-    "torch-tensorrt>=2.11.0",
     "tpot>=1.1.0",
     "tqdm>=4.68.4",
     "wandb>=0.27.1",
@@ -56,15 +55,15 @@ index-strategy = "unsafe-best-match"
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu130" },
+    { index = "pytorch-cu132" },
 ]
 
 [[tool.uv.index]]
 url = "https://pypi.nvidia.com/"
 
 [[tool.uv.index]]
-name = "pytorch-cu130"
-url = "https://download.pytorch.org/whl/cu130"
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
 explicit = true
 
 [tool.ruff]
