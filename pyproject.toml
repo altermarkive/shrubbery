@@ -30,7 +30,6 @@ dependencies = [
     "scipy>=1.17.1",
     "sklearn-genetic-opt>=0.13.3",
     "torch>=2.8.0",
-    "tpot>=1.1.0",
     "tqdm>=4.68.4",
     "wandb>=0.27.1",
     "xgboost>=3.2.0",

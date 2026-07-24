@@ -1,6 +1,7 @@
 import sys
 from datetime import datetime
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 
 import numpy as np
@@ -8,10 +9,8 @@ import pandas as pd
 
 from shrubbery.constants import COLUMN_ERA
 from shrubbery.observability import logger
-from shrubbery.workspace import get_workspace_path
 
 MODEL_SUBDIRECTORY = 'models'
-PREDICTIONS_SUBDIRECTORY = 'predictions'
 
 
 def save_prediction(df: pd.DataFrame, name: str) -> Path:
@@ -21,12 +20,10 @@ def save_prediction(df: pd.DataFrame, name: str) -> Path:
     old = df.columns.to_list()[0]
     predictions = df.rank(pct=True).rename(columns={old: 'prediction'})
     predictions = predictions['prediction']
-    try:
-        predictions_subdirectory = get_workspace_path(PREDICTIONS_SUBDIRECTORY)
-    except Exception:
-        logger.exception('Failed to locate workspace')
-        pass
-    prediction_path = predictions_subdirectory / f'{name}.csv'
+    with NamedTemporaryFile(
+        prefix=f'{name}_', suffix='.csv', delete=False
+    ) as prediction_file:
+        prediction_path = Path(prediction_file.name)
     predictions.to_csv(prediction_path, index=True)
     return prediction_path
 
