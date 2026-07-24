@@ -1177,19 +1177,6 @@ wheels = [
 ]
 
 [[package]]
-name = "myfm"
-version = "0.3.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "scipy" },
-    { name = "tqdm" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/b5/e374da6d84480bbbfc38736d19ad53fc6d7e040d1b13fa59788de1004eba/myfm-0.3.2.0.tar.gz", hash = "sha256:0dd63e006eca453320c11cb44ef8d228b69dd3ff2e62f5df5a97d8b3d097c528", size = 401600, upload-time = "2022-05-03T00:32:18.478Z" }
-
-[[package]]
 name = "narwhals"
 version = "2.24.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2438,7 +2425,6 @@ dependencies = [
     { name = "cuml-cu13" },
     { name = "lightgbm" },
     { name = "matplotlib" },
-    { name = "myfm" },
     { name = "numerai-tools" },
     { name = "numerapi" },
     { name = "numexpr" },
@@ -2471,7 +2457,6 @@ requires-dist = [
     { name = "cuml-cu13", specifier = ">=25.10.0" },
     { name = "lightgbm", specifier = ">=4.6.0" },
     { name = "matplotlib", specifier = ">=3.10.9" },
-    { name = "myfm", specifier = "==0.3.2.0" },
     { name = "numerai-tools", specifier = ">=0.5.3" },
     { name = "numerapi", specifier = ">=2.23.3" },
     { name = "numexpr", specifier = ">=2.14.1" },

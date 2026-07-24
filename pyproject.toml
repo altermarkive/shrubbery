@@ -17,10 +17,6 @@ dependencies = [
     "cuml-cu13>=25.10.0",
     "lightgbm>=4.6.0",
     "matplotlib>=3.10.9",
-    # File "/usr/local/lib/python3.13/dist-packages/myfm/__init__.py", line 8, in <module>
-    #     from ._myfm import RelationBlock
-    # ModuleNotFoundError: No module named 'myfm._myfm'
-    "myfm==0.3.2.0",
     "numerai-tools>=0.5.3",
     "numerapi>=2.23.3",
     "numexpr>=2.14.1",
