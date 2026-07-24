@@ -139,13 +139,12 @@ class WideAndDeepRegressor(TorchEstimator):
         learning_rate: float,
         device: str,
         compiler: CompilerBackend = CompilerBackend.JIT,
-        # Caution: setting autocast=True trains in bfloat16, and pairing it
-        # with compiler=CompilerBackend.TENSORRT also runs inference in
-        # bfloat16. bfloat16 keeps only ~2-3 significant decimal digits, so
+        # Caution: setting autocast=True trains in bfloat16.
+        # bfloat16 keeps only ~2-3 significant decimal digits, so
         # the predictions get quantized to a coarse grid. Numerai scores rank
         # predictions per era, so the lost resolution collapses distinct
         # values into ties and flattens the rank correlation; it also skews
-        # raw-value ensembling. Keep both off (autocast=False, compiler=JIT)
+        # raw-value ensembling. Keep off (autocast=False)
         # unless the speedup is worth measurably weaker predictions.
         autocast: bool = False,
         learning_schedule: LearningSchedule | None = None,

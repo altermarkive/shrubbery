@@ -72,14 +72,13 @@ class AutoencoderEmbedder(TorchEstimator):
         batch_norm_eps: float,
         device: str,
         compiler: CompilerBackend = CompilerBackend.JIT,
-        # Caution: setting autocast=True trains in bfloat16, and pairing it
-        # with compiler=CompilerBackend.TENSORRT also runs inference in
-        # bfloat16. bfloat16 keeps only ~2-3 significant decimal digits, so
+        # Caution: setting autocast=True trains in bfloat16
+        # bfloat16 keeps only ~2-3 significant decimal digits, so
         # the autoencoder embeddings get quantized to a coarse grid. Those
         # embeddings feed downstream tree models, and the lost resolution
         # collapses distinct feature values into ties, shrinking the number
-        # of usable splits and degrading their predictions. Keep both off
-        # (autocast=False, compiler=JIT) unless the speedup is worth
+        # of usable splits and degrading their predictions. Keep off
+        # (autocast=False) unless the speedup is worth
         # measurably weaker embeddings.
         autocast: bool = False,
         learning_schedule: LearningSchedule | None = None,
