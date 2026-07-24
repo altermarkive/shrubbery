@@ -33,9 +33,8 @@ def run_docker(arguments: argparse.Namespace) -> None:
         'nvidia.com/gpu=all',
         '--shm-size=16g',
         '--userns=keep-id',
-        f'--user {os.getgid()}:{os.getuid()}',
         '-v',
-        f'{os.getcwd()}:/w:U',
+        f'{os.getcwd()}:/w',
         '-w',
         '/w',
         '--env-file',
@@ -45,7 +44,7 @@ def run_docker(arguments: argparse.Namespace) -> None:
         '-e',
         f'NUMERAI_MODEL_PATH=workspace/models/model_{arguments.model}.pkl.zip',
         '-v',
-        f'{os.getcwd()}/{arguments.model}.py:/app/model.py:U',
+        f'{os.getcwd()}/{arguments.model}.py:/app/model.py',
     ]
     if not arguments.local:
         command.extend(
